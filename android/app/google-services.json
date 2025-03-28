@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "20329146139",
+    "project_id": "memorygame-cfbbb",
+    "storage_bucket": "memorygame-cfbbb.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:20329146139:android:7943faa521ba43269015be",
+        "android_client_info": {
+          "package_name": "com.example.mem_game"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAQxI6JaWjy6ZZKJW-TQZbGYFTqZDprnDA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

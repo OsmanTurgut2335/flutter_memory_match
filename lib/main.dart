@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:mem_game/data/user/model/user_model.dart';
 import 'package:mem_game/view/home_screen.dart';
-import 'package:mem_game/view/username_input_screen.dart';
+import 'package:mem_game/view/create_username_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
