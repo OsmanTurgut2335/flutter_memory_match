@@ -39,8 +39,14 @@ class UserModel extends HiveObject {
   @HiveField(5)
   final int moves;
 
-
-  UserModel copyWith({String? username, int? score, int? health, int? bestTime, int? currentTime, int? moves}) {
+  UserModel copyWith({
+    String? username,
+    int? score,
+    int? health,
+    int? bestTime,
+    int? currentTime,
+    int? moves,
+  }) {
     return UserModel(
       username: username ?? this.username,
       score: score ?? this.score,
