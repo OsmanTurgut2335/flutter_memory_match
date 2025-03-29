@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mem_game/data/gamestate/model/game_state_model.dart';
 import 'package:mem_game/data/gamestate/repository/game_repository.dart';
 import 'package:mem_game/data/memorycard/model/memory_card.dart';
+import 'package:mem_game/features/memory_card/widgets/memory_card_widget.dart';
+
 
 class GameScreen extends ConsumerStatefulWidget {
   const GameScreen({required this.resumeGame, super.key});
@@ -82,55 +84,44 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Memory Game')),
-      body:
-          _loading
-              ? const Center(child: CircularProgressIndicator())
-              : Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  children: [
-                    // Display game metrics.
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Text('Moves: ${_gameState.moves}'),
-                        Text('Score: ${_gameState.score}'),
-                        Text('Time: ${_gameState.currentTime}'),
-                        Text('Health: ${_gameState.health}'),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    // Display a grid of memory cards.
-                    Expanded(
-                      child: GridView.builder(
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 4, // Adjust as needed.
-                            ),
-                        itemCount: _gameState.cards.length,
-                        itemBuilder: (context, index) {
-                          final card = _gameState.cards[index];
-                          return GestureDetector(
-                            onTap: () => _onCardTap(index),
-                            child: Card(
-                              color:
-                                  card.isFaceUp
-                                      ? Colors.white
-                                      : Colors.blueAccent,
-                              child: Center(
-                                child: Text(
-                                  card.isFaceUp ? card.content : '',
-                                  style: const TextStyle(fontSize: 24),
-                                ),
-                              ),
-                            ),
-                          );
-                        },
+      body: _loading
+          ? const Center(child: CircularProgressIndicator())
+          : Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  // Display game metrics.
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Text('Moves: ${_gameState.moves}'),
+                      Text('Score: ${_gameState.score}'),
+                      Text('Time: ${_gameState.currentTime}'),
+                      Text('Health: ${_gameState.health}'),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  // Display a grid of memory cards using our custom MemoryCardWidget.
+                  Expanded(
+                    child: GridView.builder(
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 4, // Adjust as needed.
+                        childAspectRatio: 1.0,
                       ),
+                      itemCount: _gameState.cards.length,
+                      itemBuilder: (context, index) {
+                        final card = _gameState.cards[index];
+                        return MemoryCardWidget(
+                          card: card,
+                          onTap: () => _onCardTap(index),
+                        );
+                      },
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
+            ),
     );
   }
 }

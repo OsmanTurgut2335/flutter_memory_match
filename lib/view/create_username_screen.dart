@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mem_game/core/providers/user_provider';
+import 'package:mem_game/core/providers/user_provider.dart';
+
 
 import 'package:mem_game/view/home_screen.dart';
 

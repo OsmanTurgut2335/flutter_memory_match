@@ -1,7 +1,8 @@
 // lib/view/home_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mem_game/core/providers/user_provider';
+import 'package:mem_game/core/providers/user_provider.dart';
+
 import 'package:mem_game/data/gamestate/repository/game_repository.dart';
 import 'package:mem_game/view/game_screen.dart';
 
