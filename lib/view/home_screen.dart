@@ -18,7 +18,7 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // Get the current user from the user provider.
-    final user = ref.watch(userNotifierProvider);
+    final user = ref.watch(userViewModelProvider);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Memory Game Home')),

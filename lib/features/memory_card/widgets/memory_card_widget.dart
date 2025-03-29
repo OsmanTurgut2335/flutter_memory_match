@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:mem_game/data/memorycard/model/memory_card.dart';
-import 'memory_card_factory.dart'; // Import the factory file
+import 'package:mem_game/features/memory_card/widgets/memory_card_factory.dart';
 
 class MemoryCardWidget extends StatelessWidget {
-  final MemoryCard card;
-  final VoidCallback onTap;
 
   const MemoryCardWidget({
-    Key? key,
-    required this.card,
-    required this.onTap,
-  }) : super(key: key);
+    required this.card, required this.onTap, super.key,
+  });
+  final MemoryCard card;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +17,7 @@ class MemoryCardWidget extends StatelessWidget {
       child: AnimatedSwitcher(
         duration: const Duration(milliseconds: 400),
         transitionBuilder: (child, animation) {
-          final rotate = Tween(begin: 0.0, end: 1.0).animate(animation);
+          final rotate = Tween(begin: 0.0, end: 1).animate(animation);
           return AnimatedBuilder(
             animation: rotate,
             child: child,

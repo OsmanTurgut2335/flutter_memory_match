@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mem_game/data/user/model/user_model.dart';
 import 'package:mem_game/data/user/repository/user_repository.dart';
 
-class UserNotifier extends StateNotifier<UserModel?> {
-  UserNotifier(this._repository) : super(null) {
+class UserViewModel extends StateNotifier<UserModel?> {
+  UserViewModel(this._repository) : super(null) {
     // Load user on initialization.
     loadUser();
   }

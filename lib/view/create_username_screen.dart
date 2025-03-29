@@ -69,7 +69,7 @@ class SaveUserButton extends StatelessWidget {
         if (_formKey.currentState!.validate()) {
           _formKey.currentState!.save();
 
-          ref.read(userNotifierProvider.notifier).createUser(_username).then((
+          ref.read(userViewModelProvider.notifier).createUser(_username).then((
             _,
           ) {
             Navigator.of(context).pushReplacement(
