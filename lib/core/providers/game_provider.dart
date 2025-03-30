@@ -7,3 +7,10 @@ final gameNotifierProvider =
     StateNotifierProvider<GameNotifier, GameState?>((ref) {
   return GameNotifier(GameRepository());
 });
+
+final ongoingGameProvider = FutureProvider<bool>((ref) async {
+  final repo = GameRepository();
+  final hasGame = await repo.hasOngoingGame();
+
+  return hasGame;
+});

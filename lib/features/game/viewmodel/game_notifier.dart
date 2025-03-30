@@ -10,14 +10,9 @@ class GameNotifier extends StateNotifier<GameState?> {
   int? _firstSelectedIndex;
   bool _busy = false;
 
-  GameNotifier(this._repository) : super(null) {
-    // Initialize game state (for example, start with a new game by default)
-    initializeGame(false);
-  }
-
-  /// Initializes the game state.
-  /// If [resumeGame] is true, attempts to load a saved state from Hive;
-  /// otherwise, creates a new game.
+   GameNotifier(this._repository) : super(null);
+  
+  /// Public method to initialize the game.
   Future<void> initializeGame(bool resumeGame) async {
     if (resumeGame) {
       final savedState = await _repository.loadGameState();
@@ -32,18 +27,23 @@ class GameNotifier extends StateNotifier<GameState?> {
     _startTimer();
   }
 
-  /// Creates a new game state with default values.
   GameState _createNewGameState() {
     return GameState(
       cards: _generateDummyCards(),
-      moves: 0,
-      score: 0,
-      currentTime: 0,
-      health: 3,
+    
     );
   }
+  // To pause the game:
+void pauseGame() {
+  _timer?.cancel();
+}
 
-  /// Generates a list of dummy memory cards.
+// To resume the game:
+void resumeGame() {
+  _startTimer(); 
+}
+
+
   List<MemoryCard> _generateDummyCards() {
     return [
       MemoryCard(id: 0, content: 'A'),
@@ -57,7 +57,6 @@ class GameNotifier extends StateNotifier<GameState?> {
     ];
   }
 
-  /// Starts a periodic timer to update the current time.
   void _startTimer() {
     _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
@@ -67,17 +66,16 @@ class GameNotifier extends StateNotifier<GameState?> {
       }
     });
   }
+Future<void> saveCurrentState() async {
+  if (state != null) {
+    await _repository.saveGameState(state!);
+  }
+}
 
-  /// Handles a tap on a card.
-  /// - If no card is currently selected, flip the tapped card.
-  /// - If one card is already flipped, flip the new card, compare both:
-  ///   - If they match, mark them as matched and update the score.
-  ///   - If they don't match, flip them back after a delay and decrease health.
   Future<void> onCardTap(int index) async {
     if (_busy || state == null) return;
     if (state!.cards[index].isMatched || state!.cards[index].isFaceUp) return;
 
-    // Flip the tapped card.
     final updatedCards = List<MemoryCard>.from(state!.cards);
     updatedCards[index].isFaceUp = true;
     state = state!.copyWith(cards: updatedCards);
@@ -85,18 +83,15 @@ class GameNotifier extends StateNotifier<GameState?> {
     if (_firstSelectedIndex == null) {
       _firstSelectedIndex = index;
     } else {
-      // Second card selected: increment moves.
       state = state!.copyWith(moves: state!.moves + 1);
       int firstIndex = _firstSelectedIndex!;
       _firstSelectedIndex = null;
 
       if (state!.cards[firstIndex].content == state!.cards[index].content) {
-        // Cards match: mark them as matched and update score.
         updatedCards[firstIndex].isMatched = true;
         updatedCards[index].isMatched = true;
         state = state!.copyWith(cards: updatedCards, score: state!.score + 10);
       } else {
-        // Cards do not match: wait, then flip back and decrease health.
         _busy = true;
         await Future.delayed(const Duration(seconds: 1));
         updatedCards[firstIndex].isFaceUp = false;
@@ -105,20 +100,25 @@ class GameNotifier extends StateNotifier<GameState?> {
         _busy = false;
       }
       await _repository.saveGameState(state!);
-      // Check for game over.
       if (state!.health <= 0) {
         _timer?.cancel();
-        // You might set a game over flag or notify the UI here.
+        // Call game over handling here (if needed).
       }
     }
   }
 
-  /// Restarts the game.
   Future<void> restartGame() async {
     _timer?.cancel();
     state = _createNewGameState();
     await _repository.saveGameState(state!);
     _startTimer();
+  }
+
+  /// Exits the game: cancels the timer, deletes the game state, and resets the state.
+  Future<void> exitGame() async {
+    _timer?.cancel();
+    await _repository.deleteGameState();
+    state = null;
   }
 
   @override

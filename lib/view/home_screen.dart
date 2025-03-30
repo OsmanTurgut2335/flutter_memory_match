@@ -1,6 +1,7 @@
 // lib/view/home_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mem_game/core/providers/game_provider.dart';
 import 'package:mem_game/core/providers/user_provider.dart';
 
 import 'package:mem_game/data/gamestate/repository/game_repository.dart';
@@ -19,7 +20,7 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // Get the current user from the user provider.
     final user = ref.watch(userViewModelProvider);
-
+final gameNotifier = ref.read(gameNotifierProvider.notifier);
     return Scaffold(
       appBar: AppBar(title: const Text('Memory Game Home')),
       body: Center(
@@ -39,28 +40,28 @@ class HomeScreen extends ConsumerWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         ElevatedButton(
-                          onPressed: () {
-                            // Start a new game.
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder:
-                                    (_) => const GameScreen(resumeGame: false),
-                              ),
-                            );
+                          onPressed: () async {
+                            // Clear any existing game state
+                             await ref.read(gameNotifierProvider.notifier).exitGame();
+                            // Now, create a new game state.
+                            await ref.read(gameNotifierProvider.notifier).restartGame();
+                            // Navigate to GameScreen with resumeGame: false.
+                            await Navigator.of(
+                              context,
+                            ).pushReplacement(MaterialPageRoute(builder: (_) => const GameScreen(resumeGame: false)));
                           },
                           child: const Text('New Game'),
                         ),
+
                         const SizedBox(height: 16),
                         if (hasOngoingGame)
                           ElevatedButton(
                             onPressed: () {
+                            //  gameNotifier.resumeGame();
                               // Continue the saved game.
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder:
-                                      (_) => const GameScreen(resumeGame: true),
-                                ),
-                              );
+                              Navigator.of(
+                                context,
+                              ).pushReplacement(MaterialPageRoute(builder: (_) => const GameScreen(resumeGame: true)));
                             },
                             child: const Text('Continue Game'),
                           ),
