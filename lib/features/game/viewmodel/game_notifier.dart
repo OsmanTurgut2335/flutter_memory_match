@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:mem_game/data/gamestate/model/game_state_model.dart';
-import 'package:mem_game/data/gamestate/repository/game_repository.dart';
+import 'package:mem_game/data/game/model/game_state_model.dart';
+import 'package:mem_game/data/game/repository/game_repository.dart';
 import 'package:mem_game/data/memorycard/model/memory_card.dart';
 
 class GameNotifier extends StateNotifier<GameState?> {
@@ -14,6 +14,8 @@ class GameNotifier extends StateNotifier<GameState?> {
   int? _firstSelectedIndex;
   bool _busy = false;
   bool _isPaused = false;
+
+  GameState? get gameState => state;
 
   Future<void> clearBestTime() async {
     await _repository.clearBestTime();
@@ -64,8 +66,6 @@ class GameNotifier extends StateNotifier<GameState?> {
     state = state?.copyWith(isPaused: true);
   }
 
-
-
   /// Handles resuming the game
   void resumeGame() {
     _isPaused = false;
@@ -88,53 +88,66 @@ class GameNotifier extends StateNotifier<GameState?> {
       await _repository.saveGameState(state!);
     }
   }
-Future<void> onCardTap(int index) async {
-  if (_busy || state == null || _isPaused) return;
-  if (state!.cards[index].isMatched || state!.cards[index].isFaceUp) return;
 
-  final updatedCards = List<MemoryCard>.from(state!.cards);
-  updatedCards[index].isFaceUp = true;
-  state = state!.copyWith(cards: updatedCards);
+  Future<void> onCardTap(int index) async {
+    if (_busy || state == null || _isPaused) return;
+    if (state!.cards[index].isMatched || state!.cards[index].isFaceUp) return;
 
-  if (_firstSelectedIndex == null) {
-    _firstSelectedIndex = index;
-  } else {
-    state = state!.copyWith(moves: state!.moves + 1);
-    final firstIndex = _firstSelectedIndex!;
-    _firstSelectedIndex = null;
+    final updatedCards = List<MemoryCard>.from(state!.cards);
+    updatedCards[index].isFaceUp = true;
+    state = state!.copyWith(cards: updatedCards);
 
-    if (state!.cards[firstIndex].content == state!.cards[index].content) {
-      updatedCards[firstIndex].isMatched = true;
-      updatedCards[index].isMatched = true;
-      state = state!.copyWith(cards: updatedCards, score: state!.score + 10);
+    if (_firstSelectedIndex == null) {
+      _firstSelectedIndex = index;
     } else {
-      _busy = true;
-      await Future.delayed(const Duration(seconds: 1));
-      updatedCards[firstIndex].isFaceUp = false;
-      updatedCards[index].isFaceUp = false;
-      state = state!.copyWith(cards: updatedCards, health: state!.health - 1);
-      _busy = false;
+      state = state!.copyWith(moves: state!.moves + 1);
+      final firstIndex = _firstSelectedIndex!;
+      _firstSelectedIndex = null;
+
+      if (state!.cards[firstIndex].content == state!.cards[index].content) {
+        updatedCards[firstIndex].isMatched = true;
+        updatedCards[index].isMatched = true;
+        state = state!.copyWith(cards: updatedCards, score: state!.score + 10);
+      } else {
+        _busy = true;
+        await Future.delayed(const Duration(seconds: 1));
+        updatedCards[firstIndex].isFaceUp = false;
+        updatedCards[index].isFaceUp = false;
+        state = state!.copyWith(cards: updatedCards, health: state!.health - 1);
+        _busy = false;
+      }
+
+      await _repository.saveGameState(state!);
+
+      if (state!.health <= 0) {
+        handleLose();
+
+        return;
+      }
     }
 
-    await _repository.saveGameState(state!);
+    //  Check for win condition
+    if (checkWinCondition()) {
+      handleWin();
+    }
   }
 
-  //  Check for win condition
-  if (checkWinCondition()) {
-    _handleWin();
+  void handleWin() {
+    _timer?.cancel(); // Stop the timer when the game is won
+
+    // Call updateBestTimeIfNeeded to update the user's best time
+    updateBestTimeIfNeeded();
+
+    // Notify UI by copying the state (if needed)
+    state = state!.copyWith();
   }
-}
 
+  void handleLose() {
+    _timer?.cancel(); // Stop the timer when the game is won
 
-void _handleWin() {
-  _timer?.cancel(); // Stop the timer when the game is won
-
-  // Call updateBestTimeIfNeeded to update the user's best time
-  updateBestTimeIfNeeded();
-
-  // Notify UI by copying the state (if needed)
-  state = state!.copyWith(); 
-}
+    // Notify UI by copying the state (if needed)
+    state = state!.copyWith();
+  }
 
   /// **Checks if all cards are matched**
   bool checkWinCondition() {

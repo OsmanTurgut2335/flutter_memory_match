@@ -68,12 +68,12 @@ class _GameScreenState extends ConsumerState<GameScreen> with WidgetsBindingObse
   }
 
   void _handleGameOver(GameNotifier gameNotifier) {
-    // gameNotifier.updateBestTimeIfNeeded();
+
     showGameDialog(context: context, title: 'Game Over', gameNotifier: gameNotifier);
   }
 
   void _handleWin(GameNotifier gameNotifier) {
-    gameNotifier.updateBestTimeIfNeeded();
+
     showGameDialog(context: context, title: 'You Win! 🎉', gameNotifier: gameNotifier);
   }
 
@@ -86,11 +86,12 @@ class _GameScreenState extends ConsumerState<GameScreen> with WidgetsBindingObse
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
- if (gameState.health <= 0) {
-  _handleGameOver(gameNotifier);
-} else if (gameNotifier.checkWinCondition()) { // ✅ Check if game is won
-  _handleWin(gameNotifier);
-}
+    if (gameState.health <= 0) {
+      _handleGameOver(gameNotifier);
+    } else if (gameNotifier.checkWinCondition()) {
+      // ✅ Check if game is won
+      _handleWin(gameNotifier);
+    }
 
     return Scaffold(
       appBar: AppBar(

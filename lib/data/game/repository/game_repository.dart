@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:hive/hive.dart';
-import 'package:mem_game/data/gamestate/model/game_state_model.dart';
+import 'package:mem_game/data/game/model/game_state_model.dart';
 import 'package:mem_game/data/user/model/user_model.dart';
 
 class GameRepository {
@@ -52,10 +52,23 @@ class GameRepository {
 
   /// Updates the best time in Firestore.
   Future<void> _updateBestTimeInFirestore(String username, int bestTime) async {
-    final userRef = _firestore.collection('leaderboard').doc(username);
-    await userRef.set({'bestTime': bestTime, 'username': username}, SetOptions(merge: true));
+    try {
+      final userRef = _firestore.collection('leaderboard').doc(username);
+      // Using set with merge:true creates or updates the document.
+      await userRef.set(
+        {
+          'bestTime': bestTime,
+          'username': username,
+        },
+        SetOptions(merge: true),
+      );
+      // ignore: avoid_print
+      print('Firestore updated successfully for user: $username');
+    } catch (e) {
+      // Log the error for debugging
+      print('Error updating best time in Firestore for $username: $e');
+    }
   }
-
   Future<void> clearBestTime() async {
     final userBox = Hive.box<UserModel>(userBoxName);
     final currentUser = userBox.get(currentUserKey);

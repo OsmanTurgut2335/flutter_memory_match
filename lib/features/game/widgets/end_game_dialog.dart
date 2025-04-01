@@ -14,25 +14,23 @@ void showGameDialog({
       builder: (context) => AlertDialog(
         title: Text(title),
         content: Text(
-          'Your time: ${gameNotifier.state?.currentTime ?? 0} seconds\n'
-          'Score: ${gameNotifier.state?.score ?? 0}',
+          'Your time: ${gameNotifier.gameState?.currentTime ?? 0} seconds\n'
+          'Score: ${gameNotifier.gameState?.score ?? 0}',
         ),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
               gameNotifier.restartGame();
-           
             },
             child: const Text('Play Again'),
           ),
           TextButton(
             onPressed: () async {
               Navigator.of(context).pop();
-            
               await gameNotifier.exitGame();
               await Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (_) => const HomeScreen()),
+                MaterialPageRoute<void>(builder: (_) => const HomeScreen()),
               );
             },
             child: const Text('Home'),
@@ -42,4 +40,3 @@ void showGameDialog({
     );
   });
 }
-

@@ -2,9 +2,10 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/adapters.dart';
-import 'package:mem_game/data/gamestate/model/game_state_model.dart';
+import 'package:mem_game/data/game/model/game_state_model.dart';
 import 'package:mem_game/data/memorycard/model/memory_card.dart';
 import 'package:mem_game/data/user/model/user_model.dart';
+import 'package:mem_game/firebase_options.dart'; // Make sure this file exists
 import 'package:mem_game/view/create_username_screen.dart';
 import 'package:mem_game/view/home_screen.dart';
 
@@ -19,7 +20,9 @@ void main() async {
   await Hive.openBox<UserModel>('userBox');
   await Hive.openBox<GameState>('gameBox');
    
-   await Firebase.initializeApp();
+     await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
   runApp(const ProviderScope(child: MyApp()));
 }

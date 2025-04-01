@@ -15,7 +15,13 @@ class UsernameInputScreen extends ConsumerStatefulWidget {
 
 class _UsernameInputScreenState extends ConsumerState<UsernameInputScreen> {
   final _formKey = GlobalKey<FormState>();
-  String _username = '';
+  final _usernameController = TextEditingController();
+
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,57 +33,35 @@ class _UsernameInputScreenState extends ConsumerState<UsernameInputScreen> {
           key: _formKey,
           child: Column(
             children: [
-              usernameTextField(),
+              TextFormField(
+                controller: _usernameController,
+                decoration: const InputDecoration(labelText: 'Username'),
+                validator: (value) =>
+                    value == null || value.isEmpty ? 'Please enter a username' : null,
+              ),
               const SizedBox(height: 16),
-              SaveUserButton(formKey: _formKey, ref: ref, username: _username),
+              ElevatedButton(
+                child: const Text('Save'),
+                onPressed: () {
+                  if (_formKey.currentState!.validate()) {
+                    // Use the controller's text
+                    final username = _usernameController.text.trim();
+                    ref.read(userViewModelProvider.notifier).createUser(username).then(
+                      (_) {
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(builder: (_) => const HomeScreen()),
+                        );
+                      },
+                    );
+                  }
+                },
+              ),
             ],
           ),
         ),
       ),
     );
   }
-
-  TextFormField usernameTextField() {
-    return TextFormField(
-      decoration: const InputDecoration(labelText: 'Username'),
-      validator:
-          (value) =>
-              value == null || value.isEmpty ? 'Please enter a username' : null,
-      onSaved: (value) => _username = value!,
-    );
-  }
 }
 
-class SaveUserButton extends StatelessWidget {
-  const SaveUserButton({
-    required GlobalKey<FormState> formKey,
-    required this.ref,
-    required String username,
-    super.key,
-  }) : _formKey = formKey,
-       _username = username;
 
-  final GlobalKey<FormState> _formKey;
-  final WidgetRef ref;
-  final String _username;
-
-  @override
-  Widget build(BuildContext context) {
-    return ElevatedButton(
-      child: const Text('Save'),
-      onPressed: () {
-        if (_formKey.currentState!.validate()) {
-          _formKey.currentState!.save();
-
-          ref.read(userViewModelProvider.notifier).createUser(_username).then((
-            _,
-          ) {
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (_) => const HomeScreen()),
-            );
-          });
-        }
-      },
-    );
-  }
-}
