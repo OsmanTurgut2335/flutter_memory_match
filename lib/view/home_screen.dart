@@ -5,6 +5,9 @@ import 'package:mem_game/core/providers/game_provider.dart';
 import 'package:mem_game/core/providers/user_provider.dart';
 
 import 'package:mem_game/data/gamestate/repository/game_repository.dart';
+
+import 'package:mem_game/features/user/widgets/user_options_menu.dart';
+
 import 'package:mem_game/view/game_screen.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -20,9 +23,10 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // Get the current user from the user provider.
     final user = ref.watch(userViewModelProvider);
-final gameNotifier = ref.read(gameNotifierProvider.notifier);
+    final notifier = ref.read(userViewModelProvider.notifier);
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Memory Game Home')),
+      appBar: AppBar(title: const Text('Memory Game Home'), actions: [UserPopUpMenu(notifier: notifier)]),
       body: Center(
         child:
             user == null
@@ -42,7 +46,7 @@ final gameNotifier = ref.read(gameNotifierProvider.notifier);
                         ElevatedButton(
                           onPressed: () async {
                             // Clear any existing game state
-                             await ref.read(gameNotifierProvider.notifier).exitGame();
+                            await ref.read(gameNotifierProvider.notifier).exitGame();
                             // Now, create a new game state.
                             await ref.read(gameNotifierProvider.notifier).restartGame();
                             // Navigate to GameScreen with resumeGame: false.
@@ -57,7 +61,7 @@ final gameNotifier = ref.read(gameNotifierProvider.notifier);
                         if (hasOngoingGame)
                           ElevatedButton(
                             onPressed: () {
-                            //  gameNotifier.resumeGame();
+                              //  gameNotifier.resumeGame();
                               // Continue the saved game.
                               Navigator.of(
                                 context,

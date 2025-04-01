@@ -29,9 +29,18 @@ class UserViewModel extends StateNotifier<UserModel?> {
     state = user;
   }
 
+Future<void> changeUsername(String newUsername) async {
+  final updatedUser = await _repository.changeUsername(newUsername);
+  if (updatedUser != null) {
+    state = updatedUser;
+  }
+}
+
   /// Deletes the user data.
   Future<void> deleteUser() async {
     await _repository.deleteUser();
     state = null;
   }
+
+  
 }

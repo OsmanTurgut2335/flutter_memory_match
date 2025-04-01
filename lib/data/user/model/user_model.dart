@@ -29,7 +29,7 @@ class UserModel extends HiveObject {
 
   // The best finish time in seconds (lower is better)
   @HiveField(3)
-  final int bestTime;
+   int bestTime;
 
   // The current time (elapsed or remaining) in the game session.
   @HiveField(4)

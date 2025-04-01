@@ -11,34 +11,35 @@ class GameState extends HiveObject {
     this.score = 0,
     this.currentTime = 0,
     this.health = 3,
+    this.isPaused = false, // New field added
   });
-  // The list of memory cards in the current game. Each card stores its state (face-up, matched, etc.)
+
   @HiveField(0)
   final List<MemoryCard> cards;
 
-  // The number of moves made by the player so far
   @HiveField(1)
   final int moves;
 
-  // The current game score
   @HiveField(2)
   final int score;
 
-  // The current elapsed (or remaining) time in the game (in seconds)
   @HiveField(3)
   final int currentTime;
 
-  // The player's remaining health (or lives)
   @HiveField(4)
   final int health;
 
-  // copyWith allows you to create a modified copy of the game state while keeping immutability.
+  @HiveField(5) // Added a new Hive field index
+  final bool isPaused;
+
+  /// Creates a modified copy of the game state while keeping immutability.
   GameState copyWith({
     List<MemoryCard>? cards,
     int? moves,
     int? score,
     int? currentTime,
     int? health,
+    bool? isPaused, // Added for pause state management
   }) {
     return GameState(
       cards: cards ?? this.cards,
@@ -46,6 +47,7 @@ class GameState extends HiveObject {
       score: score ?? this.score,
       currentTime: currentTime ?? this.currentTime,
       health: health ?? this.health,
+      isPaused: isPaused ?? this.isPaused,
     );
   }
 }

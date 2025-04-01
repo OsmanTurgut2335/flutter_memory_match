@@ -1,3 +1,4 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/adapters.dart';
@@ -10,17 +11,17 @@ import 'package:mem_game/view/home_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
-  Hive..registerAdapter(UserModelAdapter())
-  ..registerAdapter(MemoryCardAdapter())
-  ..registerAdapter(GameStateAdapter()); 
+  Hive
+    ..registerAdapter(UserModelAdapter())
+    ..registerAdapter(MemoryCardAdapter())
+    ..registerAdapter(GameStateAdapter());
   // Open both boxes:
   await Hive.openBox<UserModel>('userBox');
-
   await Hive.openBox<GameState>('gameBox');
+   
+   await Firebase.initializeApp();
 
-  runApp(
-    const ProviderScope(child: MyApp()),
-  );
+  runApp(const ProviderScope(child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -31,8 +32,6 @@ class MyApp extends StatelessWidget {
     final userBox = Hive.box<UserModel>('userBox');
     final hasUser = userBox.containsKey('currentUser');
 
-    return MaterialApp(
-      home: hasUser ? const HomeScreen() : const UsernameInputScreen(),
-    );
+    return MaterialApp(home: hasUser ? const HomeScreen() : const UsernameInputScreen());
   }
 }

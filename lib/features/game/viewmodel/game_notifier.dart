@@ -1,18 +1,25 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'package:mem_game/data/gamestate/model/game_state_model.dart';
 import 'package:mem_game/data/gamestate/repository/game_repository.dart';
 import 'package:mem_game/data/memorycard/model/memory_card.dart';
 
 class GameNotifier extends StateNotifier<GameState?> {
+  // Track pause state
+
+  GameNotifier(this._repository) : super(null);
   final GameRepository _repository;
   Timer? _timer;
   int? _firstSelectedIndex;
   bool _busy = false;
+  bool _isPaused = false;
 
-   GameNotifier(this._repository) : super(null);
-  
-  /// Public method to initialize the game.
+  Future<void> clearBestTime() async {
+    await _repository.clearBestTime();
+  }
+
+  /// Initializes the game.
   Future<void> initializeGame(bool resumeGame) async {
     if (resumeGame) {
       final savedState = await _repository.loadGameState();
@@ -28,21 +35,14 @@ class GameNotifier extends StateNotifier<GameState?> {
   }
 
   GameState _createNewGameState() {
-    return GameState(
-      cards: _generateDummyCards(),
-    
-    );
+    return GameState(cards: _generateDummyCards());
   }
-  // To pause the game:
-void pauseGame() {
-  _timer?.cancel();
-}
 
-// To resume the game:
-void resumeGame() {
-  _startTimer(); 
-}
-
+  Future<void> updateBestTimeIfNeeded() async {
+    if (state != null) {
+      await _repository.updateBestTimeIfNeeded(state!.currentTime);
+    }
+  }
 
   List<MemoryCard> _generateDummyCards() {
     return [
@@ -57,54 +57,88 @@ void resumeGame() {
     ];
   }
 
+  /// Handles pausing the game
+  void pauseGame() {
+    _isPaused = true;
+    _timer?.cancel();
+    state = state?.copyWith(isPaused: true);
+  }
+
+
+
+  /// Handles resuming the game
+  void resumeGame() {
+    _isPaused = false;
+    _startTimer();
+    state = state?.copyWith(isPaused: false);
+  }
+
   void _startTimer() {
     _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (state != null) {
+      if (!_isPaused && state != null) {
         state = state!.copyWith(currentTime: state!.currentTime + 1);
         _repository.saveGameState(state!);
       }
     });
   }
-Future<void> saveCurrentState() async {
-  if (state != null) {
+
+  Future<void> saveCurrentState() async {
+    if (state != null) {
+      await _repository.saveGameState(state!);
+    }
+  }
+Future<void> onCardTap(int index) async {
+  if (_busy || state == null || _isPaused) return;
+  if (state!.cards[index].isMatched || state!.cards[index].isFaceUp) return;
+
+  final updatedCards = List<MemoryCard>.from(state!.cards);
+  updatedCards[index].isFaceUp = true;
+  state = state!.copyWith(cards: updatedCards);
+
+  if (_firstSelectedIndex == null) {
+    _firstSelectedIndex = index;
+  } else {
+    state = state!.copyWith(moves: state!.moves + 1);
+    final firstIndex = _firstSelectedIndex!;
+    _firstSelectedIndex = null;
+
+    if (state!.cards[firstIndex].content == state!.cards[index].content) {
+      updatedCards[firstIndex].isMatched = true;
+      updatedCards[index].isMatched = true;
+      state = state!.copyWith(cards: updatedCards, score: state!.score + 10);
+    } else {
+      _busy = true;
+      await Future.delayed(const Duration(seconds: 1));
+      updatedCards[firstIndex].isFaceUp = false;
+      updatedCards[index].isFaceUp = false;
+      state = state!.copyWith(cards: updatedCards, health: state!.health - 1);
+      _busy = false;
+    }
+
     await _repository.saveGameState(state!);
+  }
+
+  //  Check for win condition
+  if (checkWinCondition()) {
+    _handleWin();
   }
 }
 
-  Future<void> onCardTap(int index) async {
-    if (_busy || state == null) return;
-    if (state!.cards[index].isMatched || state!.cards[index].isFaceUp) return;
 
-    final updatedCards = List<MemoryCard>.from(state!.cards);
-    updatedCards[index].isFaceUp = true;
-    state = state!.copyWith(cards: updatedCards);
+void _handleWin() {
+  _timer?.cancel(); // Stop the timer when the game is won
 
-    if (_firstSelectedIndex == null) {
-      _firstSelectedIndex = index;
-    } else {
-      state = state!.copyWith(moves: state!.moves + 1);
-      int firstIndex = _firstSelectedIndex!;
-      _firstSelectedIndex = null;
+  // Call updateBestTimeIfNeeded to update the user's best time
+  updateBestTimeIfNeeded();
 
-      if (state!.cards[firstIndex].content == state!.cards[index].content) {
-        updatedCards[firstIndex].isMatched = true;
-        updatedCards[index].isMatched = true;
-        state = state!.copyWith(cards: updatedCards, score: state!.score + 10);
-      } else {
-        _busy = true;
-        await Future.delayed(const Duration(seconds: 1));
-        updatedCards[firstIndex].isFaceUp = false;
-        updatedCards[index].isFaceUp = false;
-        state = state!.copyWith(cards: updatedCards, health: state!.health - 1);
-        _busy = false;
-      }
-      await _repository.saveGameState(state!);
-      if (state!.health <= 0) {
-        _timer?.cancel();
-        // Call game over handling here (if needed).
-      }
-    }
+  // Notify UI by copying the state (if needed)
+  state = state!.copyWith(); 
+}
+
+  /// **Checks if all cards are matched**
+  bool checkWinCondition() {
+    return state!.cards.every((card) => card.isMatched);
   }
 
   Future<void> restartGame() async {

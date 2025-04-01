@@ -23,4 +23,17 @@ class UserRepository {
     final box = Hive.box<UserModel>(userBoxName);
     await box.delete(userKey);
   }
+    /// Changes the username of the current user.
+Future<UserModel?> changeUsername(String newUsername) async {
+  final box = Hive.box<UserModel>(userBoxName);
+  final currentUser = box.get(userKey);
+
+  if (currentUser != null) {
+    final updatedUser = currentUser.copyWith(username: newUsername);
+    await box.put(userKey, updatedUser);
+    return updatedUser;
+  }
+  return null;
+}
+
 }
