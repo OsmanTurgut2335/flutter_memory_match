@@ -1,42 +1,90 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mem_game/core/providers/add_provider.dart';
 import 'package:mem_game/features/game/viewmodel/game_notifier.dart';
+
 import 'package:mem_game/view/home_screen.dart';
 
 void showGameDialog({
   required BuildContext context,
   required String title,
   required GameNotifier gameNotifier,
+  required WidgetRef ref,
 }) {
+  // Determine if the game is lost.
+  final isGameLost = !gameNotifier.checkWinCondition();
+
   WidgetsBinding.instance.addPostFrameCallback((_) {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        title: Text(title),
-        content: Text(
-          'Your time: ${gameNotifier.gameState?.currentTime ?? 0} seconds\n'
-          'Score: ${gameNotifier.gameState?.score ?? 0}',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              gameNotifier.restartGame();
-            },
-            child: const Text('Play Again'),
+      builder: (context) {
+        // The original dialog always shows its default actions.
+        return AlertDialog(
+          title: Text(title),
+          content: Text(
+            'Your time: ${gameNotifier.gameState?.currentTime ?? 0} seconds\n'
+            'Score: ${gameNotifier.gameState?.score ?? 0}',
           ),
-          TextButton(
-            onPressed: () async {
-              Navigator.of(context).pop();
-              await gameNotifier.exitGame();
-              await Navigator.of(context).pushReplacement(
-                MaterialPageRoute<void>(builder: (_) => const HomeScreen()),
-              );
-            },
-            child: const Text('Home'),
-          ),
-        ],
-      ),
+          actionsAlignment: MainAxisAlignment.spaceEvenly,
+          alignment: Alignment.center,
+          actions: [
+            if (isGameLost)
+              TextButton(
+                onPressed: () {
+                  // Show the rewarded ad.
+                  ref.read(rewardedAdNotifierProvider.notifier).showAd((reward) {
+                    // When the reward is earned, add the extra life.
+                    gameNotifier.addExtraLife();
+                    // Schedule closing the current dialog after this frame.
+                    Future.delayed(Duration.zero, () {
+                      Navigator.of(context, rootNavigator: true).pop();
+                      // Then show a new dialog with the continue option.
+                      showDialog(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (context) {
+                          return AlertDialog(
+                            title: const Text('Extra Life Granted!'),
+                            content: const Text('Your extra life is now active.'),
+                            actionsAlignment: MainAxisAlignment.center,
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context, rootNavigator: true).pop();
+                                },
+                                child: const Text('Continue'),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    });
+                  });
+                },
+                child: const Text('Watch Ad for Extra Life'),
+              ),
+
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                gameNotifier.restartGame();
+              },
+              child: const Text('Play Again'),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.of(context).pop();
+                await gameNotifier.exitGame();
+                await Navigator.of(
+                  context,
+                ).pushReplacement(MaterialPageRoute<void>(builder: (_) => const HomeScreen()));
+              },
+              child: const Text('Home'),
+            ),
+          ],
+        );
+      },
     );
   });
 }

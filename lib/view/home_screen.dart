@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mem_game/core/providers/game_provider.dart';
@@ -8,7 +7,6 @@ import 'package:mem_game/data/game/repository/game_repository.dart';
 import 'package:mem_game/features/user/widgets/user_options_menu.dart';
 import 'package:mem_game/view/game_screen.dart';
 import 'package:mem_game/view/scoreboard_screen.dart';
-
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -29,72 +27,61 @@ class HomeScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Memory Game Home'),
-        actions: [
-          UserPopUpMenu(
-            notifier: notifier,
-            gameNotifier: gameNotifier,
-          )
-        ],
+        actions: [UserPopUpMenu(notifier: notifier, gameNotifier: gameNotifier)],
       ),
       body: Center(
-        child: user == null
-            ? const Text('No user found. Please set up your username.')
-            : FutureBuilder<bool>(
-                future: _hasOngoingGame(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const CircularProgressIndicator();
-                  }
+        child:
+            user == null
+                ? const Text('No user found. Please set up your username.')
+                : FutureBuilder<bool>(
+                  future: _hasOngoingGame(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const CircularProgressIndicator();
+                    }
 
-                  final hasOngoingGame = snapshot.data ?? false;
+                    final hasOngoingGame = snapshot.data ?? false;
 
-                  return Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      ElevatedButton(
-                        onPressed: () async {
-                          // Clear any existing game state
-                          await ref.read(gameNotifierProvider.notifier).exitGame();
-                          // Now, create a new game state.
-                          await ref.read(gameNotifierProvider.notifier).restartGame();
-                          // Navigate to GameScreen with resumeGame: false.
-                          await Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(
-                              builder: (_) => const GameScreen(resumeGame: false),
-                            ),
-                          );
-                        },
-                        child: const Text('New Game'),
-                      ),
-                      const SizedBox(height: 16),
-                      if (hasOngoingGame)
+                    return Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ElevatedButton(
+                          onPressed: () async {
+                            // Clear any existing game state
+                            await ref.read(gameNotifierProvider.notifier).exitGame();
+                            // Now, create a new game state.
+                            await ref.read(gameNotifierProvider.notifier).restartGame();
+                            // Navigate to GameScreen with resumeGame: false.
+                            await Navigator.of(
+                              context,
+                            ).pushReplacement(MaterialPageRoute(builder: (_) => const GameScreen(resumeGame: false)));
+                          },
+                          child: const Text('New Game'),
+                        ),
+                        const SizedBox(height: 16),
+                        if (hasOngoingGame)
+                          ElevatedButton(
+                            onPressed: () {
+                              // Continue the saved game.
+                              gameNotifier.pauseGame();
+                              Navigator.of(
+                                context,
+                              ).pushReplacement(MaterialPageRoute(builder: (_) => const GameScreen(resumeGame: true)));
+                            },
+                            child: const Text('Continue Game'),
+                          ),
+                        const SizedBox(height: 16),
                         ElevatedButton(
                           onPressed: () {
-                            // Continue the saved game.
-                            Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(
-                                builder: (_) => const GameScreen(resumeGame: true),
-                              ),
-                            );
+                            // Navigate to the leaderboard (scoreboard) screen.
+                            Navigator.of(context).push(MaterialPageRoute(builder: (_) => const LeaderboardScreen()));
                           },
-                          child: const Text('Continue Game'),
+                          child: const Text('Scoreboard'),
                         ),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: () {
-                          // Navigate to the leaderboard (scoreboard) screen.
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) => const LeaderboardScreen(),
-                            ),
-                          );
-                        },
-                        child: const Text('Scoreboard'),
-                      ),
-                    ],
-                  );
-                },
-              ),
+                      ],
+                    );
+                  },
+                ),
       ),
     );
   }

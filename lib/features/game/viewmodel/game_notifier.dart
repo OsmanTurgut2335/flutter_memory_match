@@ -21,6 +21,15 @@ class GameNotifier extends StateNotifier<GameState?> {
     await _repository.clearBestTime();
   }
 
+void addExtraLife() {
+  if (state != null && state!.health <= 0) {
+   
+    state = state!.copyWith(health: 1,isPaused: true);
+    _startTimer();
+  
+  }
+}
+
   /// Initializes the game.
   Future<void> initializeGame(bool resumeGame) async {
     if (resumeGame) {
@@ -147,6 +156,7 @@ class GameNotifier extends StateNotifier<GameState?> {
 
     // Notify UI by copying the state (if needed)
     state = state!.copyWith();
+
   }
 
   /// **Checks if all cards are matched**

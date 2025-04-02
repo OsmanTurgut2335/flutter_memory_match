@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mem_game/core/providers/add_provider.dart';
 import 'package:mem_game/core/providers/game_provider.dart';
 import 'package:mem_game/features/game/viewmodel/game_notifier.dart';
 import 'package:mem_game/features/game/widgets/end_game_dialog.dart';
@@ -21,6 +22,7 @@ class _GameScreenState extends ConsumerState<GameScreen> with WidgetsBindingObse
   @override
   void initState() {
     super.initState();
+   
     WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final notifier = ref.read(gameNotifierProvider.notifier);
@@ -36,8 +38,11 @@ class _GameScreenState extends ConsumerState<GameScreen> with WidgetsBindingObse
           }
         });
       }
+        ref.read(rewardedAdNotifierProvider.notifier).loadAd();
     });
   }
+
+  
 
   @override
   void dispose() {
@@ -69,12 +74,12 @@ class _GameScreenState extends ConsumerState<GameScreen> with WidgetsBindingObse
 
   void _handleGameOver(GameNotifier gameNotifier) {
 
-    showGameDialog(context: context, title: 'Game Over', gameNotifier: gameNotifier);
+    showGameDialog(context: context, title: 'Game Over', gameNotifier: gameNotifier,ref: ref);
   }
 
   void _handleWin(GameNotifier gameNotifier) {
 
-    showGameDialog(context: context, title: 'You Win! 🎉', gameNotifier: gameNotifier);
+    showGameDialog(context: context, title: 'You Win! 🎉', gameNotifier: gameNotifier,ref: ref);
   }
 
   @override

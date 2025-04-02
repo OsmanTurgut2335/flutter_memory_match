@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:mem_game/data/game/model/game_state_model.dart';
 import 'package:mem_game/data/memorycard/model/memory_card.dart';
@@ -23,7 +24,8 @@ void main() async {
      await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-
+  // Initialize Mobile Ads SDK
+  await MobileAds.instance.initialize();
   runApp(const ProviderScope(child: MyApp()));
 }
 

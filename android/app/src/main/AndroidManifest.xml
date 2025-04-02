@@ -5,6 +5,10 @@
         android:label="mem_game"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+         
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-9375990214690920~3677031299"/>
         <activity
             android:name=".MainActivity"
             android:exported="true"
