@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hive_flutter/adapters.dart';
+import 'package:mem_game/core/themes/themes.dart';
 import 'package:mem_game/data/game/model/game_state_model.dart';
 import 'package:mem_game/data/memorycard/model/memory_card.dart';
 import 'package:mem_game/data/user/model/user_model.dart';
@@ -37,6 +38,9 @@ class MyApp extends StatelessWidget {
     final userBox = Hive.box<UserModel>('userBox');
     final hasUser = userBox.containsKey('currentUser');
 
-    return MaterialApp(home: hasUser ? const HomeScreen() : const UsernameInputScreen());
+    return MaterialApp(home: hasUser ? const HomeScreen() : const UsernameInputScreen(),
+    theme: AppThemes.lightTheme,
+      darkTheme: AppThemes.darkTheme 
+    );
   }
 }

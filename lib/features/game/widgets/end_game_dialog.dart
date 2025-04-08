@@ -66,9 +66,9 @@ void showGameDialog({
               ),
 
             TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                gameNotifier.restartGame();
+              onPressed: () async {
+                Navigator.of(context, rootNavigator: true).pop();
+                await gameNotifier.restartGame();
               },
               child: const Text('Play Again'),
             ),

@@ -62,13 +62,15 @@ class GameRepository {
         },
         SetOptions(merge: true),
       );
-      // ignore: avoid_print
+     
       print('Firestore updated successfully for user: $username');
     } catch (e) {
       // Log the error for debugging
       print('Error updating best time in Firestore for $username: $e');
     }
   }
+
+  
   Future<void> clearBestTime() async {
     final userBox = Hive.box<UserModel>(userBoxName);
     final currentUser = userBox.get(currentUserKey);
