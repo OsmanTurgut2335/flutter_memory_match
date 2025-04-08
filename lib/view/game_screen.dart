@@ -7,7 +7,8 @@ import 'package:mem_game/features/game/viewmodel/game_notifier.dart';
 import 'package:mem_game/features/game/widgets/end_game_dialog.dart';
 import 'package:mem_game/features/game/widgets/game_screen_appbar.dart';
 import 'package:mem_game/features/game/widgets/stat_bubble.dart';
-import 'package:mem_game/features/memory_card/widgets/memory_card_widget.dart';
+import 'package:mem_game/features/memory_card/widgets/game_cards.dart';
+
 import 'package:mem_game/view/home_screen.dart';
 
 
@@ -169,39 +170,6 @@ class _GameScreenState extends ConsumerState<GameScreen> with TickerProviderStat
   }
 }
 
-  /// Animated grid of cards
-class GameCards extends StatelessWidget {
-  const GameCards({
-    required this.gameState, required this.gameNotifier, super.key,
-  });
-
-  final GameState gameState;
-  final GameNotifier gameNotifier;
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 300),
-        child: GridView.builder(
-          key: ValueKey<int>(gameState.cards.length),
-          gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-            maxCrossAxisExtent: 150, // Adjust this value to set the card's maximum width.
-            crossAxisSpacing: 8,
-            mainAxisSpacing: 8,
-          ),
-          itemCount: gameState.cards.length,
-          itemBuilder: (context, index) {
-            return MemoryCardWidget(
-              card: gameState.cards[index],
-              onTap: () => gameNotifier.onCardTap(index),
-            );
-          },
-        ),
-      ),
-    );
-  }
-}
 
 
 /// Animated stats row

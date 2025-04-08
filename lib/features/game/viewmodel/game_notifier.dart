@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:mem_game/data/game/model/game_state_model.dart';
@@ -21,32 +22,74 @@ class GameNotifier extends StateNotifier<GameState?> {
     await _repository.clearBestTime();
   }
 
-void addExtraLife() {
-  if (state != null && state!.health <= 0) {
-   
-    state = state!.copyWith(health: 1,isPaused: true);
-    _startTimer();
-  
+  void addExtraLife() {
+    if (state != null && state!.health <= 0) {
+      state = state!.copyWith(health: 1, isPaused: true);
+      _startTimer();
+    }
   }
+
+ Future<void> initializeGame(bool resumeGame) async {
+  if (resumeGame) {
+    final savedState = await _repository.loadGameState();
+    if (savedState != null) {
+      state = savedState;
+      _startTimer();
+      return;
+    }
+  }
+
+  final level = state?.level ?? 1;
+
+  state = GameState(
+    cards: _generateCardsForLevel(level),
+    level: level,
+    showingPreview: true,
+  );
+  await _repository.saveGameState(state!);
+
+  // Schedule preview end and timer start
+  Future.delayed(const Duration(seconds: 3), () {
+    final faceDownCards = state!.cards
+        .map((card) => card.copyWith(isFaceUp: false))
+        .toList();
+    state = state!.copyWith(cards: faceDownCards, showingPreview: false);
+    _startTimer();
+  });
 }
 
-  /// Initializes the game.
-  Future<void> initializeGame(bool resumeGame) async {
-    if (resumeGame) {
-      final savedState = await _repository.loadGameState();
-      if (savedState != null) {
-        state = savedState;
-        _startTimer();
-        return;
-      }
-    }
+
+  GameState _createNewGameState() {
+    final level = state?.level ?? 1;
+    return GameState(cards: _generateCardsForLevel(level));
+  }
+
+  /*
+  Future<void> restartGame() async {
+    _timer?.cancel();
     state = _createNewGameState();
     await _repository.saveGameState(state!);
     _startTimer();
-  }
+  }*/
 
-  GameState _createNewGameState() {
-    return GameState(cards: _generateDummyCards());
+  Future<void> restartGame() async {
+    _timer?.cancel();
+
+    final level = state?.level ?? 1;
+
+    // 1) Create a new game state with preview ON
+    state = GameState(cards: _generateCardsForLevel(level), level: level, showingPreview: true);
+    await _repository.saveGameState(state!);
+
+    // 2) Schedule (but do not await) the preview turning off
+    Future.delayed(const Duration(seconds: 3), () {
+      // Flip all cards face-down and clear preview flag
+      final faceDownCards = state!.cards.map((card) => card.copyWith(isFaceUp: false)).toList();
+      state = state!.copyWith(cards: faceDownCards, showingPreview: false);
+
+      // 3) Start the timer only after preview ends
+      _startTimer();
+    });
   }
 
   Future<void> updateBestTimeIfNeeded() async {
@@ -55,17 +98,28 @@ void addExtraLife() {
     }
   }
 
-  List<MemoryCard> _generateDummyCards() {
-    return [
-      MemoryCard(id: 0, content: 'A'),
-      MemoryCard(id: 1, content: 'B'),
-      MemoryCard(id: 2, content: 'C'),
-      MemoryCard(id: 3, content: 'D'),
-      MemoryCard(id: 4, content: 'A'),
-      MemoryCard(id: 5, content: 'B'),
-      MemoryCard(id: 6, content: 'C'),
-      MemoryCard(id: 7, content: 'D'),
-    ];
+  /// Generates a shuffled list of MemoryCard objects for the given level.
+  /// Level 1: uses assets/card_images/level1 → 6 images → 12 cards
+  /// Level 2: uses assets/card_images/level2 → 8 images → 16 cards
+  /// Level 3: uses assets/card_images/level3 → 12 images → 24 cards
+  List<MemoryCard> _generateCardsForLevel(int level, {bool preview = false}) {
+    final levelImages = switch (level) {
+      1 => List<String>.generate(6, (i) => 'assets/card_images/level1/card$i.png'),
+      2 => List<String>.generate(8, (i) => 'assets/card_images/level2/card$i.png'),
+      3 => List<String>.generate(12, (i) => 'assets/card_images/level3/card$i.png'),
+      _ => List<String>.generate(6, (i) => 'assets/card_images/level1/card$i.png'),
+    };
+
+    final allPaths = [for (var path in levelImages) path, for (var path in levelImages) path]..shuffle();
+
+    return List<MemoryCard>.generate(
+      allPaths.length,
+      (index) => MemoryCard(
+        id: index,
+        content: allPaths[index],
+        isFaceUp: preview, // 👈 Show cards face up initially if preview is true
+      ),
+    );
   }
 
   /// Handles pausing the game
@@ -156,19 +210,11 @@ void addExtraLife() {
 
     // Notify UI by copying the state (if needed)
     state = state!.copyWith();
-
   }
 
   /// **Checks if all cards are matched**
   bool checkWinCondition() {
     return state!.cards.every((card) => card.isMatched);
-  }
-
-  Future<void> restartGame() async {
-    _timer?.cancel();
-    state = _createNewGameState();
-    await _repository.saveGameState(state!);
-    _startTimer();
   }
 
   /// Exits the game: cancels the timer, deletes the game state, and resets the state.

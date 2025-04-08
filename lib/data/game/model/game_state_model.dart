@@ -11,7 +11,9 @@ class GameState extends HiveObject {
     this.score = 0,
     this.currentTime = 0,
     this.health = 3,
-    this.isPaused = false, // New field added
+    this.isPaused = false, 
+    this.level= 1,
+    this.showingPreview = false,
   });
 
   @HiveField(0)
@@ -29,8 +31,15 @@ class GameState extends HiveObject {
   @HiveField(4)
   final int health;
 
-  @HiveField(5) // Added a new Hive field index
+  @HiveField(5) 
   final bool isPaused;
+
+  @HiveField(6) 
+  final int level;
+
+  @HiveField(7)
+  final bool showingPreview;
+
 
   /// Creates a modified copy of the game state while keeping immutability.
   GameState copyWith({
@@ -39,7 +48,9 @@ class GameState extends HiveObject {
     int? score,
     int? currentTime,
     int? health,
-    bool? isPaused, // Added for pause state management
+    bool? isPaused,
+    int? level,
+    bool? showingPreview,
   }) {
     return GameState(
       cards: cards ?? this.cards,
@@ -48,6 +59,8 @@ class GameState extends HiveObject {
       currentTime: currentTime ?? this.currentTime,
       health: health ?? this.health,
       isPaused: isPaused ?? this.isPaused,
+      level: level?? this.level,
+      showingPreview: showingPreview ?? this.showingPreview,
     );
   }
 }
