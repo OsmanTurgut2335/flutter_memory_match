@@ -4,11 +4,8 @@ import 'package:flutter/material.dart';
 class GameScreenAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   const GameScreenAppBar({
-    Key? key,
-    required this.onPause,
-    required this.onResume,
-    required this.onMenuSelected,
-  }) : super(key: key);
+    required this.onPause, required this.onResume, required this.onMenuSelected, super.key,
+  });
   final VoidCallback onPause;
   final VoidCallback onResume;
   final Future<void> Function(String value) onMenuSelected;

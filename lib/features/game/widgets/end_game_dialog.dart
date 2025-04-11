@@ -38,7 +38,7 @@ void showGameDialog({
                     gameNotifier.addExtraLife();
                     // Schedule closing the current dialog after this frame.
                     Future.delayed(Duration.zero, () {
-                      Navigator.of(context, rootNavigator: true).pop();
+                      Navigator.of(context).pop();
                       // Then show a new dialog with the continue option.
                       showDialog(
                         context: context,
@@ -51,7 +51,7 @@ void showGameDialog({
                             actions: [
                               TextButton(
                                 onPressed: () {
-                                  Navigator.of(context, rootNavigator: true).pop();
+                                  Navigator.of(context).pop();
                                 },
                                 child: const Text('Continue'),
                               ),
@@ -62,12 +62,12 @@ void showGameDialog({
                     });
                   });
                 },
-                child: const Text('Watch Ad for Extra Life'),
+                child: const Text('Watch Ad to Refresh !'),
               ),
 
             TextButton(
               onPressed: () async {
-                Navigator.of(context, rootNavigator: true).pop();
+                Navigator.of(context,).pop();
                 await gameNotifier.restartGame();
               },
               child: const Text('Play Again'),

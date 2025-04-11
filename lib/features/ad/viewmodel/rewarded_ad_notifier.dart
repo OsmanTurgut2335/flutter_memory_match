@@ -15,7 +15,7 @@ class RewardedAdNotifier extends StateNotifier<RewardedAdState> {
 
   /// Loads the rewarded ad and updates the state.
   Future<void> loadAd() async {
-    state = RewardedAdState(isLoading: true, isLoaded: false);
+    state = const RewardedAdState(isLoading: true, isLoaded: false);
     try {
       await _repository.loadRewardedAd(adUnitId);
       state = const RewardedAdState(isLoading: false, isLoaded: true);

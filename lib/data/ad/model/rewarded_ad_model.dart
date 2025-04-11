@@ -1,7 +1,4 @@
 class RewardedAdState {
-  final bool isLoading;
-  final bool isLoaded;
-  final String? errorMessage;
 
   const RewardedAdState({
     required this.isLoading,
@@ -10,4 +7,7 @@ class RewardedAdState {
   });
 
   factory RewardedAdState.initial() => const RewardedAdState(isLoading: false, isLoaded: false);
+  final bool isLoading;
+  final bool isLoaded;
+  final String? errorMessage;
 }

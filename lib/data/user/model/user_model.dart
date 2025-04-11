@@ -39,6 +39,8 @@ class UserModel extends HiveObject {
   @HiveField(5)
   final int moves;
 
+  
+
   UserModel copyWith({
     String? username,
     int? score,

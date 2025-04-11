@@ -101,7 +101,7 @@ class HeaderRow extends StatelessWidget {
             ),
           ),
           Expanded(
-            flex: 1,
+   
             child: Text(
               'Score',
               style: TextStyle(fontWeight: FontWeight.bold),

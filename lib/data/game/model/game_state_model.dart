@@ -14,6 +14,7 @@ class GameState extends HiveObject {
     this.isPaused = false, 
     this.level= 1,
     this.showingPreview = false,
+    this.canRevealCards= true,
   });
 
   @HiveField(0)
@@ -40,6 +41,9 @@ class GameState extends HiveObject {
   @HiveField(7)
   final bool showingPreview;
 
+  @HiveField(8)
+  final bool canRevealCards;
+
 
   /// Creates a modified copy of the game state while keeping immutability.
   GameState copyWith({
@@ -51,6 +55,7 @@ class GameState extends HiveObject {
     bool? isPaused,
     int? level,
     bool? showingPreview,
+    bool? canRevealCards,
   }) {
     return GameState(
       cards: cards ?? this.cards,
@@ -61,6 +66,7 @@ class GameState extends HiveObject {
       isPaused: isPaused ?? this.isPaused,
       level: level?? this.level,
       showingPreview: showingPreview ?? this.showingPreview,
+      canRevealCards: canRevealCards ?? this.canRevealCards,
     );
   }
 }

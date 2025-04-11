@@ -8,8 +8,8 @@ class GameCards extends StatelessWidget {
   const GameCards({
     required this.gameState,
     required this.gameNotifier,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   final GameState gameState;
   final GameNotifier gameNotifier;

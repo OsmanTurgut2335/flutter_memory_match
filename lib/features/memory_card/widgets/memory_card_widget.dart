@@ -11,8 +11,8 @@ class MemoryCardWidget extends ConsumerWidget {
     required this.card,
     required this.onTap,
     this.level = 1,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   final MemoryCard card;
   final VoidCallback onTap;

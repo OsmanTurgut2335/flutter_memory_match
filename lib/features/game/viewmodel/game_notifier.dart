@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:mem_game/data/game/model/game_state_model.dart';
@@ -15,6 +14,12 @@ class GameNotifier extends StateNotifier<GameState?> {
   int? _firstSelectedIndex;
   bool _busy = false;
   bool _isPaused = false;
+  bool _hasUsedAd = false;
+  bool get hasUsedAd => _hasUsedAd;
+
+  void markAdUsed() {
+    _hasUsedAd = true;
+  }
 
   GameState? get gameState => state;
 
@@ -24,55 +29,84 @@ class GameNotifier extends StateNotifier<GameState?> {
 
   void addExtraLife() {
     if (state != null && state!.health <= 0) {
-      state = state!.copyWith(health: 1, isPaused: true);
+      state = state!.copyWith(health: 3, isPaused: true, canRevealCards: true);
+
       _startTimer();
     }
   }
 
- Future<void> initializeGame(bool resumeGame) async {
-  if (resumeGame) {
-    final savedState = await _repository.loadGameState();
-    if (savedState != null) {
-      state = savedState;
-      _startTimer();
-      return;
+  Future<void> initializeGame(bool resumeGame) async {
+    if (resumeGame) {
+      final savedState = await _repository.loadGameState();
+      if (savedState != null) {
+        state = savedState;
+        _startTimer();
+        return;
+      }
     }
-  }
 
-  final level = state?.level ?? 1;
-
-  state = GameState(
-    cards: _generateCardsForLevel(level),
-    level: level,
-    showingPreview: true,
-  );
-  await _repository.saveGameState(state!);
-
-  // Schedule preview end and timer start
-  Future.delayed(const Duration(seconds: 3), () {
-    final faceDownCards = state!.cards
-        .map((card) => card.copyWith(isFaceUp: false))
-        .toList();
-    state = state!.copyWith(cards: faceDownCards, showingPreview: false);
-    _startTimer();
-  });
-}
-
-
-  GameState _createNewGameState() {
     final level = state?.level ?? 1;
-    return GameState(cards: _generateCardsForLevel(level));
+
+    state = GameState(cards: _generateCardsForLevel(level), level: level, showingPreview: true);
+    await _repository.saveGameState(state!);
+
+    // Schedule preview end and timer start
+    Future.delayed(const Duration(seconds: 3), () {
+      final faceDownCards = state!.cards.map((card) => card.copyWith(isFaceUp: false)).toList();
+      state = state!.copyWith(cards: faceDownCards, showingPreview: false);
+      _startTimer();
+    });
   }
 
-  /*
-  Future<void> restartGame() async {
+  Future<void> advanceLevel() async {
     _timer?.cancel();
-    state = _createNewGameState();
+
+    final currentTime = state?.currentTime ?? 0;
+    final currentLevel = state?.level ?? 1;
+    final currentMoves = state?.moves ?? 0;
+    final currentScore = state?.score ?? 0;
+
+    final newCards = _generateCardsForLevel(currentLevel, preview: true);
+
+    // Create a new GameState, copying over relevant statistics.
+    state = GameState(
+      cards: newCards,
+      moves: currentMoves,
+      score: currentScore,
+      currentTime: currentTime,
+      level: currentLevel + 1,
+      showingPreview: true,
+    );
+
+    // Save the new state.
     await _repository.saveGameState(state!);
-    _startTimer();
-  }*/
+
+    flipCards();
+  }
+
+  void flipCards() {
+    // Schedule turning off the preview after a 3-second delay.
+    Future.delayed(const Duration(seconds: 3), () {
+      // Only flip cards that are not matched.
+      final updatedCards =
+          state!.cards.map((card) {
+            return card.isMatched ? card : card.copyWith(isFaceUp: false);
+          }).toList();
+
+      state = state!.copyWith(cards: updatedCards, showingPreview: false);
+      _startTimer();
+    });
+  }
+
+  Future<void> flipCardsOnButtonPress() async {
+    _timer?.cancel();
+    state = state!.copyWith(canRevealCards: false, showingPreview: true);
+    await _repository.saveGameState(state!);
+    flipCards();
+  }
 
   Future<void> restartGame() async {
+    _hasUsedAd = false;
     _timer?.cancel();
 
     final level = state?.level ?? 1;
@@ -81,15 +115,7 @@ class GameNotifier extends StateNotifier<GameState?> {
     state = GameState(cards: _generateCardsForLevel(level), level: level, showingPreview: true);
     await _repository.saveGameState(state!);
 
-    // 2) Schedule (but do not await) the preview turning off
-    Future.delayed(const Duration(seconds: 3), () {
-      // Flip all cards face-down and clear preview flag
-      final faceDownCards = state!.cards.map((card) => card.copyWith(isFaceUp: false)).toList();
-      state = state!.copyWith(cards: faceDownCards, showingPreview: false);
-
-      // 3) Start the timer only after preview ends
-      _startTimer();
-    });
+    flipCards();
   }
 
   Future<void> updateBestTimeIfNeeded() async {
@@ -110,7 +136,7 @@ class GameNotifier extends StateNotifier<GameState?> {
       _ => List<String>.generate(6, (i) => 'assets/card_images/level1/card$i.png'),
     };
 
-    final allPaths = [for (var path in levelImages) path, for (var path in levelImages) path]..shuffle();
+    final allPaths = [for (final path in levelImages) path, for (final path in levelImages) path]..shuffle();
 
     return List<MemoryCard>.generate(
       allPaths.length,
@@ -214,6 +240,7 @@ class GameNotifier extends StateNotifier<GameState?> {
 
   /// **Checks if all cards are matched**
   bool checkWinCondition() {
+    if (state!.showingPreview) return false;
     return state!.cards.every((card) => card.isMatched);
   }
 

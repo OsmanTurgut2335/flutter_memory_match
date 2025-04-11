@@ -6,11 +6,11 @@ import 'package:mem_game/data/game/model/game_state_model.dart';
 import 'package:mem_game/features/game/viewmodel/game_notifier.dart';
 import 'package:mem_game/features/game/widgets/end_game_dialog.dart';
 import 'package:mem_game/features/game/widgets/game_screen_appbar.dart';
+import 'package:mem_game/features/game/widgets/level_result_dialog.dart';
 import 'package:mem_game/features/game/widgets/stat_bubble.dart';
 import 'package:mem_game/features/memory_card/widgets/game_cards.dart';
 
 import 'package:mem_game/view/home_screen.dart';
-
 
 class GameScreen extends ConsumerStatefulWidget {
   const GameScreen({required this.resumeGame, super.key});
@@ -83,12 +83,24 @@ class _GameScreenState extends ConsumerState<GameScreen> with TickerProviderStat
     ref.read(gameNotifierProvider.notifier).resumeGame();
   }
 
-  void _handleGameOver(GameNotifier gameNotifier) {
-    showGameDialog(context: context, title: 'Game Over', gameNotifier: gameNotifier, ref: ref);
+  void _handleGameOver(GameNotifier notifier) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => LevelResultDialog(title: 'Game Over', gameNotifier: notifier, isWin: false),
+      );
+    });
   }
 
-  void _handleWin(GameNotifier gameNotifier) {
-    showGameDialog(context: context, title: 'You Win! 🎉', gameNotifier: gameNotifier, ref: ref);
+  void _handleWin(GameNotifier notifier) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => LevelResultDialog(title: 'Level Complete! 🎉', gameNotifier: notifier, isWin: true),
+      );
+    });
   }
 
   @override
@@ -107,21 +119,17 @@ class _GameScreenState extends ConsumerState<GameScreen> with TickerProviderStat
     }
 
     return Scaffold(
-    appBar: GameScreenAppBar(
+      appBar: GameScreenAppBar(
         onPause: _pauseGame,
         onResume: _resumeGame,
         onMenuSelected: (value) async {
           if (value == 'exit') {
             await gameNotifier.exitGame();
-            await Navigator.of(context).pushReplacement(
-              MaterialPageRoute<void>(builder: (_) => const HomeScreen()),
-            );
+            await Navigator.of(context).pushReplacement(MaterialPageRoute<void>(builder: (_) => const HomeScreen()));
           } else if (value == 'homescreen') {
             _pauseGame();
             await gameNotifier.saveCurrentState();
-            await Navigator.of(context).pushReplacement(
-              MaterialPageRoute<void>(builder: (_) => const HomeScreen()),
-            );
+            await Navigator.of(context).pushReplacement(MaterialPageRoute<void>(builder: (_) => const HomeScreen()));
           }
         },
       ),
@@ -134,49 +142,76 @@ class _GameScreenState extends ConsumerState<GameScreen> with TickerProviderStat
                 StatsRow(gameState: gameState),
                 const SizedBox(height: 16),
                 GameCards(gameState: gameState, gameNotifier: gameNotifier),
+                const SizedBox(height: 16),
+
+                BottomLevelFlipRow(gameState: gameState, gameNotifier: gameNotifier),
               ],
             ),
           ),
-          
-          if (_isPaused)
-            pausedGameWidget(),
+
+          if (_isPaused) pausedGameWidget(),
         ],
       ),
     );
   }
 
- 
-/// Pause overlay with fade animation.
+  /// Pause overlay with fade animation.
   Positioned pausedGameWidget() {
     return Positioned.fill(
-            child: FadeTransition(
-              opacity: _pauseOpacity,
-              child: ColoredBox(
-                color: Colors.black.withOpacity(0.6),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text(
-                      'Game Paused',
-                      style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white),
-                    ),
-                    const SizedBox(height: 20),
-                    ElevatedButton(onPressed: _resumeGame, child: const Text('Resume Game')),
-                  ],
-                ),
+      child: FadeTransition(
+        opacity: _pauseOpacity,
+        child: ColoredBox(
+          color: Colors.black.withOpacity(0.6),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text(
+                'Game Paused',
+                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white),
               ),
-            ),
-          );
+              const SizedBox(height: 20),
+              ElevatedButton(onPressed: _resumeGame, child: const Text('Resume Game')),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
 
+class BottomLevelFlipRow extends StatelessWidget {
+  const BottomLevelFlipRow({required this.gameState, required this.gameNotifier, super.key});
 
+  final GameState? gameState;
+  final GameNotifier gameNotifier;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Theme.of(context).colorScheme.surface,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text('Level: ${gameState?.level ?? 1}', style: Theme.of(context).textTheme.titleMedium),
+          ElevatedButton.icon(
+            onPressed: gameState?.canRevealCards == true ? gameNotifier.flipCardsOnButtonPress : null,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              foregroundColor: Theme.of(context).colorScheme.onPrimary,
+            ),
+            icon: const Icon(Icons.flip_camera_android_outlined),
+            label: const Text('Flip Cards'),
+          ),
+        ],
+      ),
+    );
+  }
+}
 
 /// Animated stats row
 class StatsRow extends StatelessWidget {
-  const StatsRow({
-    required this.gameState, super.key,
-  });
+  const StatsRow({required this.gameState, super.key});
 
   final GameState gameState;
 
@@ -188,15 +223,15 @@ class StatsRow extends StatelessWidget {
       builder: (context, value, child) {
         return Opacity(opacity: value, child: child);
       },
-      child:      Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        StatBubble(label: 'Moves', value: gameState.moves.toString()),
-        StatBubble(label: 'Score', value: gameState.score.toString()),
-        StatBubble(label: 'Time', value: gameState.currentTime.toString()),
-        StatBubble(label: 'Health', value: gameState.health.toString()),
-      ],
-    ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          StatBubble(label: 'Moves', value: gameState.moves.toString()),
+          StatBubble(label: 'Score', value: gameState.score.toString()),
+          StatBubble(label: 'Time', value: gameState.currentTime.toString()),
+          StatBubble(label: 'Health', value: gameState.health.toString()),
+        ],
+      ),
     );
   }
 }
