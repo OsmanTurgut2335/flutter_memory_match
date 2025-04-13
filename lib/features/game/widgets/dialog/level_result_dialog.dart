@@ -59,7 +59,7 @@ class LevelResultDialog extends ConsumerWidget {
       ref.read(rewardedAdNotifierProvider.notifier).showAd((reward) {
         gameNotifier..addExtraLife()
         ..markAdUsed();  
-        Navigator.of(context).pop();
+        Navigator.of(context,rootNavigator: true).pop();
       });
     },
     child: const Text('Watch Ad for Extra Life'),

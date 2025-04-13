@@ -21,6 +21,9 @@ class GameNotifier extends StateNotifier<GameState?> {
     _hasUsedAd = true;
   }
 
+    // Callback that the UI can set to show a +10 popup when a score is increased.
+  void Function(String scoreText)? onScoreIncrease;
+
   GameState? get gameState => state;
 
   Future<void> clearBestTime() async {
@@ -34,6 +37,7 @@ class GameNotifier extends StateNotifier<GameState?> {
       _startTimer();
     }
   }
+  
 
   Future<void> initializeGame(bool resumeGame) async {
     if (resumeGame) {
@@ -66,7 +70,7 @@ class GameNotifier extends StateNotifier<GameState?> {
     final currentMoves = state?.moves ?? 0;
     final currentScore = state?.score ?? 0;
 
-    final newCards = _generateCardsForLevel(currentLevel, preview: true);
+    final newCards = _generateCardsForLevel(currentLevel + 1, preview: true);
 
     // Create a new GameState, copying over relevant statistics.
     state = GameState(
@@ -109,10 +113,8 @@ class GameNotifier extends StateNotifier<GameState?> {
     _hasUsedAd = false;
     _timer?.cancel();
 
-    final level = state?.level ?? 1;
-
     // 1) Create a new game state with preview ON
-    state = GameState(cards: _generateCardsForLevel(level), level: level, showingPreview: true);
+    state = GameState(cards: _generateCardsForLevel(1), showingPreview: true);
     await _repository.saveGameState(state!);
 
     flipCards();
@@ -124,28 +126,8 @@ class GameNotifier extends StateNotifier<GameState?> {
     }
   }
 
-  /// Generates a shuffled list of MemoryCard objects for the given level.
-  /// Level 1: uses assets/card_images/level1 → 6 images → 12 cards
-  /// Level 2: uses assets/card_images/level2 → 8 images → 16 cards
-  /// Level 3: uses assets/card_images/level3 → 12 images → 24 cards
   List<MemoryCard> _generateCardsForLevel(int level, {bool preview = false}) {
-    final levelImages = switch (level) {
-      1 => List<String>.generate(6, (i) => 'assets/card_images/level1/card$i.png'),
-      2 => List<String>.generate(8, (i) => 'assets/card_images/level2/card$i.png'),
-      3 => List<String>.generate(12, (i) => 'assets/card_images/level3/card$i.png'),
-      _ => List<String>.generate(6, (i) => 'assets/card_images/level1/card$i.png'),
-    };
-
-    final allPaths = [for (final path in levelImages) path, for (final path in levelImages) path]..shuffle();
-
-    return List<MemoryCard>.generate(
-      allPaths.length,
-      (index) => MemoryCard(
-        id: index,
-        content: allPaths[index],
-        isFaceUp: preview, // 👈 Show cards face up initially if preview is true
-      ),
-    );
+    return _repository.generateCardsForLevel(level);
   }
 
   /// Handles pausing the game
@@ -197,6 +179,7 @@ class GameNotifier extends StateNotifier<GameState?> {
         updatedCards[firstIndex].isMatched = true;
         updatedCards[index].isMatched = true;
         state = state!.copyWith(cards: updatedCards, score: state!.score + 10);
+         onScoreIncrease?.call('+10');
       } else {
         _busy = true;
         await Future.delayed(const Duration(seconds: 1));
@@ -222,19 +205,18 @@ class GameNotifier extends StateNotifier<GameState?> {
   }
 
   void handleWin() {
-    _timer?.cancel(); // Stop the timer when the game is won
+    _timer?.cancel();
 
-    // Call updateBestTimeIfNeeded to update the user's best time
-    updateBestTimeIfNeeded();
+    if (state!.level == 3) {
+      updateBestTimeIfNeeded();
+    }
 
-    // Notify UI by copying the state (if needed)
     state = state!.copyWith();
   }
 
   void handleLose() {
-    _timer?.cancel(); // Stop the timer when the game is won
+    _timer?.cancel();
 
-    // Notify UI by copying the state (if needed)
     state = state!.copyWith();
   }
 
