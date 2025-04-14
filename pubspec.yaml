@@ -24,6 +24,7 @@ dependencies:
   google_fonts: ^6.2.1
   shimmer: ^3.0.0
   json_serializable: ^6.9.0
+  lottie: ^3.3.1
   #firebase
   firebase_core: ^3.12.1
   cloud_firestore: ^5.6.6
@@ -43,3 +44,4 @@ flutter:
     - assets/card_images/level1/
     - assets/card_images/level2/
     - assets/card_images/level3/
+    - assets/lottie/

@@ -63,30 +63,38 @@ class GameNotifier extends StateNotifier<GameState?> {
   }
 
   Future<void> advanceLevel() async {
-    _timer?.cancel();
+  _timer?.cancel();
 
-    final currentTime = state?.currentTime ?? 0;
-    final currentLevel = state?.level ?? 1;
-    final currentMoves = state?.moves ?? 0;
-    final currentScore = state?.score ?? 0;
+  final currentTime = state?.currentTime ?? 0;
+  final currentMoves = state?.moves ?? 0;
+  final currentScore = state?.score ?? 0;
+  final currentLevel = state?.level ?? 1;
+  
+  // Increment the level only if it hasn't reached the final level.
+  final  nextLevel = currentLevel < 3 ? currentLevel + 1 : currentLevel;
+  final newCards = _generateCardsForLevel(nextLevel, preview: true);
 
-    final newCards = _generateCardsForLevel(currentLevel + 1, preview: true);
+  // Create a new GameState snapshot for the next level.
+  state = GameState(
+    cards: newCards,
+    moves: currentMoves,
+    score: currentScore,
+    currentTime: currentTime,
+    level: nextLevel,
+    showingPreview: true,
+  
+  );
 
-    // Create a new GameState, copying over relevant statistics.
-    state = GameState(
-      cards: newCards,
-      moves: currentMoves,
-      score: currentScore,
-      currentTime: currentTime,
-      level: currentLevel + 1,
-      showingPreview: true,
-    );
+  await _repository.saveGameState(state!);
 
-    // Save the new state.
-    await _repository.saveGameState(state!);
+  // Schedule turning off the preview after 3 seconds.
+  Future.delayed(const Duration(seconds: 3), () {
+    final faceDownCards = state!.cards.map((card) => card.copyWith(isFaceUp: false)).toList();
+    state = state!.copyWith(cards: faceDownCards, showingPreview: false);
+    _startTimer();
+  });
+}
 
-    flipCards();
-  }
 
   void flipCards() {
     // Schedule turning off the preview after a 3-second delay.

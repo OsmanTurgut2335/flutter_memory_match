@@ -22,14 +22,14 @@ class GameScreen extends ConsumerStatefulWidget {
 }
 
 class _GameScreenState extends ConsumerState<GameScreen> with TickerProviderStateMixin, WidgetsBindingObserver {
- final GlobalKey<ScoreBubbleState> _scoreBubbleKey = GlobalKey<ScoreBubbleState>();
+  final GlobalKey<ScoreBubbleState> _scoreBubbleKey = GlobalKey<ScoreBubbleState>();
 
   bool _isInitializing = false;
   bool _isPaused = false;
   late AnimationController _pauseController;
   late Animation<double> _pauseOpacity;
-    bool _showScorePopup = false;
-  String _popupText = '';
+  final bool _showScorePopup = false;
+  final String _popupText = '';
 
   @override
   void initState() {
@@ -41,28 +41,10 @@ class _GameScreenState extends ConsumerState<GameScreen> with TickerProviderStat
     _pauseOpacity = Tween<double>(begin: 0, end: 1).animate(_pauseController);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      
       final notifier = ref.read(gameNotifierProvider.notifier)
-  
-           // Set up the callback for score increase from the notifier.
-     /* ..onScoreIncrease = (scoreText) {
-        setState(() {
-          _popupText = scoreText;
-          _showScorePopup = true;
-        });
-        // Hide the popup after 1 second.
-        Future.delayed(const Duration(seconds: 1), () {
-          if (mounted) {
-            setState(() {
-              _showScorePopup = false;
-            });
-          }
-        });
-      };*/
-            ..onScoreIncrease = (scoreText) {
-    
-    _scoreBubbleKey.currentState?.showIncrement(scoreText);
-  };
+        ..onScoreIncrease = (scoreText) {
+          _scoreBubbleKey.currentState?.showIncrement(scoreText);
+        };
       if (ref.read(gameNotifierProvider) == null && !_isInitializing) {
         _isInitializing = true;
         notifier.initializeGame(widget.resumeGame).then((_) {
@@ -114,7 +96,13 @@ class _GameScreenState extends ConsumerState<GameScreen> with TickerProviderStat
       showDialog(
         context: context,
         barrierDismissible: false,
-        builder: (_) => LevelResultDialog(title: 'Game Over', gameNotifier: notifier, isWin: false),
+        builder:
+            (_) => LevelResultDialog(
+              title: 'Game Over',
+              gameState: notifier.gameState,
+              gameNotifier: notifier,
+              isWin: false,
+            ),
       );
     });
   }
@@ -124,7 +112,13 @@ class _GameScreenState extends ConsumerState<GameScreen> with TickerProviderStat
       showDialog(
         context: context,
         barrierDismissible: false,
-        builder: (_) => LevelResultDialog(title: 'Level Complete! 🎉', gameNotifier: notifier, isWin: true),
+        builder:
+            (_) => LevelResultDialog(
+              title: 'Level Complete! 🎉',
+              gameState: notifier.gameState,
+              gameNotifier: notifier,
+              isWin: true,
+            ),
       );
     });
   }
@@ -165,7 +159,7 @@ class _GameScreenState extends ConsumerState<GameScreen> with TickerProviderStat
             padding: const EdgeInsets.all(16),
             child: Column(
               children: [
-                 StatsRow(gameState: gameState, scoreBubbleKey: _scoreBubbleKey),
+                StatsRow(gameState: gameState, scoreBubbleKey: _scoreBubbleKey),
                 const SizedBox(height: 16),
                 GameCards(gameState: gameState, gameNotifier: gameNotifier),
                 const SizedBox(height: 16),
@@ -176,11 +170,11 @@ class _GameScreenState extends ConsumerState<GameScreen> with TickerProviderStat
           ),
 
           if (_isPaused) pausedGameWidget(),
-          
-         // A popup that appears near the stats row (adjust top/right accordingly).
+
+          // A popup that appears near the stats row (adjust top/right accordingly).
           if (_showScorePopup)
             Positioned(
-              top: 80,  // Adjust this value so it appears near your Score field.
+              top: 80, // Adjust this value so it appears near your Score field.
               right: 16,
               child: AnimatedOpacity(
                 opacity: _showScorePopup ? 1.0 : 0.0,
@@ -193,11 +187,7 @@ class _GameScreenState extends ConsumerState<GameScreen> with TickerProviderStat
                   ),
                   child: Text(
                     _popupText,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
@@ -206,6 +196,7 @@ class _GameScreenState extends ConsumerState<GameScreen> with TickerProviderStat
       ),
     );
   }
+
   /// Pause overlay with fade animation.
   Positioned pausedGameWidget() {
     return Positioned.fill(
@@ -274,11 +265,7 @@ class StatsRow extends StatelessWidget {
       children: [
         StatBubble(label: 'Moves', value: gameState.moves.toString()),
         // Use ScoreBubble here with the provided key:
-        ScoreBubble(
-          key: scoreBubbleKey,
-          label: 'Score',
-          value: gameState.score.toString(),
-        ),
+        ScoreBubble(key: scoreBubbleKey, label: 'Score', value: gameState.score.toString()),
         StatBubble(label: 'Time', value: gameState.currentTime.toString()),
         StatBubble(label: 'Health', value: gameState.health.toString()),
       ],
