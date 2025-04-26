@@ -19,7 +19,6 @@ class AppThemes {
       bodyLarge: const TextStyle(fontSize: 16, color: AppColors.textPrimary),
       bodyMedium: const TextStyle(fontSize: 14, color: AppColors.textSecondary),
       headlineSmall: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-    
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
@@ -35,8 +34,11 @@ class AppThemes {
       contentTextStyle: TextStyle(fontSize: 16, color: Colors.black87),
     ),
     popupMenuTheme: PopupMenuThemeData(
+      // For light theme, for example:
       color: AppColors.primary.withOpacity(0.1),
       textStyle: const TextStyle(color: AppColors.textPrimary),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      elevation: 4,
     ),
     cardTheme: CardThemeData(
       elevation: 4,
@@ -46,8 +48,8 @@ class AppThemes {
     colorScheme: const ColorScheme.light(
       primary: AppColors.primary,
       secondary: AppColors.accent,
-
       onSecondary: Colors.white,
+      // Other color properties can go here.
     ),
   );
 
@@ -75,8 +77,11 @@ class AppThemes {
       ),
     ),
     popupMenuTheme: PopupMenuThemeData(
+      // For dark theme, for example:
       color: AppColors.primary.withOpacity(0.7),
       textStyle: const TextStyle(color: Colors.white70),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      elevation: 4,
     ),
     cardTheme: CardThemeData(
       elevation: 4,
@@ -88,6 +93,7 @@ class AppThemes {
       secondary: AppColors.accent,
       onPrimary: Colors.white,
       onSecondary: Colors.white,
+      // Other color properties can go here.
     ),
   );
 }

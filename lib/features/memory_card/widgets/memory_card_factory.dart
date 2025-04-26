@@ -1,13 +1,9 @@
-// lib/features/memory_card/widgets/memory_card_factory.dart
+//UNUSED FOR NOW
 import 'package:flutter/material.dart';
 
 /// Returns the widget for the front of a memory card.
 /// It automatically pairs each image (so total cards = images.length * 2).
-Widget buildMemoryCardFrontContent(
-  int cardId,
-  String fallbackContent, {
-  int level = 1,
-}) {
+Widget buildMemoryCardFrontContent(int cardId, String fallbackContent, {int level = 1}) {
   // 1) Define the image lists for each level.
   const level1Images = [
     'assets/card_images/level1/card0.png',
@@ -25,7 +21,7 @@ Widget buildMemoryCardFrontContent(
     'assets/card_images/level2/card4.png',
     'assets/card_images/level2/card5.png',
     'assets/card_images/level2/card6.png',
-    'assets/card_images/level2/card7.png',
+    // 'assets/card_images/level2/card7.png',
   ];
   const level3Images = [
     'assets/card_images/level3/card0.png',
@@ -60,8 +56,5 @@ Widget buildMemoryCardFrontContent(
   }
 
   // 4) Fallback if something is out of range.
-  return Text(
-    fallbackContent,
-    style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
-  );
+  return Text(fallbackContent, style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold));
 }

@@ -45,7 +45,7 @@ class GameRepository {
         final updatedUser = currentUser.copyWith(bestTime: currentTime);
         await userBox.put(currentUserKey, updatedUser);
 
-        // Update Firestore as well
+    
         await _updateBestTimeInFirestore(updatedUser.username, currentTime);
       }
     }
@@ -55,29 +55,22 @@ class GameRepository {
   Future<void> _updateBestTimeInFirestore(String username, int bestTime) async {
     try {
       final userRef = _firestore.collection('leaderboard').doc(username);
-      // Using set with merge:true creates or updates the document.
-      await userRef.set(
-        {
-          'bestTime': bestTime,
-          'username': username,
-        },
-        SetOptions(merge: true),
-      );
-     
+    
+      await userRef.set({'bestTime': bestTime, 'username': username}, SetOptions(merge: true));
+
       print('Firestore updated successfully for user: $username');
     } catch (e) {
-      // Log the error for debugging
+    
       print('Error updating best time in Firestore for $username: $e');
     }
   }
 
-  
   Future<void> clearBestTime() async {
     final userBox = Hive.box<UserModel>(userBoxName);
     final currentUser = userBox.get(currentUserKey);
 
     if (currentUser != null) {
-      // Set bestTime to 0 in local storage
+     
       final updatedUser = currentUser.copyWith(bestTime: 0);
       await userBox.put(currentUserKey, updatedUser);
 
@@ -85,30 +78,28 @@ class GameRepository {
       //    await _updateBestTimeInFirestore(updatedUser.username, 0);
     }
   }
-      
+
   /// Generates a shuffled list of MemoryCard objects for the given level.
   /// Level 1: uses assets/card_images/level1 → 6 images → 12 cards
-  /// Level 2: uses assets/card_images/level2 → 8 images → 16 cards
-  /// Level 3: uses assets/card_images/level3 → 12 images → 24 cards
+  /// Level 2: uses assets/card_images/level2 → 8 images → 16 cards and so on
+ 
   List<MemoryCard> generateCardsForLevel(int level, {bool preview = false}) {
     final levelImages = switch (level) {
-      1 => List<String>.generate(6, (i) => 'assets/card_images/level1/card$i.png'),
-      2 => List<String>.generate(8, (i) => 'assets/card_images/level2/card$i.png'),
-      3 => List<String>.generate(12, (i) => 'assets/card_images/level3/card$i.png'),
-      _ => List<String>.generate(6, (i) => 'assets/card_images/level1/card$i.png'),
+      1 => List<String>.generate(5, (i) => 'assets/card_images/level1/card$i.png'),
+      2 => List<String>.generate(6, (i) => 'assets/card_images/level2/card$i.png'),
+      3 => List<String>.generate(7, (i) => 'assets/card_images/level3/card$i.png'),
+      4 => List<String>.generate(8, (i) => 'assets/card_images/level4/card$i.png'),
+      5 => List<String>.generate(9, (i) => 'assets/card_images/level5/card$i.png'),
+      6 => List<String>.generate(10, (i) => 'assets/card_images/level6/card$i.png'),
+      7 => List<String>.generate(11, (i) => 'assets/card_images/level7/card$i.png'),
+      _ => List<String>.generate(5, (i) => 'assets/card_images/level1/card$i.png'),
     };
 
     final allPaths = [for (final path in levelImages) path, for (final path in levelImages) path]..shuffle();
 
     return List<MemoryCard>.generate(
       allPaths.length,
-      (index) => MemoryCard(
-        id: index,
-        content: allPaths[index],
-        isFaceUp: preview, // 👈 Show cards face up initially if preview is true
-      ),
+      (index) => MemoryCard(id: index, content: allPaths[index], isFaceUp: preview),
     );
   }
-
- 
 }

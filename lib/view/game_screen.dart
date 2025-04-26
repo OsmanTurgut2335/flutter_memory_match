@@ -4,13 +4,11 @@ import 'package:mem_game/core/providers/add_provider.dart';
 import 'package:mem_game/core/providers/game_provider.dart';
 import 'package:mem_game/data/game/model/game_state_model.dart';
 import 'package:mem_game/features/game/viewmodel/game_notifier.dart';
-import 'package:mem_game/features/game/widgets/dialog/end_game_dialog.dart';
-import 'package:mem_game/features/game/widgets/game_screen_appbar.dart';
 import 'package:mem_game/features/game/widgets/dialog/level_result_dialog.dart';
+import 'package:mem_game/features/game/widgets/game_screen_appbar.dart';
 import 'package:mem_game/features/game/widgets/score_bubble.dart';
 import 'package:mem_game/features/game/widgets/stat_bubble.dart';
 import 'package:mem_game/features/memory_card/widgets/game_cards.dart';
-
 import 'package:mem_game/view/home_screen.dart';
 
 class GameScreen extends ConsumerStatefulWidget {
@@ -123,6 +121,8 @@ class _GameScreenState extends ConsumerState<GameScreen> with TickerProviderStat
     });
   }
 
+
+
   @override
   Widget build(BuildContext context) {
     final gameState = ref.watch(gameNotifierProvider);
@@ -145,14 +145,15 @@ class _GameScreenState extends ConsumerState<GameScreen> with TickerProviderStat
         onMenuSelected: (value) async {
           if (value == 'exit') {
             await gameNotifier.exitGame();
-            await Navigator.of(context).pushReplacement(MaterialPageRoute<void>(builder: (_) => const HomeScreen()));
+            await Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const HomeScreen()));
           } else if (value == 'homescreen') {
             _pauseGame();
             await gameNotifier.saveCurrentState();
-            await Navigator.of(context).pushReplacement(MaterialPageRoute<void>(builder: (_) => const HomeScreen()));
+            await Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const HomeScreen()));
           }
         },
       ),
+
       body: Stack(
         children: [
           Padding(
@@ -162,6 +163,7 @@ class _GameScreenState extends ConsumerState<GameScreen> with TickerProviderStat
                 StatsRow(gameState: gameState, scoreBubbleKey: _scoreBubbleKey),
                 const SizedBox(height: 16),
                 GameCards(gameState: gameState, gameNotifier: gameNotifier),
+
                 const SizedBox(height: 16),
 
                 BottomLevelFlipRow(gameState: gameState, gameNotifier: gameNotifier),

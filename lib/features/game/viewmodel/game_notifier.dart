@@ -21,7 +21,7 @@ class GameNotifier extends StateNotifier<GameState?> {
     _hasUsedAd = true;
   }
 
-    // Callback that the UI can set to show a +10 popup when a score is increased.
+  // Callback that the UI can set to show a +10 popup when a score is increased.
   void Function(String scoreText)? onScoreIncrease;
 
   GameState? get gameState => state;
@@ -37,7 +37,6 @@ class GameNotifier extends StateNotifier<GameState?> {
       _startTimer();
     }
   }
-  
 
   Future<void> initializeGame(bool resumeGame) async {
     if (resumeGame) {
@@ -51,7 +50,7 @@ class GameNotifier extends StateNotifier<GameState?> {
 
     final level = state?.level ?? 1;
 
-    state = GameState(cards: _generateCardsForLevel(level), level: level, showingPreview: true);
+    state = GameState(cards: generateCardsForLevel(level), level: level, showingPreview: true);
     await _repository.saveGameState(state!);
 
     // Schedule preview end and timer start
@@ -63,38 +62,36 @@ class GameNotifier extends StateNotifier<GameState?> {
   }
 
   Future<void> advanceLevel() async {
-  _timer?.cancel();
+    _timer?.cancel();
 
-  final currentTime = state?.currentTime ?? 0;
-  final currentMoves = state?.moves ?? 0;
-  final currentScore = state?.score ?? 0;
-  final currentLevel = state?.level ?? 1;
-  
-  // Increment the level only if it hasn't reached the final level.
-  final  nextLevel = currentLevel < 3 ? currentLevel + 1 : currentLevel;
-  final newCards = _generateCardsForLevel(nextLevel, preview: true);
+    final currentTime = state?.currentTime ?? 0;
+    final currentMoves = state?.moves ?? 0;
+    final currentScore = state?.score ?? 0;
+    final currentLevel = state?.level ?? 1;
 
-  // Create a new GameState snapshot for the next level.
-  state = GameState(
-    cards: newCards,
-    moves: currentMoves,
-    score: currentScore,
-    currentTime: currentTime,
-    level: nextLevel,
-    showingPreview: true,
-  
-  );
+    // Increment the level only if it hasn't reached the final level.
+    final nextLevel = currentLevel < 3 ? currentLevel + 1 : currentLevel;
+    final newCards = generateCardsForLevel(nextLevel, preview: true);
 
-  await _repository.saveGameState(state!);
+    // Create a new GameState snapshot for the next level.
+    state = GameState(
+      cards: newCards,
+      moves: currentMoves,
+      score: currentScore,
+      currentTime: currentTime,
+      level: nextLevel,
+      showingPreview: true,
+    );
 
-  // Schedule turning off the preview after 3 seconds.
-  Future.delayed(const Duration(seconds: 3), () {
-    final faceDownCards = state!.cards.map((card) => card.copyWith(isFaceUp: false)).toList();
-    state = state!.copyWith(cards: faceDownCards, showingPreview: false);
-    _startTimer();
-  });
-}
+    await _repository.saveGameState(state!);
 
+    // Schedule turning off the preview after 3 seconds.
+    Future.delayed(const Duration(seconds: 3), () {
+      final faceDownCards = state!.cards.map((card) => card.copyWith(isFaceUp: false)).toList();
+      state = state!.copyWith(cards: faceDownCards, showingPreview: false);
+      _startTimer();
+    });
+  }
 
   void flipCards() {
     // Schedule turning off the preview after a 3-second delay.
@@ -122,7 +119,7 @@ class GameNotifier extends StateNotifier<GameState?> {
     _timer?.cancel();
 
     // 1) Create a new game state with preview ON
-    state = GameState(cards: _generateCardsForLevel(1), showingPreview: true);
+    state = GameState(cards: generateCardsForLevel(1), showingPreview: true);
     await _repository.saveGameState(state!);
 
     flipCards();
@@ -134,7 +131,7 @@ class GameNotifier extends StateNotifier<GameState?> {
     }
   }
 
-  List<MemoryCard> _generateCardsForLevel(int level, {bool preview = false}) {
+  List<MemoryCard> generateCardsForLevel(int level, {bool preview = false}) {
     return _repository.generateCardsForLevel(level);
   }
 
@@ -187,7 +184,7 @@ class GameNotifier extends StateNotifier<GameState?> {
         updatedCards[firstIndex].isMatched = true;
         updatedCards[index].isMatched = true;
         state = state!.copyWith(cards: updatedCards, score: state!.score + 10);
-         onScoreIncrease?.call('+10');
+        onScoreIncrease?.call('+10');
       } else {
         _busy = true;
         await Future.delayed(const Duration(seconds: 1));
@@ -215,7 +212,7 @@ class GameNotifier extends StateNotifier<GameState?> {
   void handleWin() {
     _timer?.cancel();
 
-    if (state!.level == 3) {
+    if (state!.level == 7) {
       updateBestTimeIfNeeded();
     }
 
@@ -230,8 +227,12 @@ class GameNotifier extends StateNotifier<GameState?> {
 
   /// **Checks if all cards are matched**
   bool checkWinCondition() {
-    if (state!.showingPreview) return false;
-    return state!.cards.every((card) => card.isMatched);
+    if (state!.showingPreview) {
+      return false;
+    } else {
+      return state!.cards.every((card) => card.isMatched);
+    }
+    
   }
 
   /// Exits the game: cancels the timer, deletes the game state, and resets the state.

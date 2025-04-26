@@ -16,11 +16,11 @@ class GameCards extends StatelessWidget {
       case 1:
         return 100;
       case 2:
-        return 80;
-      case 3:
-        return 70;
-      default:
         return 100;
+      case 3:
+        return 100;
+      default:
+        return 70;
     }
   }
 
@@ -49,41 +49,26 @@ class GameCards extends StatelessWidget {
           final double idealGridHeight = rows * targetSize + (rows - 1) * spacing;
 
           // 4) If the grid is taller or wider than what's available, we scale down uniformly.
-          //    (We don't scale up if there's leftover space, so the grid won't exceed target size.)
-          double scaleFactorWidth = 1.0;
-          double scaleFactorHeight = 1.0;
 
-          // If the ideal grid is wider than availableWidth, compute a horizontal scale factor.
-          if (idealGridWidth > availableWidth) {
-            scaleFactorWidth = availableWidth / idealGridWidth;
-          }
-          // If the ideal grid is taller than availableHeight, compute a vertical scale factor.
-          if (idealGridHeight > availableHeight) {
-            scaleFactorHeight = availableHeight / idealGridHeight;
-          }
-
-          // Take the smaller factor so we don't exceed either width or height.
+          final double scaleFactorWidth = availableWidth / idealGridWidth;
+          final double scaleFactorHeight = availableHeight / idealGridHeight;
+          // ekran ne kadar izin veriyorsa, o oranda küçült ya da büyüt
           final double scaleFactor = min(scaleFactorWidth, scaleFactorHeight);
-
-          // Final cell size after scaling down if needed.
           final double cellSize = targetSize * scaleFactor;
 
           // Final total grid size in pixels.
           final double finalGridWidth = columns * cellSize + (columns - 1) * spacing;
           final double finalGridHeight = rows * cellSize + (rows - 1) * spacing;
 
-          // 5) We'll place the grid at the top-left so it covers from top to bottom.
-          //    If it doesn't fill horizontally, leftover space will appear on the right.
           return SizedBox(
-            width: constraints.maxWidth, // fill parent horizontally
-            height: constraints.maxHeight, // fill parent vertically
+            width: constraints.maxWidth,
+            height: constraints.maxHeight,
             child: Stack(
               children: [
                 Positioned(
                   left: 0,
                   top: 0,
-                  // The grid is sized at finalGridWidth/Height
-                  // so it occupies from top to bottom if finalGridHeight == constraints.maxHeight
+
                   child: SizedBox(
                     width: finalGridWidth,
                     height: finalGridHeight,
@@ -95,7 +80,6 @@ class GameCards extends StatelessWidget {
                         crossAxisCount: columns,
                         crossAxisSpacing: spacing,
                         mainAxisSpacing: spacing,
-                        childAspectRatio: 1.0, // force squares
                       ),
                       itemCount: cardCount,
                       itemBuilder: (context, index) {

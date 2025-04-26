@@ -22,16 +22,13 @@ class LevelResultDialog extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isFinal = gameState!.level == 3;
+    final isFinal = gameState!.level == 7;
 
     return AlertDialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       backgroundColor: Theme.of(context).colorScheme.surface,
       title: Center(
-        child: Text(
-          title,
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-        ),
+        child: Text(title, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
       ),
       content: Column(
         mainAxisSize: MainAxisSize.min,
@@ -54,7 +51,7 @@ class LevelResultDialog extends ConsumerWidget {
                   ..addExtraLife()
                   ..markAdUsed();
                 Future.microtask(() {
-                  Navigator.of(context).pop();
+                  Navigator.of(context, rootNavigator: true).pop();
                 });
               });
             },
@@ -74,7 +71,12 @@ class LevelResultDialog extends ConsumerWidget {
             if (isWin && !isFinal)
               TextButton(
                 onPressed: () {
-                  Navigator.of(context, rootNavigator: true).pop();
+                  try {
+                    Navigator.of(context, rootNavigator: true).pop();
+                  } on(){
+                      //
+                  }
+
                   gameNotifier.advanceLevel();
                 },
                 child: const Text('Next Level'),
@@ -84,9 +86,7 @@ class LevelResultDialog extends ConsumerWidget {
                 onPressed: () {
                   Navigator.of(context).pop();
                   gameNotifier.exitGame();
-                  Navigator.of(context).pushReplacement(
-                    MaterialPageRoute<void>(builder: (_) => const HomeScreen()),
-                  );
+                  Navigator.of(context).pushReplacement(MaterialPageRoute<void>(builder: (_) => const HomeScreen()));
                 },
                 child: const Text('Finish Game'),
               ),
@@ -94,9 +94,7 @@ class LevelResultDialog extends ConsumerWidget {
               onPressed: () {
                 Navigator.of(context).pop();
                 gameNotifier.exitGame();
-                Navigator.of(context).pushReplacement(
-                  MaterialPageRoute<void>(builder: (_) => const HomeScreen()),
-                );
+                Navigator.of(context).pushReplacement(MaterialPageRoute<void>(builder: (_) => const HomeScreen()));
               },
               child: const Text('Home'),
             ),
