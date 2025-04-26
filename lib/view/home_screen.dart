@@ -11,7 +11,6 @@ import 'package:mem_game/features/user/widgets/user_options_menu.dart';
 import 'package:mem_game/view/game_screen.dart';
 import 'package:mem_game/view/scoreboard_screen.dart';
 
-
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
@@ -19,8 +18,7 @@ class HomeScreen extends ConsumerStatefulWidget {
   ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends ConsumerState<HomeScreen>
-    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
+class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   late AnimationController _lottieController;
 
   @override
@@ -31,10 +29,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     _lottieController = AnimationController(vsync: this);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final gameNotifier = ref.read(gameNotifierProvider.notifier)
-        ..onScoreIncrease = (scoreText) {
-         
-        };
+      final gameNotifier = ref.read(gameNotifierProvider.notifier)..onScoreIncrease = (scoreText) {};
 
       if (ref.read(gameNotifierProvider) == null) {
         gameNotifier.initializeGame(false);
@@ -63,7 +58,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     return Scaffold(
       appBar: AppBar(
         title: const Text('Memory Game Home'),
-        actions: [UserPopUpMenu(notifier: ref.read(userViewModelProvider.notifier), gameNotifier: gameNotifier)],
+        actions: [UserActionsButton(notifier: ref.read(userViewModelProvider.notifier), gameNotifier: gameNotifier)],
       ),
       body: Container(
         decoration: const BoxDecoration(
@@ -86,40 +81,41 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
             ),
             // Main content
             Center(
-              child: user == null
-                  ? const Text(
-                      'No user found. Please set up your username.',
-                      style: TextStyle(fontSize: 18, color: Colors.white),
-                    )
-                  : FutureBuilder<bool>(
-                      future: _hasOngoingGame(),
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting) {
-                          return const CircularProgressIndicator();
-                        }
-                        final hasOngoingGame = snapshot.data ?? false;
+              child:
+                  user == null
+                      ? const Text(
+                        'No user found. Please set up your username.',
+                        style: TextStyle(fontSize: 18, color: Colors.white),
+                      )
+                      : FutureBuilder<bool>(
+                        future: _hasOngoingGame(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return const CircularProgressIndicator();
+                          }
+                          final hasOngoingGame = snapshot.data ?? false;
 
-                        return HomeMenu(
-                          hasOngoingGame: hasOngoingGame,
-                          onNewGame: () async {
-                            await ref.read(gameNotifierProvider.notifier).exitGame();
-                            await ref.read(gameNotifierProvider.notifier).restartGame();
-                            await Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(builder: (_) => const GameScreen(resumeGame: false)),
-                            );
-                          },
-                          onContinueGame: () {
-                            gameNotifier.pauseGame();
-                            Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(builder: (_) => const GameScreen(resumeGame: true)),
-                            );
-                          },
-                          onScoreboard: () {
-                            Navigator.of(context).push(MaterialPageRoute(builder: (_) => const LeaderboardScreen()));
-                          },
-                        );
-                      },
-                    ),
+                          return HomeMenu(
+                            hasOngoingGame: hasOngoingGame,
+                            onNewGame: () async {
+                              await ref.read(gameNotifierProvider.notifier).exitGame();
+                              await ref.read(gameNotifierProvider.notifier).restartGame();
+                              await Navigator.of(
+                                context,
+                              ).pushReplacement(MaterialPageRoute(builder: (_) => const GameScreen(resumeGame: false)));
+                            },
+                            onContinueGame: () {
+                              gameNotifier.pauseGame();
+                              Navigator.of(
+                                context,
+                              ).pushReplacement(MaterialPageRoute(builder: (_) => const GameScreen(resumeGame: true)));
+                            },
+                            onScoreboard: () {
+                              Navigator.of(context).push(MaterialPageRoute(builder: (_) => const LeaderboardScreen()));
+                            },
+                          );
+                        },
+                      ),
             ),
             // Lottie animation at the bottom
             Align(
