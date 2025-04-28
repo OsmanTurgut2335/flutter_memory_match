@@ -58,6 +58,18 @@ class HomeMenu extends StatelessWidget {
           onPressed: onScoreboard,
           child: const Text('Scoreboard'),
         ),
+         ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFFFFA726), // Accent color
+            foregroundColor: Colors.black87,
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+          onPressed: onNewGame,
+          child: const Text('Shop'),
+        )
       ],
     );
   }

@@ -12,6 +12,7 @@ class UserModel extends HiveObject {
     this.bestTime = 0,
     this.currentTime = 0,
     this.moves = 0,
+    this.coins=0,
   });
 
   // The player's username
@@ -39,6 +40,10 @@ class UserModel extends HiveObject {
   @HiveField(5)
   final int moves;
 
+  // The number of moves made during the game
+  @HiveField(6)
+  final int coins;
+
   
 
   UserModel copyWith({
@@ -48,6 +53,7 @@ class UserModel extends HiveObject {
     int? bestTime,
     int? currentTime,
     int? moves,
+    int? coins,
   }) {
     return UserModel(
       username: username ?? this.username,
@@ -56,6 +62,7 @@ class UserModel extends HiveObject {
       bestTime: bestTime ?? this.bestTime,
       currentTime: currentTime ?? this.currentTime,
       moves: moves ?? this.moves,
+      coins: coins ?? this.coins,
     );
   }
 }

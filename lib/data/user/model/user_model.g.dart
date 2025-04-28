@@ -23,13 +23,14 @@ class UserModelAdapter extends TypeAdapter<UserModel> {
       bestTime: fields[3] as int,
       currentTime: fields[4] as int,
       moves: fields[5] as int,
+      coins: fields[6] as int,
     );
   }
 
   @override
   void write(BinaryWriter writer, UserModel obj) {
     writer
-      ..writeByte(6)
+      ..writeByte(7)
       ..writeByte(0)
       ..write(obj.username)
       ..writeByte(1)
@@ -41,7 +42,9 @@ class UserModelAdapter extends TypeAdapter<UserModel> {
       ..writeByte(4)
       ..write(obj.currentTime)
       ..writeByte(5)
-      ..write(obj.moves);
+      ..write(obj.moves)
+      ..writeByte(6)
+      ..write(obj.coins);
   }
 
   @override
