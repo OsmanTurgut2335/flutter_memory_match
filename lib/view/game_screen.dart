@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mem_game/core/providers/add_provider.dart';
+import 'package:mem_game/core/providers/ad_provider.dart';
 import 'package:mem_game/core/providers/game_provider.dart';
+import 'package:mem_game/core/providers/shop_provider.dart';
 import 'package:mem_game/data/game/model/game_state_model.dart';
+import 'package:mem_game/data/shop_item/model/shop_item.dart';
 import 'package:mem_game/features/game/viewmodel/game_notifier.dart';
 import 'package:mem_game/features/game/widgets/dialog/level_result_dialog.dart';
 import 'package:mem_game/features/game/widgets/game_screen_appbar.dart';
@@ -37,24 +39,50 @@ class _GameScreenState extends ConsumerState<GameScreen> with TickerProviderStat
     // Controller for fade animation on pause overlay.
     _pauseController = AnimationController(vsync: this, duration: const Duration(milliseconds: 300));
     _pauseOpacity = Tween<double>(begin: 0, end: 1).animate(_pauseController);
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final notifier = ref.read(gameNotifierProvider.notifier)
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final gameNotifier = ref.read(gameNotifierProvider.notifier)
         ..onScoreIncrease = (scoreText) {
           _scoreBubbleKey.currentState?.showIncrement(scoreText);
         };
-      if (ref.read(gameNotifierProvider) == null && !_isInitializing) {
-        _isInitializing = true;
-        notifier.initializeGame(widget.resumeGame).then((_) {
-          if (mounted) {
-            setState(() {
-              _isInitializing = false;
-            });
+
+      if (!widget.resumeGame) {
+        // Load shop items to ensure latest data
+        final shopNotifier = ref.read(shopViewModelProvider.notifier);
+        await shopNotifier.loadAll();
+
+        final shopItems = ref.read(shopViewModelProvider);
+        final hasPotion = shopItems.any((item) => item.itemType == ShopItemType.healthPotion && item.quantity > 0);
+
+        bool usedPotion = false;
+        if (hasPotion) {
+          final use = await showDialog<bool>(
+            context: context,
+            builder:
+                (_) => AlertDialog(
+                  title: const Text('Health Potion'),
+                  content: const Text('You have a Health Potion. Do you want to use it before the game starts?'),
+                  actions: [
+                    TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('No')),
+                    TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Yes')),
+                  ],
+                ),
+          );
+
+          if (use == true) {
+            await shopNotifier.useHealthPotion();
+            usedPotion = true;
           }
-        });
+        }
+
+        await gameNotifier.initializeGame(widget.resumeGame, bonusHealth: usedPotion ? 1 : 0);
+      } else {
+        // Resume existing game without health boost
+        await gameNotifier.initializeGame(widget.resumeGame, bonusHealth: 0);
       }
-      // Preload the rewarded ad.
-      ref.read(rewardedAdNotifierProvider.notifier).loadAd();
+
+      if (mounted) setState(() => _isInitializing = false);
+
+      await ref.read(rewardedAdNotifierProvider.notifier).loadAd();
     });
   }
 
@@ -121,8 +149,6 @@ class _GameScreenState extends ConsumerState<GameScreen> with TickerProviderStat
     });
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     final gameState = ref.watch(gameNotifierProvider);
@@ -162,8 +188,9 @@ class _GameScreenState extends ConsumerState<GameScreen> with TickerProviderStat
               children: [
                 StatsRow(gameState: gameState, scoreBubbleKey: _scoreBubbleKey),
                 const SizedBox(height: 16),
-                GameCards(gameState: gameState, gameNotifier: gameNotifier),
 
+                //GameCards(gameState: gameState, gameNotifier: gameNotifier),
+                Expanded(child: GameCards(gameState: gameState, gameNotifier: gameNotifier)),
                 const SizedBox(height: 16),
 
                 BottomLevelFlipRow(gameState: gameState, gameNotifier: gameNotifier),

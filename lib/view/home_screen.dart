@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lottie/lottie.dart';
 import 'package:mem_game/core/painters/wave_painter.dart';
-import 'package:mem_game/core/providers/add_provider.dart';
+import 'package:mem_game/core/providers/ad_provider.dart';
 import 'package:mem_game/core/providers/game_provider.dart';
 import 'package:mem_game/core/providers/user_provider.dart';
 import 'package:mem_game/data/game/repository/game_repository.dart';
@@ -10,6 +10,7 @@ import 'package:mem_game/features/home/widgets/home_menu.dart';
 import 'package:mem_game/features/user/widgets/user_options_menu.dart';
 import 'package:mem_game/view/game_screen.dart';
 import 'package:mem_game/view/scoreboard_screen.dart';
+import 'package:mem_game/view/shop_screen.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -99,7 +100,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
                             hasOngoingGame: hasOngoingGame,
                             onNewGame: () async {
                               await ref.read(gameNotifierProvider.notifier).exitGame();
-                              await ref.read(gameNotifierProvider.notifier).restartGame();
+                        //      await ref.read(gameNotifierProvider.notifier).restartGame();
                               await Navigator.of(
                                 context,
                               ).pushReplacement(MaterialPageRoute(builder: (_) => const GameScreen(resumeGame: false)));
@@ -112,6 +113,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
                             },
                             onScoreboard: () {
                               Navigator.of(context).push(MaterialPageRoute(builder: (_) => const LeaderboardScreen()));
+                            },
+                            onShop: () {
+                              Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ShopScreen()));
                             },
                           );
                         },

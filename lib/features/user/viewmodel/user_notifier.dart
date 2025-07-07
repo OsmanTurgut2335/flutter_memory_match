@@ -41,6 +41,28 @@ Future<void> changeUsername(String newUsername) async {
     await _repository.deleteUser();
     state = null;
   }
-
   
+  /// Deducts [amount] coins from the user, persists the change, and updates state.
+  Future<void> purchaseCoins(int amount) async {
+    final current = state;
+    if (current == null) return;
+    
+    // Ensure user has enough coins
+    if (current.coins < amount) return;
+
+    // Create updated user
+    final updated = current.copyWith(coins: current.coins - amount);
+
+    await _repository.saveUser(updated);
+
+    state = updated;
+  }
+   /// Sadece ekleme (subtraction yok).
+  Future<void> addCoins(int amount) async {
+    final current = state;
+    if (current == null) return;
+    final updated = current.copyWith(coins: current.coins + amount);
+    await _repository.saveUser(updated);
+    state = updated;
+  }
 }

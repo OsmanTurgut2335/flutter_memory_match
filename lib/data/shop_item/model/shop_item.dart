@@ -4,7 +4,7 @@ part 'shop_item.g.dart';
 
 /// Envanterdeki her öğe bir kullanıcıya ait,
 /// bir itemType ve adet (quantity) bilgisini tutar.
-@HiveType(typeId: 2)
+@HiveType(typeId: 3)
 class ShopItem extends HiveObject {              
 
   ShopItem({
@@ -13,16 +13,16 @@ class ShopItem extends HiveObject {
     this.quantity = 1,
   });
   @HiveField(0)
-  String userId;                // Hangi kullanıcıya ait olduğu
+  String userId;                
 
   @HiveField(1)
-  ShopItemType itemType;   // HealthPotion mı ExtraFlip mı
+  ShopItemType itemType;   
 
   @HiveField(2)
-  int quantity;                    // Stok adedi
+  int quantity;                    
 }
 
-@HiveType(typeId: 3)
+@HiveType(typeId: 4)
 enum ShopItemType {
   @HiveField(0)
   healthPotion,

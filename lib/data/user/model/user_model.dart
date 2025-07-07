@@ -1,4 +1,5 @@
 import 'package:hive/hive.dart';
+import 'package:mem_game/data/shop_item/model/shop_item.dart';
 
 part 'user_model.g.dart';
 
@@ -41,9 +42,12 @@ class UserModel extends HiveObject {
   final int moves;
 
   // The number of moves made during the game
-  @HiveField(6)
-  final int coins;
-
+  @HiveField(6, defaultValue: 0)
+   int coins;
+  
+  /// Kullanıcının envanterindeki öğeler
+  @HiveField(7)
+  HiveList<ShopItem> inventory = HiveList<ShopItem>(Hive.box<ShopItem>('shopItemsBox'));
   
 
   UserModel copyWith({

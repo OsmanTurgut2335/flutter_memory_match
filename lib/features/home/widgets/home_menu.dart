@@ -6,6 +6,7 @@ class HomeMenu extends StatelessWidget {
     required this.onNewGame,
     required this.onContinueGame,
     required this.onScoreboard,
+    required this.onShop,
     super.key,
   });
 
@@ -13,6 +14,7 @@ class HomeMenu extends StatelessWidget {
   final VoidCallback onNewGame;
   final VoidCallback onContinueGame;
   final VoidCallback onScoreboard;
+  final VoidCallback onShop;
 
   @override
   Widget build(BuildContext context) {
@@ -24,9 +26,7 @@ class HomeMenu extends StatelessWidget {
             backgroundColor: const Color(0xFFFFA726), // Accent color
             foregroundColor: Colors.black87,
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
           onPressed: onNewGame,
           child: const Text('New Game'),
@@ -38,9 +38,7 @@ class HomeMenu extends StatelessWidget {
               backgroundColor: const Color(0xFFFFA726),
               foregroundColor: Colors.black87,
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
             onPressed: onContinueGame,
             child: const Text('Continue Game'),
@@ -51,25 +49,22 @@ class HomeMenu extends StatelessWidget {
             backgroundColor: const Color(0xFFFFA726),
             foregroundColor: Colors.black87,
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
           onPressed: onScoreboard,
           child: const Text('Scoreboard'),
         ),
-         ElevatedButton(
+        const SizedBox(height: 16),
+        ElevatedButton(
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFFFFA726), // Accent color
             foregroundColor: Colors.black87,
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
-          onPressed: onNewGame,
+          onPressed: onShop,
           child: const Text('Shop'),
-        )
+        ),
       ],
     );
   }

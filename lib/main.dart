@@ -6,8 +6,9 @@ import 'package:hive_flutter/adapters.dart';
 import 'package:mem_game/core/themes/themes.dart';
 import 'package:mem_game/data/game/model/game_state_model.dart';
 import 'package:mem_game/data/memorycard/model/memory_card.dart';
+import 'package:mem_game/data/shop_item/model/shop_item.dart';
 import 'package:mem_game/data/user/model/user_model.dart';
-import 'package:mem_game/firebase_options.dart'; // Make sure this file exists
+import 'package:mem_game/firebase_options.dart';
 import 'package:mem_game/view/create_username_screen.dart';
 import 'package:mem_game/view/home_screen.dart';
 
@@ -17,14 +18,25 @@ void main() async {
   Hive
     ..registerAdapter(UserModelAdapter())
     ..registerAdapter(MemoryCardAdapter())
-    ..registerAdapter(GameStateAdapter());
-  // Open both boxes:
+    ..registerAdapter(GameStateAdapter())
+    ..registerAdapter(ShopItemAdapter())
+    ..registerAdapter(ShopItemTypeAdapter());
+
+  await Hive.openBox<ShopItem>('shopItemsBox');
   await Hive.openBox<UserModel>('userBox');
   await Hive.openBox<GameState>('gameBox');
-   
-     await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+
+  // Kullanıcı yüklendiğinde (ör. login/first-run):
+  final users = Hive.box<UserModel>('userBox');
+  final shop = Hive.box<ShopItem>('shopItemsBox');
+
+  final user = users.get('currentUserKey');
+  if (user != null) {
+    // Eğer inventory daha önce set edilmemişse, boş bir HiveList ata
+    user.inventory = HiveList(shop, objects: []);
+    await user.save();
+  }
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   // Initialize Mobile Ads SDK
   await MobileAds.instance.initialize();
   runApp(const ProviderScope(child: MyApp()));
@@ -38,9 +50,10 @@ class MyApp extends StatelessWidget {
     final userBox = Hive.box<UserModel>('userBox');
     final hasUser = userBox.containsKey('currentUser');
 
-    return MaterialApp(home: hasUser ? const HomeScreen() : const UsernameInputScreen(),
-    theme: AppThemes.lightTheme,
-      darkTheme: AppThemes.darkTheme 
+    return MaterialApp(
+      home: hasUser ? const HomeScreen() : const UsernameInputScreen(),
+      theme: AppThemes.lightTheme,
+      darkTheme: AppThemes.darkTheme,
     );
   }
 }

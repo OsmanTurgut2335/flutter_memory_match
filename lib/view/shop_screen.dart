@@ -1,85 +1,82 @@
 import 'package:flutter/material.dart';
-import 'package:mem_game/data/user/model/user_model.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mem_game/core/providers/shop_provider.dart';
+import 'package:mem_game/core/providers/user_provider.dart';
+import 'package:mem_game/data/shop_item/model/shop_item.dart';
 
+///TODO ADD WATCH AD FOR 20 COİNS FEATURE
 
-class ShopScreen extends StatelessWidget {
-
-  const ShopScreen({
-    required this.user, required this.onPurchase, super.key,
-  });
-  final UserModel user;
-  final void Function(int cost) onPurchase;
+class ShopScreen extends ConsumerWidget {
+  const ShopScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+
+    // Kullanıcı ve notifier'lar
+    final user = ref.watch(userViewModelProvider)!;
+    final userNotifier = ref.read(userViewModelProvider.notifier);
+    final shopNotifier = ref.read(shopViewModelProvider.notifier);
+    final shopItems = ref.watch(shopViewModelProvider);
+
+    const int potionPrice = 100;
+    final canBuy = user.coins >= potionPrice;
+
+    // Health potion varsa adedini bulalım
+    final healthPotion = shopItems.firstWhere(
+      (item) => item.itemType == ShopItemType.healthPotion,
+      orElse: () => ShopItem(userId: user.username, itemType: ShopItemType.healthPotion, quantity: 0),
+    );
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Shop'),
-      ),
+      appBar: AppBar(title: const Text('Shop')),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(
-              r'Coins: ${user.coins}',
-              style: theme.textTheme.titleLarge,
-              textAlign: TextAlign.center,
-            ),
+            Text('Coins: ${user.coins}', style: theme.textTheme.titleLarge, textAlign: TextAlign.center),
             const SizedBox(height: 24),
+
             Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               elevation: 4,
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
                 child: Row(
                   children: [
-                    // Icon or image for Health Potion
-                    Icon(
-                      Icons.favorite,
-                      color: theme.colorScheme.primary,
-                      size: 40,
-                    ),
+                    Icon(Icons.favorite, size: 40, color: theme.colorScheme.primary),
                     const SizedBox(width: 16),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            'Health Potion',
-                            style: theme.textTheme.titleMedium,
-                          ),
+                          Text('Health Potion', style: theme.textTheme.titleMedium),
                           const SizedBox(height: 4),
-                          Text(
-                            'Restore 1 life when used',
-                            style: theme.textTheme.bodyMedium,
-                          ),
+                          Text('You have: ${healthPotion.quantity}'),
                         ],
                       ),
                     ),
                     ElevatedButton(
-                      onPressed: user.coins >= 100
-                          ? () => onPurchase(100)
-                          : null,
+                      onPressed:
+                          canBuy
+                              ? () async {
+                                await userNotifier.purchaseCoins(potionPrice);
+                                await shopNotifier.purchase(ShopItemType.healthPotion, potionPrice);
+                              }
+                              : null,
                       style: ElevatedButton.styleFrom(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                       ),
-                      child: const Text('100'),
+                      child: Text('\$$potionPrice'),
                     ),
                   ],
                 ),
               ),
             ),
+
             const Spacer(),
-            ElevatedButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Back'),
-            ),
+            ElevatedButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Back')),
           ],
         ),
       ),
