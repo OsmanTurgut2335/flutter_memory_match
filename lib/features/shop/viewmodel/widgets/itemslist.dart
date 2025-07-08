@@ -72,8 +72,8 @@ Future<Map<String, bool>?> showBoostSelectionDialog(
                 BoostOptionTile(
                   title: 'Double Coins',
                   description: '2x coin reward',
-                  quantity: doubleQty,
-                  selected: useDoubleCoins,
+                       quantity: doubleQty,
+                     selected: useDoubleCoins,
                   onTap: () => setState(() => useDoubleCoins = !useDoubleCoins),
                 ),
                 BoostOptionTile(

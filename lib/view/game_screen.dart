@@ -31,6 +31,7 @@ class _GameScreenState extends ConsumerState<GameScreen> with TickerProviderStat
   late Animation<double> _pauseOpacity;
   final bool _showScorePopup = false;
   final String _popupText = '';
+  bool _isDialogOpen = false;
 
   @override
   void initState() {
@@ -129,22 +130,32 @@ class _GameScreenState extends ConsumerState<GameScreen> with TickerProviderStat
               gameState: notifier.gameState,
               gameNotifier: notifier,
               isWin: false,
+              onDialogClosed: () {
+                _isDialogOpen = false; 
+              },
             ),
       );
     });
   }
 
   void _handleWin(GameNotifier notifier) {
+    if (_isDialogOpen) return;
+
+    _isDialogOpen = true;
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       showDialog(
         context: context,
         barrierDismissible: false,
         builder:
             (_) => LevelResultDialog(
-              title: 'Level Complete! 🎉',
+              title: 'Level Complete!',
               gameState: notifier.gameState,
               gameNotifier: notifier,
               isWin: true,
+              onDialogClosed: () {
+                _isDialogOpen = false; 
+              },
             ),
       );
     });

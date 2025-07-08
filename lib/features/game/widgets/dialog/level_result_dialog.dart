@@ -12,6 +12,7 @@ class LevelResultDialog extends ConsumerWidget {
     required this.gameState,
     required this.gameNotifier,
     required this.isWin,
+    required this.onDialogClosed,
     super.key,
   });
 
@@ -19,6 +20,7 @@ class LevelResultDialog extends ConsumerWidget {
   final GameState? gameState;
   final GameNotifier gameNotifier;
   final bool isWin;
+  final VoidCallback? onDialogClosed;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -71,16 +73,13 @@ class LevelResultDialog extends ConsumerWidget {
             if (isWin && !isFinal)
               TextButton(
                 onPressed: () {
-                  try {
-                    Navigator.of(context, rootNavigator: true).pop();
-                  } on(){
-                      //
-                  }
-
+                  onDialogClosed?.call();
+                  Navigator.of(context, rootNavigator: true).pop();
                   gameNotifier.advanceLevel();
                 },
                 child: const Text('Next Level'),
               ),
+
             if (isWin && isFinal)
               TextButton(
                 onPressed: () {
