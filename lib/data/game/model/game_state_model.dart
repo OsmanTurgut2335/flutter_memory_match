@@ -11,10 +11,11 @@ class GameState extends HiveObject {
     this.score = 0,
     this.currentTime = 0,
     this.health = 3,
-    this.isPaused = false, 
-    this.level= 1,
+    this.isPaused = false,
+    this.level = 1,
     this.showingPreview = false,
-    this.canRevealCards= true,
+    this.flipCount = 1,
+    this.doubleCoins = false,
   });
 
   @HiveField(0)
@@ -32,20 +33,21 @@ class GameState extends HiveObject {
   @HiveField(4)
   final int health;
 
-  @HiveField(5) 
+  @HiveField(5)
   final bool isPaused;
 
-  @HiveField(6) 
+  @HiveField(6)
   final int level;
 
   @HiveField(7)
   final bool showingPreview;
 
+  @HiveField(9)
+  final bool doubleCoins;
+
   @HiveField(8)
-  final bool canRevealCards;
+  final int flipCount;
 
-
-  /// Creates a modified copy of the game state while keeping immutability.
   GameState copyWith({
     List<MemoryCard>? cards,
     int? moves,
@@ -55,7 +57,8 @@ class GameState extends HiveObject {
     bool? isPaused,
     int? level,
     bool? showingPreview,
-    bool? canRevealCards,
+    int? flipCount,
+    bool? doubleCoins,
   }) {
     return GameState(
       cards: cards ?? this.cards,
@@ -64,9 +67,10 @@ class GameState extends HiveObject {
       currentTime: currentTime ?? this.currentTime,
       health: health ?? this.health,
       isPaused: isPaused ?? this.isPaused,
-      level: level?? this.level,
+      level: level ?? this.level,
       showingPreview: showingPreview ?? this.showingPreview,
-      canRevealCards: canRevealCards ?? this.canRevealCards,
+      flipCount: flipCount ?? this.flipCount,
+      doubleCoins: doubleCoins ?? this.doubleCoins,
     );
   }
 }

@@ -11,6 +11,7 @@ import 'package:mem_game/features/game/widgets/game_screen_appbar.dart';
 import 'package:mem_game/features/game/widgets/score_bubble.dart';
 import 'package:mem_game/features/game/widgets/stat_bubble.dart';
 import 'package:mem_game/features/memory_card/widgets/game_cards.dart';
+import 'package:mem_game/features/shop/viewmodel/widgets/itemslist.dart';
 import 'package:mem_game/view/home_screen.dart';
 
 class GameScreen extends ConsumerStatefulWidget {
@@ -45,42 +46,42 @@ class _GameScreenState extends ConsumerState<GameScreen> with TickerProviderStat
           _scoreBubbleKey.currentState?.showIncrement(scoreText);
         };
 
-      if (!widget.resumeGame) {
-        // Load shop items to ensure latest data
-        final shopNotifier = ref.read(shopViewModelProvider.notifier);
-        await shopNotifier.loadAll();
-
-        final shopItems = ref.read(shopViewModelProvider);
-        final hasPotion = shopItems.any((item) => item.itemType == ShopItemType.healthPotion && item.quantity > 0);
-
-        bool usedPotion = false;
-        if (hasPotion) {
-          final use = await showDialog<bool>(
-            context: context,
-            builder:
-                (_) => AlertDialog(
-                  title: const Text('Health Potion'),
-                  content: const Text('You have a Health Potion. Do you want to use it before the game starts?'),
-                  actions: [
-                    TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('No')),
-                    TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Yes')),
-                  ],
-                ),
-          );
-
-          if (use == true) {
-            await shopNotifier.useHealthPotion();
-            usedPotion = true;
-          }
-        }
-
-        await gameNotifier.initializeGame(widget.resumeGame, bonusHealth: usedPotion ? 1 : 0);
-      } else {
-        // Resume existing game without health boost
-        await gameNotifier.initializeGame(widget.resumeGame, bonusHealth: 0);
+      // Resume modundaysa boost seçme popup'ı göstermeden direkt başlat
+      if (widget.resumeGame) {
+        await gameNotifier.initializeGame(true);
+        return;
       }
 
-      if (mounted) setState(() => _isInitializing = false);
+      // Boost popup'ı göster
+      final shopItems = ref.read(shopViewModelProvider);
+      final selectedBoosts = await showBoostSelectionDialog(context, shopItems);
+      if (selectedBoosts == null) return;
+
+      final shopNotifier = ref.read(shopViewModelProvider.notifier);
+
+      bool usedHealth = false;
+      bool usedDouble = false;
+      bool usedFlip = false;
+
+      if (selectedBoosts['healthPotion'] == true) {
+        await shopNotifier.useHealthPotion();
+        usedHealth = true;
+      }
+      if (selectedBoosts['doubleCoins'] == true) {
+        await shopNotifier.useDoubleCoins();
+        usedDouble = true;
+      }
+      if (selectedBoosts['extraFlip'] == true) {
+        await shopNotifier.useExtraFlip();
+        usedFlip = true;
+      }
+
+      await gameNotifier.initializeGame(
+        false,
+        bonusHealth: usedHealth ? 1 : 0,
+        doubleCoins: usedDouble,
+        extraFlipCount: usedFlip ? 1 : 0,
+      );
 
       await ref.read(rewardedAdNotifierProvider.notifier).loadAd();
     });
@@ -258,18 +259,21 @@ class BottomLevelFlipRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final bool canFlip = (gameState?.flipCount ?? 0) > 0;
+
     return Container(
-      color: Theme.of(context).colorScheme.surface,
+      color: theme.colorScheme.surface,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text('Level: ${gameState?.level ?? 1}', style: Theme.of(context).textTheme.titleMedium),
+          Text('Level: ${gameState?.level ?? 1}', style: theme.textTheme.titleMedium),
           ElevatedButton.icon(
-            onPressed: gameState?.canRevealCards == true ? gameNotifier.flipCardsOnButtonPress : null,
+            onPressed: canFlip ? gameNotifier.flipCardsOnButtonPress : null,
             style: ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.primary,
-              foregroundColor: Theme.of(context).colorScheme.onPrimary,
+              backgroundColor: theme.colorScheme.primary,
+              foregroundColor: theme.colorScheme.onPrimary,
             ),
             icon: const Icon(Icons.flip_camera_android_outlined),
             label: const Text('Flip Cards'),

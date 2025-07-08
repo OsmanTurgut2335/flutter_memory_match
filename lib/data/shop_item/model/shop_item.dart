@@ -29,4 +29,7 @@ enum ShopItemType {
 
   @HiveField(1)
   extraFlip,
+
+   @HiveField(2)
+  doubleCoins,
 }

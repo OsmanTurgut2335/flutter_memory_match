@@ -25,14 +25,15 @@ class GameStateAdapter extends TypeAdapter<GameState> {
       isPaused: fields[5] as bool,
       level: fields[6] as int,
       showingPreview: fields[7] as bool,
-      canRevealCards: fields[8] as bool,
+      flipCount: fields[8] as int,
+      doubleCoins: fields[9] as bool,
     );
   }
 
   @override
   void write(BinaryWriter writer, GameState obj) {
     writer
-      ..writeByte(9)
+      ..writeByte(10)
       ..writeByte(0)
       ..write(obj.cards)
       ..writeByte(1)
@@ -49,8 +50,10 @@ class GameStateAdapter extends TypeAdapter<GameState> {
       ..write(obj.level)
       ..writeByte(7)
       ..write(obj.showingPreview)
+      ..writeByte(9)
+      ..write(obj.doubleCoins)
       ..writeByte(8)
-      ..write(obj.canRevealCards);
+      ..write(obj.flipCount);
   }
 
   @override

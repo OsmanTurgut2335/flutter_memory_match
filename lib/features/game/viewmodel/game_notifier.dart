@@ -39,14 +39,19 @@ final ShopRepository _shopItemRepository;
 
   void addExtraLife() {
     if (state != null && state!.health <= 0) {
-      state = state!.copyWith(health: 3, isPaused: true, canRevealCards: true);
+      state = state!.copyWith(health: 3, isPaused: true,);
 
       _startTimer();
     }
   }
 
- Future<void> initializeGame(bool resumeGame, {int bonusHealth = 0, bool forceNewGame = false}) async {
-  if (resumeGame && !forceNewGame) {
+ Future<void> initializeGame(
+  bool resumeGame, {
+  int bonusHealth = 0,
+  bool doubleCoins = false,
+  int extraFlipCount = 0,
+}) async {
+  if (resumeGame) {
     final savedState = await _repository.loadGameState();
     if (savedState != null) {
       state = savedState;
@@ -56,12 +61,13 @@ final ShopRepository _shopItemRepository;
   }
 
   final level = state?.level ?? 1;
-  final defaultHealth = 3 + bonusHealth;
 
   state = GameState(
-    cards: generateCardsForLevel(level),
+    cards: generateCardsForLevel(level, preview: true),
     level: level,
-    health: defaultHealth,
+    health: 3 + bonusHealth,
+    doubleCoins: doubleCoins,
+    flipCount: 1 + extraFlipCount,
     showingPreview: true,
   );
 
@@ -75,43 +81,47 @@ final ShopRepository _shopItemRepository;
 }
 
 
-  Future<void> advanceLevel() async {
-    _timer?.cancel();
-    const int rewardCoins = 100;
 
-    final user = _userRepository.getUser();
-    if (user != null) {
-      user.coins += rewardCoins;
-      await _userRepository.saveUser(user);
-    }
-    final currentTime = state?.currentTime ?? 0;
-    final currentMoves = state?.moves ?? 0;
-    final currentScore = state?.score ?? 0;
-    final currentLevel = state?.level ?? 1;
+Future<void> advanceLevel() async {
+  _timer?.cancel();
 
-    // Increment the level only if it hasn't reached the final level.
-    final nextLevel = currentLevel < 3 ? currentLevel + 1 : currentLevel;
-    final newCards = generateCardsForLevel(nextLevel, preview: true);
+  final user = _userRepository.getUser();
+  if (user != null) {
+    final isDouble = state?.doubleCoins ?? false;
+    const int baseReward = 100;
+    final int rewardCoins = isDouble ? baseReward * 2 : baseReward;
 
-    // Create a new GameState snapshot for the next level.
-    state = GameState(
-      cards: newCards,
-      moves: currentMoves,
-      score: currentScore,
-      currentTime: currentTime,
-      level: nextLevel,
-      showingPreview: true,
-    );
-
-    await _repository.saveGameState(state!);
-
-    // Schedule turning off the preview after 3 seconds.
-    Future.delayed(const Duration(seconds: 3), () {
-      final faceDownCards = state!.cards.map((card) => card.copyWith(isFaceUp: false)).toList();
-      state = state!.copyWith(cards: faceDownCards, showingPreview: false);
-      _startTimer();
-    });
+    user.coins += rewardCoins;
+    await _userRepository.saveUser(user);
   }
+
+  final currentTime = state?.currentTime ?? 0;
+  final currentMoves = state?.moves ?? 0;
+  final currentScore = state?.score ?? 0;
+  final currentLevel = state?.level ?? 1;
+  final nextLevel = currentLevel < 3 ? currentLevel + 1 : currentLevel;
+
+  state = GameState(
+    cards: generateCardsForLevel(nextLevel, preview: true),
+    moves: currentMoves,
+    score: currentScore,
+    currentTime: currentTime,
+    level: nextLevel,
+    health: state!.health,
+    doubleCoins: state!.doubleCoins,
+    flipCount: 1, // Her seviye başında sadece 1 flip hakkı
+    showingPreview: true,
+  );
+
+  await _repository.saveGameState(state!);
+
+  Future.delayed(const Duration(seconds: 3), () {
+    final faceDownCards = state!.cards.map((card) => card.copyWith(isFaceUp: false)).toList();
+    state = state!.copyWith(cards: faceDownCards, showingPreview: false);
+    _startTimer();
+  });
+}
+
 
   void flipCards() {
     // Schedule turning off the preview after a 3-second delay.
@@ -127,12 +137,21 @@ final ShopRepository _shopItemRepository;
     });
   }
 
-  Future<void> flipCardsOnButtonPress() async {
-    _timer?.cancel();
-    state = state!.copyWith(canRevealCards: false, showingPreview: true);
-    await _repository.saveGameState(state!);
-    flipCards();
-  }
+Future<void> flipCardsOnButtonPress() async {
+  if (state == null || state!.flipCount <= 0) return;
+
+  _timer?.cancel();
+
+  // Flip hakkını azalt
+  state = state!.copyWith(
+    flipCount: state!.flipCount - 1,
+    showingPreview: true,
+  );
+
+  await _repository.saveGameState(state!);
+  flipCards();
+}
+
 
   Future<void> restartGame() async {
     _hasUsedAd = false;
