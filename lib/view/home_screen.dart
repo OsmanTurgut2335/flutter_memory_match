@@ -106,7 +106,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
                               ).pushReplacement(MaterialPageRoute(builder: (_) => const GameScreen(resumeGame: false)));
                             },
                             onContinueGame: () {
-                              gameNotifier.pauseGame();
+                         
                               Navigator.of(
                                 context,
                               ).pushReplacement(MaterialPageRoute(builder: (_) => const GameScreen(resumeGame: true)));

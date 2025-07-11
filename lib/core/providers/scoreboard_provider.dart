@@ -8,9 +8,8 @@ final scoreboardRepositoryProvider = Provider<ScoreboardRepository>((ref) {
 });
 
 
-final scoreboardViewModelProvider = StateNotifierProvider<ScoreboardNotifier, Score?>((
-  ref,
-) {
+final scoreboardViewModelProvider =
+    StateNotifierProvider<ScoreboardNotifier, AsyncValue<List<Score>>>((ref) {
   final repository = ref.watch(scoreboardRepositoryProvider);
   return ScoreboardNotifier(repository);
 });
