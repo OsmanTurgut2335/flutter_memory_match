@@ -1,4 +1,4 @@
-import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:mem_game/data/game/model/game_state_model.dart';
 import 'package:mem_game/features/game/viewmodel/game_notifier.dart';
@@ -13,26 +13,26 @@ class GameCards extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final double screenWidth = size.width;
-    final double screenHeight = size.height;
+    final  screenWidth = size.width;
+    final  screenHeight = size.height;
 
-    const double spacing = 8.0;
-    const double minCardSize = 72; // Shimmer + shadow + padding için ideal alt limit
+    const  spacing = 8.0;
+    const double minCardSize = 72; 
     const double maxCardSize = 130;
 
-    final int cardCount = gameState.cards.length;
+    final  cardCount = gameState.cards.length;
 
-    // En uygun sütun sayısını ve kart boyutunu bul
+
     int optimalColumns = 1;
     double optimalCardSize = maxCardSize;
 
     for (int columns = 1; columns <= 10; columns++) {
-      final double cardSize = (screenWidth - (columns - 1) * spacing) / columns;
+      final  cardSize = (screenWidth - (columns - 1) * spacing) / columns;
 
       if (cardSize < minCardSize) break;
 
-      final int rows = (cardCount / columns).ceil();
-      final double totalHeight = rows * cardSize + (rows - 1) * spacing + 16; // alt boşluk
+      final  rows = (cardCount / columns).ceil();
+      final  totalHeight = rows * cardSize + (rows - 1) * spacing + 16; // alt boşluk
 
       if (totalHeight <= screenHeight) {
         optimalColumns = columns;
@@ -49,7 +49,7 @@ class GameCards extends StatelessWidget {
           crossAxisCount: optimalColumns,
           mainAxisSpacing: spacing,
           crossAxisSpacing: spacing,
-          childAspectRatio: 1, // kare
+      
         ),
         itemBuilder: (context, index) {
           return SizedBox(

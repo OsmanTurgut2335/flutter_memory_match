@@ -53,7 +53,7 @@ class _GameScreenState extends ConsumerState<GameScreen> with TickerProviderStat
           _isDialogOpen = true;
 
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            showDialog(
+            showDialog<void>(
               context: context,
               barrierDismissible: false,
               builder:
@@ -66,11 +66,12 @@ class _GameScreenState extends ConsumerState<GameScreen> with TickerProviderStat
                       _isDialogOpen = false;
                     },
                   ),
+
             );
+            _isDialogOpen = false;
           });
         };
 
- 
       if (widget.resumeGame) {
         await gameNotifier.initializeGame(true);
         return;
@@ -156,22 +157,25 @@ class _GameScreenState extends ConsumerState<GameScreen> with TickerProviderStat
           }
         },
       ),
-      body: Stack(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                StatsRow(gameState: gameState, scoreBubbleKey: _scoreBubbleKey),
-                const SizedBox(height: 16),
-                Expanded(child: GameCards(gameState: gameState, gameNotifier: gameNotifier)),
-                const SizedBox(height: 16),
-                BottomLevelFlipRow(gameState: gameState, gameNotifier: gameNotifier),
-              ],
+      body: SafeArea(
+        child: Stack(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  StatsRow(gameState: gameState, scoreBubbleKey: _scoreBubbleKey),
+                  const SizedBox(height: 16),
+                  Expanded(child: GameCards(gameState: gameState, gameNotifier: gameNotifier)),
+                  //  const SizedBox(height: 16),
+                  const Spacer(),
+                  BottomLevelFlipRow(gameState: gameState, gameNotifier: gameNotifier),
+                ],
+              ),
             ),
-          ),
-          if (_isPaused) PausedGameOverlay(opacity: _pauseOpacity, onResume: _resumeGame),
-        ],
+            if (_isPaused) PausedGameOverlay(opacity: _pauseOpacity, onResume: _resumeGame),
+          ],
+        ),
       ),
     );
   }

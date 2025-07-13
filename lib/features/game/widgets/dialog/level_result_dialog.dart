@@ -52,9 +52,29 @@ class LevelResultDialog extends ConsumerWidget {
                 gameNotifier
                   ..addExtraLife()
                   ..markAdUsed();
-                Future.microtask(() {
-                  Navigator.of(context, rootNavigator: true).pop();
-                });
+
+                // Önce asıl dialogu kapat
+                Navigator.of(context).pop();
+
+                // Sonra yeni bir dialogla kullanıcıyı bilgilendir
+                showDialog<void>(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (context) {
+                    return AlertDialog(
+                      title: const Text('Extra Life Granted!'),
+                      content: const Text('You’ve been revived. Good luck!'),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop(); // Bu sadece bu confirmation'ı kapatır
+                          },
+                          child: const Text('Continue'),
+                        ),
+                      ],
+                    );
+                  },
+                );
               });
             },
             child: const Text('Watch Ad for Extra Life'),

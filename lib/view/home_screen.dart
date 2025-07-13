@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lottie/lottie.dart';
+
 import 'package:mem_game/core/painters/wave_painter.dart';
 import 'package:mem_game/core/providers/ad_provider.dart';
 import 'package:mem_game/core/providers/game_provider.dart';
 import 'package:mem_game/core/providers/user_provider.dart';
+import 'package:mem_game/core/widgets/lottie_background.dart';
 import 'package:mem_game/data/game/repository/game_repository.dart';
 import 'package:mem_game/features/home/widgets/home_menu.dart';
 import 'package:mem_game/features/user/widgets/user_options_menu.dart';
@@ -100,48 +101,27 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
                             hasOngoingGame: hasOngoingGame,
                             onNewGame: () async {
                               await ref.read(gameNotifierProvider.notifier).exitGame();
-                        //      await ref.read(gameNotifierProvider.notifier).restartGame();
-                              await Navigator.of(
-                                context,
-                              ).pushReplacement(MaterialPageRoute(builder: (_) => const GameScreen(resumeGame: false)));
+                              //      await ref.read(gameNotifierProvider.notifier).restartGame();
+                              await Navigator.of(context).pushReplacement(
+                                MaterialPageRoute<void>(builder: (_) => const GameScreen(resumeGame: false)),
+                              );
                             },
                             onContinueGame: () {
-                         
-                              Navigator.of(
-                                context,
-                              ).pushReplacement(MaterialPageRoute(builder: (_) => const GameScreen(resumeGame: true)));
+                              Navigator.of(context).pushReplacement(
+                                MaterialPageRoute<void>(builder: (_) => const GameScreen(resumeGame: true)),
+                              );
                             },
                             onScoreboard: () {
-                              Navigator.of(context).push(MaterialPageRoute(builder: (_) => const LeaderboardScreen()));
+                              Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const LeaderboardScreen()));
                             },
                             onShop: () {
-                              Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ShopScreen()));
+                              Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const ShopScreen()));
                             },
                           );
                         },
                       ),
             ),
-            // Lottie animation at the bottom
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: SizedBox(
-                  width: 150,
-                  height: 150,
-                  child: Lottie.asset(
-                    'assets/lottie/background_pattern.json',
-                    controller: _lottieController,
-                    fit: BoxFit.contain,
-                    onLoaded: (composition) {
-                      _lottieController
-                        ..duration = composition.duration * 2
-                        ..repeat();
-                    },
-                  ),
-                ),
-              ),
-            ),
+            const LottieBackground(),
           ],
         ),
       ),

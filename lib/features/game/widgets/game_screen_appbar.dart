@@ -6,8 +6,8 @@ class GameScreenAppBar extends StatelessWidget implements PreferredSizeWidget {
     required this.onPause,
     required this.onResume,
     required this.onMenuSelected,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   final VoidCallback onPause;
   final VoidCallback onResume;

@@ -75,56 +75,58 @@ class ShopScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Shop')),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text('Coins: ${user.coins}', style: theme.textTheme.titleLarge, textAlign: TextAlign.center),
-            const SizedBox(height: 24),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text('Coins: ${user.coins}', style: theme.textTheme.titleLarge, textAlign: TextAlign.center),
+              const SizedBox(height: 24),
 
-            // Health Potion
-            buildShopCard(
-              icon: Icons.favorite,
-              title: 'Health Potion',
-              price: potionPrice,
-              quantity: quantityOf(ShopItemType.healthPotion),
-              canBuy: canBuyPotion,
-              onBuy: () async {
-                await userNotifier.purchaseCoins(potionPrice);
-                await shopNotifier.purchase(ShopItemType.healthPotion, potionPrice);
-              },
-            ),
+              // Health Potion
+              buildShopCard(
+                icon: Icons.favorite,
+                title: 'Health Potion',
+                price: potionPrice,
+                quantity: quantityOf(ShopItemType.healthPotion),
+                canBuy: canBuyPotion,
+                onBuy: () async {
+                  await userNotifier.purchaseCoins(potionPrice);
+                  await shopNotifier.purchase(ShopItemType.healthPotion, potionPrice);
+                },
+              ),
 
-            // Extra Flip
-            buildShopCard(
-              icon: Icons.rotate_left,
-              title: 'Extra Flip',
-              price: flipPrice,
-              quantity: quantityOf(ShopItemType.extraFlip),
-              canBuy: canBuyFlip,
-              onBuy: () async {
-                await userNotifier.purchaseCoins(flipPrice);
-                await shopNotifier.purchase(ShopItemType.extraFlip, flipPrice);
-              },
-            ),
+              // Extra Flip
+              buildShopCard(
+                icon: Icons.rotate_left,
+                title: 'Extra Flip',
+                price: flipPrice,
+                quantity: quantityOf(ShopItemType.extraFlip),
+                canBuy: canBuyFlip,
+                onBuy: () async {
+                  await userNotifier.purchaseCoins(flipPrice);
+                  await shopNotifier.purchase(ShopItemType.extraFlip, flipPrice);
+                },
+              ),
 
-            // Double Coins
-            buildShopCard(
-              icon: Icons.monetization_on,
-              title: 'Double Coins',
-              price: doubleCoinsPrice,
-              quantity: quantityOf(ShopItemType.doubleCoins),
-              canBuy: canBuyDoubleCoins,
-              onBuy: () async {
-                await userNotifier.purchaseCoins(doubleCoinsPrice);
-                await shopNotifier.purchase(ShopItemType.doubleCoins, doubleCoinsPrice);
-              },
-            ),
+              // Double Coins
+              buildShopCard(
+                icon: Icons.monetization_on,
+                title: 'Double Coins',
+                price: doubleCoinsPrice,
+                quantity: quantityOf(ShopItemType.doubleCoins),
+                canBuy: canBuyDoubleCoins,
+                onBuy: () async {
+                  await userNotifier.purchaseCoins(doubleCoinsPrice);
+                  await shopNotifier.purchase(ShopItemType.doubleCoins, doubleCoinsPrice);
+                },
+              ),
 
-            const Spacer(),
-            ElevatedButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Back')),
-          ],
+              const Spacer(),
+              //     ElevatedButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Back')),
+            ],
+          ),
         ),
       ),
     );

@@ -9,7 +9,6 @@ class ScoreboardNotifier extends StateNotifier<AsyncValue<List<Score>>> {
 
   final ScoreboardRepository repository;
 
-
   Future<void> fetchSortedScores() async {
     try {
       state = const AsyncValue.loading();
@@ -19,6 +18,11 @@ class ScoreboardNotifier extends StateNotifier<AsyncValue<List<Score>>> {
       state = AsyncValue.error(e, st);
     }
   }
+
+  Future<void> refresh() async {
+    await fetchSortedScores();
+  }
+
   Future<void> saveScore(Score score) async {
     await repository.saveScore(score);
     await fetchSortedScores();

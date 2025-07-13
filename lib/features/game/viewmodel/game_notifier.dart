@@ -97,8 +97,8 @@ void Function(GameResult result)? onGameResult;
     final user = _userRepository.getUser();
     if (user != null) {
       final isDouble = state?.doubleCoins ?? false;
-      const int baseReward = 100;
-      final int rewardCoins = isDouble ? baseReward * 2 : baseReward;
+      const  baseReward = 100;
+      final  rewardCoins = isDouble ? baseReward * 2 : baseReward;
 
       user.coins += rewardCoins;
       await _userRepository.saveUser(user);

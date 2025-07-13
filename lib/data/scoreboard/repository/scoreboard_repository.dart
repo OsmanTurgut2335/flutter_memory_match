@@ -5,7 +5,13 @@ import 'package:dio/dio.dart';
 import 'package:mem_game/data/score/model.dart';
 
 class ScoreboardRepository {
-  final Dio _dio = Dio(BaseOptions(baseUrl: 'http://10.0.2.2:8080/leaderboard'));
+  final _dio = Dio(
+    BaseOptions(
+      baseUrl: 'http://10.0.2.2:8080/leaderboard',
+      connectTimeout: const Duration(seconds: 5),
+      receiveTimeout: const Duration(seconds: 5),
+    ),
+  );
 
   Future<void> saveScore(Score score) async {
     final response = await _dio.post(
@@ -20,6 +26,7 @@ class ScoreboardRepository {
   Future<List<Score>> fetchSortedScores() async {
     final response = await _dio.get('/sorted');
     final data = response.data as List<dynamic>;
+
     return data.map((json) => Score.fromJson(json as Map<String, dynamic>)).toList();
   }
 
