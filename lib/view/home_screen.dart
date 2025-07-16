@@ -47,10 +47,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
     super.dispose();
   }
 
-  Future<bool> _hasOngoingGame() async {
-    final gameRepo = GameRepository();
-    return gameRepo.hasOngoingGame();
-  }
+ Future<bool> _hasOngoingGame() async {
+  final gameRepo = GameRepository();
+  final user = ref.read(userRepositoryProvider).getUser();
+
+  if (user == null) return false;
+
+  return gameRepo.hasOngoingGame(user.username);
+}
 
   @override
   Widget build(BuildContext context) {

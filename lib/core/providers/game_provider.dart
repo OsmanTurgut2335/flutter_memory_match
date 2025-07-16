@@ -13,7 +13,9 @@ final gameNotifierProvider = StateNotifierProvider<GameNotifier, GameState?>((re
 
 final ongoingGameProvider = FutureProvider<bool>((ref) async {
   final repo = GameRepository();
-  final hasGame = await repo.hasOngoingGame();
+  final user = ref.read(userRepositoryProvider).getUser();
 
-  return hasGame;
+  if (user == null) return false;
+
+  return repo.hasOngoingGame(user.username);
 });

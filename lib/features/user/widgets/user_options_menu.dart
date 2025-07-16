@@ -93,6 +93,8 @@ class UserActionsButton extends StatelessWidget {
     );
 
     if (newUsername.trim().isNotEmpty) {
+
+      
       await notifier.changeUsername(newUsername.trim());
     }
   }

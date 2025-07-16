@@ -48,6 +48,8 @@ class UserModel extends HiveObject {
   /// Kullanıcının envanterindeki öğeler
   @HiveField(7)
   HiveList<ShopItem> inventory = HiveList<ShopItem>(Hive.box<ShopItem>('shopItemsBox'));
+
+  get user => null;
   
 
   UserModel copyWith({

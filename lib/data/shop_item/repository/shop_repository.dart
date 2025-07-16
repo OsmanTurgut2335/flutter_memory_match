@@ -1,16 +1,16 @@
 import 'package:hive/hive.dart';
 import 'package:mem_game/data/shop_item/model/shop_item.dart';
 import 'package:mem_game/data/user/model/user_model.dart';
+import 'package:mem_game/data/user/repository/user_repository.dart';
 
 /// Repository for managing shop/inventory items in Hive.
 class ShopRepository {
-  ShopRepository() : _box = Hive.box<ShopItem>('shopItemsBox'), _userBox = Hive.box<UserModel>('userBox');
+  ShopRepository(this._userRepository) : _box = Hive.box<ShopItem>('shopItemsBox');
 
   final Box<ShopItem> _box;
-  final Box<UserModel> _userBox;
+  final UserRepository _userRepository;
 
-  /// Returns the current user from Hive
-  UserModel? get _currentUser => _userBox.get('currentUser');
+  UserModel? get _currentUser => _userRepository.getUser();
 
   /// Fetch all inventory items for the current user.
   Future<List<ShopItem>> getAllShopItems() async {
@@ -84,6 +84,6 @@ class ShopRepository {
         user.inventory.remove(existing);
       }
       await user.save();
-        }
+    }
   }
 }

@@ -12,28 +12,46 @@ class GameRepository {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   /// Loads the saved GameState from Hive.
-  Future<GameState?> loadGameState() async {
-    final box = Hive.box<GameState>(gameBoxName);
-    return box.get(currentGameKey);
+  Future<GameState?> loadGameState(String username) async {
+    final box = Hive.box<GameState>('gameBox');
+    return box.get('game_$username');
   }
 
   /// Checks if a saved game state exists.
-  Future<bool> hasOngoingGame() async {
-    final box = Hive.box<GameState>(gameBoxName);
-    return box.containsKey(currentGameKey);
+  Future<bool> hasOngoingGame(String username) async {
+    final box = Hive.box<GameState>('gameBox');
+    return box.containsKey('game_$username');
   }
 
   /// Saves the given [GameState] into Hive.
-  Future<void> saveGameState(GameState state) async {
-    final box = Hive.box<GameState>(gameBoxName);
-    await box.put(currentGameKey, state);
+  Future<void> saveGameState(GameState state, String username) async {
+    final box = Hive.box<GameState>('gameBox');
+    await box.put('game_$username', state);
   }
 
   /// Deletes the saved game state.
-  Future<void> deleteGameState() async {
-    final box = Hive.box<GameState>(gameBoxName);
-    await box.delete(currentGameKey);
+  Future<void> deleteGameState(String username) async {
+      if (username.isEmpty) return;
+    final box = Hive.box<GameState>('gameBox');
+    await box.delete('game_$username');
+
   }
+Future<void> transferGameToNewUsername(String oldUsername, String newUsername) async {
+  final box = Hive.box<GameState>('gameBox');
+  final oldKey = 'game_$oldUsername';
+  final newKey = 'game_$newUsername';
+
+  final game = box.get(oldKey);
+
+  if (game != null) {
+    await box.put(newKey, game);
+    await box.delete(oldKey);
+    print("Game transferred from $oldUsername to $newUsername");
+  } else {
+    print("No existing game to transfer");
+  }
+}
+
 
   /// Checks and updates the user's best time locally and on Firestore.
   Future<void> updateBestTimeIfNeeded(int currentTime) async {
@@ -45,7 +63,6 @@ class GameRepository {
         final updatedUser = currentUser.copyWith(bestTime: currentTime);
         await userBox.put(currentUserKey, updatedUser);
 
-    
         await _updateBestTimeInFirestore(updatedUser.username, currentTime);
       }
     }
@@ -55,12 +72,11 @@ class GameRepository {
   Future<void> _updateBestTimeInFirestore(String username, int bestTime) async {
     try {
       final userRef = _firestore.collection('leaderboard').doc(username);
-    
+
       await userRef.set({'bestTime': bestTime, 'username': username}, SetOptions(merge: true));
 
       print('Firestore updated successfully for user: $username');
     } catch (e) {
-    
       print('Error updating best time in Firestore for $username: $e');
     }
   }
@@ -70,7 +86,6 @@ class GameRepository {
     final currentUser = userBox.get(currentUserKey);
 
     if (currentUser != null) {
-     
       final updatedUser = currentUser.copyWith(bestTime: 0);
       await userBox.put(currentUserKey, updatedUser);
 
@@ -82,7 +97,7 @@ class GameRepository {
   /// Generates a shuffled list of MemoryCard objects for the given level.
   /// Level 1: uses assets/card_images/level1 → 6 images → 12 cards
   /// Level 2: uses assets/card_images/level2 → 8 images → 16 cards and so on
- 
+
   List<MemoryCard> generateCardsForLevel(int level, {bool preview = false}) {
     final levelImages = switch (level) {
       1 => List<String>.generate(5, (i) => 'assets/card_images/level1/card$i.png'),

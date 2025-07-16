@@ -5,11 +5,16 @@ import 'package:mem_game/data/game/model/game_state_model.dart';
 import 'package:mem_game/data/game/repository/game_repository.dart';
 import 'package:mem_game/data/memorycard/model/memory_card.dart';
 import 'package:mem_game/data/shop_item/repository/shop_repository.dart';
+import 'package:mem_game/data/user/model/user_model.dart';
 import 'package:mem_game/data/user/repository/user_repository.dart';
 
 class GameNotifier extends StateNotifier<GameState?> {
-  GameNotifier(this._repository, this._userRepository, this._shopItemRepository) : super(null);
-  // Track pause state
+ GameNotifier(this._repository, this._userRepository, this._shopItemRepository) : super(null) {
+    _user = _userRepository.getUser();
+  }
+ 
+  UserModel? _user;
+
 
   final UserRepository _userRepository;
 
@@ -55,15 +60,17 @@ class GameNotifier extends StateNotifier<GameState?> {
     }
   }
 
+
   Future<void> initializeGame(
     bool resumeGame, {
     int bonusHealth = 0,
     bool doubleCoins = false,
     int extraFlipCount = 0,
   }) async {
-    if (resumeGame) {
-      final savedState = await _repository.loadGameState();
+    if (_user == null) return;
 
+    if (resumeGame) {
+      final savedState = await _repository.loadGameState(_user!.username);
       if (savedState != null) {
         state = savedState;
         _isPaused = false;
@@ -74,7 +81,6 @@ class GameNotifier extends StateNotifier<GameState?> {
     }
 
     final level = state?.level ?? 1;
-
     state = GameState(
       cards: generateCardsForLevel(level, preview: true),
       level: level,
@@ -84,15 +90,16 @@ class GameNotifier extends StateNotifier<GameState?> {
       showingPreview: true,
     );
 
-    await _repository.saveGameState(state!);
+    await _repository.saveGameState(state!, _user!.username);
 
     Future.delayed(const Duration(seconds: 3), () {
       final faceDownCards = state!.cards.map((card) => card.copyWith(isFaceUp: false)).toList();
       state = state!.copyWith(cards: faceDownCards, showingPreview: false);
-   this.resumeGame();
-      //   _startTimer();
+      this.resumeGame();
     });
   }
+
+
 
   Future<void> advanceLevel() async {
     _timer?.cancel();
@@ -125,7 +132,9 @@ class GameNotifier extends StateNotifier<GameState?> {
       showingPreview: true,
     );
 
-    await _repository.saveGameState(state!);
+   if (user != null) {
+      await _repository.saveGameState(state!, user.username);
+    }
 
     Future.delayed(const Duration(seconds: 3), () {
       final faceDownCards = state!.cards.map((card) => card.copyWith(isFaceUp: false)).toList();
@@ -148,26 +157,21 @@ class GameNotifier extends StateNotifier<GameState?> {
     });
   }
 
+
   Future<void> flipCardsOnButtonPress() async {
-    if (state == null || state!.flipCount <= 0) return;
-
+    if (state == null || state!.flipCount <= 0 || _user == null) return;
     _timer?.cancel();
-
-    // Flip hakkını azalt
     state = state!.copyWith(flipCount: state!.flipCount - 1, showingPreview: true);
-
-    await _repository.saveGameState(state!);
+    await _repository.saveGameState(state!, _user!.username);
     flipCards();
   }
 
   Future<void> restartGame() async {
     _hasUsedAd = false;
     _timer?.cancel();
-
-    // 1) Create a new game state with preview ON
+    if (_user == null) return;
     state = GameState(cards: generateCardsForLevel(1), showingPreview: true);
-    await _repository.saveGameState(state!);
-
+    await _repository.saveGameState(state!, _user!.username);
     flipCards();
   }
 
@@ -195,23 +199,31 @@ class GameNotifier extends StateNotifier<GameState?> {
     state = state?.copyWith(isPaused: false);
   }
 
+
   void _startTimer() {
     _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (!_isPaused && state != null) {
         state = state!.copyWith(currentTime: state!.currentTime + 1);
-        _repository.saveGameState(state!);
+        final user = _userRepository.getUser();
+        if (user != null) {
+          _repository.saveGameState(state!, user.username);
+        }
       }
     });
   }
 
   Future<void> saveCurrentState() async {
     if (state != null) {
-      await _repository.saveGameState(state!);
+      final user = _userRepository.getUser();
+      if (user != null) {
+        await _repository.saveGameState(state!, user.username);
+      }
     }
   }
 
-  Future<void> onCardTap(int index) async {
+  
+    Future<void> onCardTap(int index) async {
     if (_busy || state == null || _isPaused) return;
     if (state!.cards[index].isMatched || state!.cards[index].isFaceUp) return;
 
@@ -240,20 +252,22 @@ class GameNotifier extends StateNotifier<GameState?> {
         _busy = false;
       }
 
-      await _repository.saveGameState(state!);
+      if (_user != null) {
+        await _repository.saveGameState(state!, _user!.username);
+      }
 
       if (state!.health <= 0) {
         handleLose();
-
         return;
       }
     }
 
-    //  Check for win condition
     if (checkWinCondition()) {
       handleWin();
     }
   }
+
+
 
   void handleWin() {
     _timer?.cancel();
@@ -280,9 +294,11 @@ class GameNotifier extends StateNotifier<GameState?> {
   /// Exits the game: cancels the timer, deletes the game state, and resets the state.
   Future<void> exitGame() async {
     _timer?.cancel();
-    await _repository.deleteGameState();
+    final user = _userRepository.getUser();
+    if (user != null) {
+      await _repository.deleteGameState(user.username);
+    }
     state = null;
   }
 }
-
 enum GameResult { win, lose }
