@@ -27,7 +27,7 @@ class ShopRepository {
 
     final userId = user.username;
     ShopItem? existing;
-    for (var item in _box.values) {
+    for (final item in _box.values) {
       if (item.userId == userId && item.itemType == type) {
         existing = item;
         break;
@@ -46,13 +46,12 @@ class ShopRepository {
     }
 
     // 2) Update user's inventory HiveList
-    user.inventory ??= HiveList<ShopItem>(_box);
     if (!user.inventory.any((item) => item.key == shopItem.key)) {
       user.inventory.add(shopItem);
     }
     await user.save();
 
-    // 🔍 DEBUG
+    //  DEBUG
     print('📦 [User Inventory]');
     for (var item in user.inventory) {
       print('→ ${item.itemType} | quantity: ${item.quantity} | key: ${item.key}');
@@ -81,12 +80,10 @@ class ShopRepository {
       existing.quantity -= 1;
       await existing.save();
 
-      if (user.inventory != null) {
-        if (existing.quantity == 0) {
-          user.inventory.remove(existing);
-        }
-        await user.save();
+      if (existing.quantity == 0) {
+        user.inventory.remove(existing);
       }
-    }
+      await user.save();
+        }
   }
 }

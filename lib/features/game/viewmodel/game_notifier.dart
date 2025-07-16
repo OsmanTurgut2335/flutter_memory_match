@@ -39,8 +39,7 @@ class GameNotifier extends StateNotifier<GameState?> {
   // Callback that the UI can set to show a +10 popup when a score is increased.
   void Function(String scoreText)? onScoreIncrease;
 
-void Function(GameResult result)? onGameResult;
-
+  void Function(GameResult result)? onGameResult;
 
   GameState? get gameState => state;
 
@@ -64,9 +63,12 @@ void Function(GameResult result)? onGameResult;
   }) async {
     if (resumeGame) {
       final savedState = await _repository.loadGameState();
+
       if (savedState != null) {
         state = savedState;
+        _isPaused = false;
         _startTimer();
+        state = state?.copyWith(isPaused: false);
         return;
       }
     }
@@ -87,7 +89,8 @@ void Function(GameResult result)? onGameResult;
     Future.delayed(const Duration(seconds: 3), () {
       final faceDownCards = state!.cards.map((card) => card.copyWith(isFaceUp: false)).toList();
       state = state!.copyWith(cards: faceDownCards, showingPreview: false);
-      _startTimer();
+   this.resumeGame();
+      //   _startTimer();
     });
   }
 
@@ -97,8 +100,8 @@ void Function(GameResult result)? onGameResult;
     final user = _userRepository.getUser();
     if (user != null) {
       final isDouble = state?.doubleCoins ?? false;
-      const  baseReward = 100;
-      final  rewardCoins = isDouble ? baseReward * 2 : baseReward;
+      const baseReward = 100;
+      final rewardCoins = isDouble ? baseReward * 2 : baseReward;
 
       user.coins += rewardCoins;
       await _userRepository.saveUser(user);
@@ -118,7 +121,7 @@ void Function(GameResult result)? onGameResult;
       level: nextLevel,
       health: state!.health,
       doubleCoins: state!.doubleCoins,
-      
+
       showingPreview: true,
     );
 
@@ -251,18 +254,19 @@ void Function(GameResult result)? onGameResult;
       handleWin();
     }
   }
-void handleWin() {
-  _timer?.cancel();
-  if (state!.level == 7) {
-    updateBestTimeIfNeeded();
-  }
-  onGameResult?.call(GameResult.win);
-}
 
-void handleLose() {
-  _timer?.cancel();
-  onGameResult?.call(GameResult.lose);
-}
+  void handleWin() {
+    _timer?.cancel();
+    if (state!.level == 7) {
+      updateBestTimeIfNeeded();
+    }
+    onGameResult?.call(GameResult.win);
+  }
+
+  void handleLose() {
+    _timer?.cancel();
+    onGameResult?.call(GameResult.lose);
+  }
 
   /// **Checks if all cards are matched**
   bool checkWinCondition() {
@@ -280,7 +284,5 @@ void handleLose() {
     state = null;
   }
 }
-enum GameResult {
-  win,
-  lose,
-}
+
+enum GameResult { win, lose }

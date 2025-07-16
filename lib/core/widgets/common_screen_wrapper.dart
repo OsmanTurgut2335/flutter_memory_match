@@ -1,14 +1,7 @@
-
-
 import 'package:flutter/material.dart';
 
 class CommonScreenWrapper extends StatelessWidget {
-
-  const CommonScreenWrapper({
-    required this.child, super.key,
-    this.title,
-    this.actions,
-  });
+  const CommonScreenWrapper({required this.child, super.key, this.title, this.actions});
   final Widget child;
   final String? title;
   final List<Widget>? actions;
@@ -18,10 +11,7 @@ class CommonScreenWrapper extends StatelessWidget {
     return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          colors: [
-            Color(0xFF4C5BD4),
-            Color(0xFFD68C45),
-          ],
+          colors: [Color(0xFF4C5BD4), Color(0xFFD68C45)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -34,12 +24,7 @@ class CommonScreenWrapper extends StatelessWidget {
           title: title != null ? Text(title!) : null,
           actions: actions,
         ),
-        body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: child,
-          ),
-        ),
+        body: SafeArea(child: Padding(padding: const EdgeInsets.all(16), child: child)),
       ),
     );
   }

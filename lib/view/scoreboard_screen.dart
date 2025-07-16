@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mem_game/core/providers/scoreboard_provider.dart';
+import 'package:mem_game/core/widgets/common_screen_wrapper.dart';
 import 'package:mem_game/core/widgets/lottie_background.dart';
 import 'package:mem_game/data/score/model.dart';
 
@@ -13,46 +14,49 @@ class LeaderboardScreen extends ConsumerWidget {
     final notifier = ref.read(scoreboardViewModelProvider.notifier);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Leaderboard')),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          await notifier.refresh();
-        },
-        child: asyncScores.when(
-          loading: () => const Center(child: Text('Please Wait...', style: TextStyle(fontSize: 16))),
-          error:
-              (err, stack) => ListView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                children: const [
-                  SizedBox(height: 200),
-                  Center(
-                    child: Text(
-                      'The database could not be accessed.Please try again by scrolling or come back another time',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 16),
-                    ),
-                  ),
-                  LottieBackground(),
-                ],
-              ),
-          data: (scores) {
-            if (scores.isEmpty) {
-              return ListView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                children: const [SizedBox(height: 200), Center(child: Text('No scores available.'))],
-              );
-            }
-
-            return ListView.builder(
-              physics: const AlwaysScrollableScrollPhysics(),
-              itemCount: scores.length + 1, // +1 for the header
-              itemBuilder: (context, index) {
-                if (index == 0) return const HeaderRow();
-                final score = scores[index - 1];
-                return ScoreboardListItem(score: score);
-              },
-            );
+     // appBar: AppBar(title: const Text('Leaderboard')),
+      body: CommonScreenWrapper(
+        title: 'Leaderboard',
+        child: RefreshIndicator(
+          onRefresh: () async {
+            await notifier.refresh();
           },
+          child: asyncScores.when(
+            loading: () => const Center(child: Text('Please Wait...', style: TextStyle(fontSize: 16))),
+            error:
+                (err, stack) => ListView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  children: const [
+                    SizedBox(height: 200),
+                    Center(
+                      child: Text(
+                        'The database could not be accessed.Please try again by scrolling or come back another time',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 16),
+                      ),
+                    ),
+                    LottieBackground(),
+                  ],
+                ),
+            data: (scores) {
+              if (scores.isEmpty) {
+                return ListView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  children: const [SizedBox(height: 200), Center(child: Text('No scores available.'))],
+                );
+              }
+        
+              return ListView.builder(
+                physics: const AlwaysScrollableScrollPhysics(),
+                itemCount: scores.length + 1, // +1 for the header
+                itemBuilder: (context, index) {
+                  if (index == 0) return const HeaderRow();
+                  final score = scores[index - 1];
+                  return ScoreboardListItem(score: score);
+                },
+              );
+            },
+          ),
         ),
       ),
     );

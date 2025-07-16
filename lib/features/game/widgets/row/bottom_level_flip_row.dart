@@ -14,7 +14,7 @@ class BottomLevelFlipRow extends StatelessWidget {
     final bool canFlip = (gameState?.flipCount ?? 0) > 0;
 
     return Container(
-      color: theme.colorScheme.surface,
+      color: Colors.transparent,
       //   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,

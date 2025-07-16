@@ -38,9 +38,8 @@ class ScoreBubbleState extends State<ScoreBubble> {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           margin: const EdgeInsets.symmetric(horizontal: 4),
           decoration: BoxDecoration(
-            color: Colors.indigo.withOpacity(0.1),
             borderRadius: BorderRadius.circular(16),
-            boxShadow: const [BoxShadow(color: Colors.black12, offset: Offset(1, 1), blurRadius: 4)],
+            // boxShadow: const [BoxShadow(color: Colors.black12, offset: Offset(1, 1), blurRadius: 4)],
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,

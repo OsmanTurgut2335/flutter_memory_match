@@ -57,23 +57,25 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
     final user = ref.watch(userViewModelProvider);
     final gameNotifier = ref.read(gameNotifierProvider.notifier);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Memory Game Home'),
-        actions: [UserActionsButton(notifier: ref.read(userViewModelProvider.notifier), gameNotifier: gameNotifier)],
-      ),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Color(0xFF4C5BD4), // Indigo-blue
-              Color(0xFFD68C45), // Warm accent
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Color(0xFF4C5BD4), Color(0xFFD68C45)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
-        child: Stack(
+      ),
+      child: Scaffold(
+        extendBodyBehindAppBar: true,
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+
+          title: const Text('Memory Game Home'),
+          actions: [UserActionsButton(notifier: ref.read(userViewModelProvider.notifier), gameNotifier: gameNotifier)],
+        ),
+        body: Stack(
           children: [
             // Wave overlay at the top
             const SizedBox(
@@ -112,7 +114,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
                               );
                             },
                             onScoreboard: () {
-                              Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const LeaderboardScreen()));
+                              Navigator.of(
+                                context,
+                              ).push(MaterialPageRoute<void>(builder: (_) => const LeaderboardScreen()));
                             },
                             onShop: () {
                               Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const ShopScreen()));

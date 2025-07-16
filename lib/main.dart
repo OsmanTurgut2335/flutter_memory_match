@@ -26,13 +26,12 @@ void main() async {
   await Hive.openBox<UserModel>('userBox');
   await Hive.openBox<GameState>('gameBox');
 
-  // Kullanıcı yüklendiğinde (ör. login/first-run):
   final users = Hive.box<UserModel>('userBox');
   final shop = Hive.box<ShopItem>('shopItemsBox');
 
   final user = users.get('currentUserKey');
   if (user != null) {
-    // Eğer inventory daha önce set edilmemişse, boş bir HiveList ata
+
     user.inventory = HiveList(shop, objects: []);
     await user.save();
   }

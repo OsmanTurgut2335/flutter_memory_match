@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:http/http.dart' as http;
 import 'package:mem_game/core/providers/user_provider.dart';
 
 import 'package:mem_game/view/home_screen.dart';
@@ -40,13 +43,24 @@ class _UsernameInputScreenState extends ConsumerState<UsernameInputScreen> {
                 const SizedBox(height: 16),
                 ElevatedButton(
                   child: const Text('Save'),
-                  onPressed: () {
+                  onPressed: () async {
                     if (_formKey.currentState!.validate()) {
-                      // Use the controller's text
                       final username = _usernameController.text.trim();
-                      ref.read(userViewModelProvider.notifier).createUser(username).then((_) {
-                        Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const HomeScreen()));
-                      });
+
+                      await ref.read(userViewModelProvider.notifier).createUser(username);
+
+                    
+                      final response = await http.post(
+                   Uri.parse('http://10.0.2.2:8080/leaderboard/entry'),
+                        headers: {'Content-Type': 'application/json'},
+                        body: jsonEncode({'username': username, 'bestTime': 9999}),
+                      );
+
+                      if (response.statusCode == 200 || response.statusCode == 201) {
+                        await Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const HomeScreen()));
+                      } else {
+                        print('Kayıt başarısız: ${response.statusCode}');
+                      }
                     }
                   },
                 ),

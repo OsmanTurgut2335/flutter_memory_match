@@ -66,7 +66,6 @@ class _GameScreenState extends ConsumerState<GameScreen> with TickerProviderStat
                       _isDialogOpen = false;
                     },
                   ),
-
             );
             _isDialogOpen = false;
           });
@@ -96,6 +95,7 @@ class _GameScreenState extends ConsumerState<GameScreen> with TickerProviderStat
         bonusHealth: usedHealth ? 1 : 0,
         doubleCoins: usedDouble,
         extraFlipCount: usedFlip ? 1 : 0,
+        
       );
 
       await ref.read(rewardedAdNotifierProvider.notifier).loadAd();
@@ -142,39 +142,50 @@ class _GameScreenState extends ConsumerState<GameScreen> with TickerProviderStat
       return const BoostSelectionBackground();
     }
 
-    return Scaffold(
-      appBar: GameScreenAppBar(
-        onPause: _pauseGame,
-        onResume: _resumeGame,
-        onMenuSelected: (value) async {
-          if (value == 'exit') {
-            await gameNotifier.exitGame();
-            await Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const HomeScreen()));
-          } else if (value == 'homescreen') {
-            _pauseGame();
-            await gameNotifier.saveCurrentState();
-            await Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const HomeScreen()));
-          }
-        },
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Color.fromARGB(255, 120, 132, 219), Color.fromARGB(255, 219, 156, 96)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
       ),
-      body: SafeArea(
-        child: Stack(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  StatsRow(gameState: gameState, scoreBubbleKey: _scoreBubbleKey),
-                  const SizedBox(height: 16),
-                  Expanded(child: GameCards(gameState: gameState, gameNotifier: gameNotifier)),
-                  //  const SizedBox(height: 16),
-                  const Spacer(),
-                  BottomLevelFlipRow(gameState: gameState, gameNotifier: gameNotifier),
-                ],
+      child: Scaffold(
+        extendBodyBehindAppBar: true,
+        backgroundColor: Colors.transparent,
+        appBar: GameScreenAppBar(
+          onPause: _pauseGame,
+          onResume: _resumeGame,
+          onMenuSelected: (value) async {
+            if (value == 'exit') {
+              await gameNotifier.exitGame();
+              await Navigator.of(context).pushReplacement(MaterialPageRoute<void>(builder: (_) => const HomeScreen()));
+            } else if (value == 'homescreen') {
+              _pauseGame();
+              await gameNotifier.saveCurrentState();
+              await Navigator.of(context).pushReplacement(MaterialPageRoute<void>(builder: (_) => const HomeScreen()));
+            }
+          },
+        ),
+        body: SafeArea(
+          child: Stack(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    StatsRow(gameState: gameState, scoreBubbleKey: _scoreBubbleKey),
+                    const SizedBox(height: 16),
+                    Expanded(child: GameCards(gameState: gameState, gameNotifier: gameNotifier)),
+                    //  const SizedBox(height: 16),
+                    const Spacer(),
+                    BottomLevelFlipRow(gameState: gameState, gameNotifier: gameNotifier),
+                  ],
+                ),
               ),
-            ),
-            if (_isPaused) PausedGameOverlay(opacity: _pauseOpacity, onResume: _resumeGame),
-          ],
+              if (_isPaused) PausedGameOverlay(opacity: _pauseOpacity, onResume: _resumeGame),
+            ],
+          ),
         ),
       ),
     );
