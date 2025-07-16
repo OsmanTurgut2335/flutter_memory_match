@@ -53,10 +53,10 @@ class LevelResultDialog extends ConsumerWidget {
                   ..addExtraLife()
                   ..markAdUsed();
 
-                // Önce asıl dialogu kapat
+               
                 Navigator.of(context).pop();
 
-                // Sonra yeni bir dialogla kullanıcıyı bilgilendir
+          
                 showDialog<void>(
                   context: context,
                   barrierDismissible: false,
@@ -67,7 +67,7 @@ class LevelResultDialog extends ConsumerWidget {
                       actions: [
                         TextButton(
                           onPressed: () {
-                            Navigator.of(context).pop(); // Bu sadece bu confirmation'ı kapatır
+                            Navigator.of(context).pop(); 
                           },
                           child: const Text('Continue'),
                         ),

@@ -29,14 +29,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
     WidgetsBinding.instance.addObserver(this);
 
     _lottieController = AnimationController(vsync: this);
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       final gameNotifier = ref.read(gameNotifierProvider.notifier)..onScoreIncrease = (scoreText) {};
 
-      if (ref.read(gameNotifierProvider) == null) {
-        gameNotifier.initializeGame(false);
+      //  Bellekte oyun varsa ama Hive'da yoksa temizle
+      final user = ref.read(userRepositoryProvider).getUser();
+      final gameRepo = GameRepository();
+      final hasHiveGame = user != null ? await gameRepo.hasOngoingGame(user.username) : false;
+
+      if (!hasHiveGame) {
+        // Eğer Hive'da oyun yoksa ama bellekte varsa state'i sıfırla
+        if (ref.read(gameNotifierProvider) != null) {
+          await gameNotifier.exitGame();
+        }
       }
-      ref.read(rewardedAdNotifierProvider.notifier).loadAd();
+
+      await ref.read(rewardedAdNotifierProvider.notifier).loadAd();
     });
   }
 
@@ -47,14 +55,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
     super.dispose();
   }
 
- Future<bool> _hasOngoingGame() async {
-  final gameRepo = GameRepository();
-  final user = ref.read(userRepositoryProvider).getUser();
+  Future<bool> _hasOngoingGame() async {
+    final gameRepo = GameRepository();
+    final user = ref.read(userRepositoryProvider).getUser();
 
-  if (user == null) return false;
+    if (user == null) return false;
 
-  return gameRepo.hasOngoingGame(user.username);
-}
+    return gameRepo.hasOngoingGame(user.username);
+  }
 
   @override
   Widget build(BuildContext context) {

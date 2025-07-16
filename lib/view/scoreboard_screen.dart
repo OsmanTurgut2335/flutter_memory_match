@@ -14,7 +14,7 @@ class LeaderboardScreen extends ConsumerWidget {
     final notifier = ref.read(scoreboardViewModelProvider.notifier);
 
     return Scaffold(
-     // appBar: AppBar(title: const Text('Leaderboard')),
+      // appBar: AppBar(title: const Text('Leaderboard')),
       body: CommonScreenWrapper(
         title: 'Leaderboard',
         child: RefreshIndicator(
@@ -45,7 +45,7 @@ class LeaderboardScreen extends ConsumerWidget {
                   children: const [SizedBox(height: 200), Center(child: Text('No scores available.'))],
                 );
               }
-        
+
               return ListView.builder(
                 physics: const AlwaysScrollableScrollPhysics(),
                 itemCount: scores.length + 1, // +1 for the header
@@ -90,7 +90,7 @@ class HeaderRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-      color: Colors.grey[300],
+      color: Colors.transparent,
       child: const Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [

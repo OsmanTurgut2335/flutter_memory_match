@@ -3,8 +3,7 @@ import 'package:mem_game/features/game/viewmodel/game_notifier.dart';
 import 'package:mem_game/features/user/viewmodel/user_notifier.dart';
 import 'package:mem_game/view/create_username_screen.dart';
 
-
-///ui for Home Screen app bar's actions list 
+///ui for Home Screen app bar's actions list
 
 class UserActionsButton extends StatelessWidget {
   const UserActionsButton({required this.notifier, required this.gameNotifier, super.key});
@@ -67,8 +66,8 @@ class UserActionsButton extends StatelessWidget {
 
     if (confirmed == true) {
       await notifier.deleteUser();
-      await gameNotifier.exitGame();
-      if (context.mounted) {
+        await gameNotifier.exitGame();
+           if (context.mounted) {
         await Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const UsernameInputScreen()));
       }
     }
@@ -93,8 +92,6 @@ class UserActionsButton extends StatelessWidget {
     );
 
     if (newUsername.trim().isNotEmpty) {
-
-      
       await notifier.changeUsername(newUsername.trim());
     }
   }

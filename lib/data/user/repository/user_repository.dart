@@ -14,6 +14,8 @@ class UserRepository {
   /// Saves the provided user in the Hive box with empty shop items list.
   Future<void> saveUser(UserModel user) async {
     final box = Hive.box<UserModel>(userBoxName);
+    await box.delete(userKey);
+
     await box.put(userKey, user);
 
     user.inventory = HiveList<ShopItem>(Hive.box<ShopItem>('shopItemsBox'));
@@ -43,28 +45,28 @@ class UserRepository {
       return;
     }
 
-    final response = await http.delete(Uri.parse('http://10.0.2.2:8080/leaderboard/entry/${user.username}'));
+    final response = await http.delete(Uri.parse('http://10.0.2.2:8080/leaderboard/${user.username}'));
 
     if (response.statusCode == 200) {
       print('Kullanıcı başarıyla silindi.');
     }
   }
-  
-Future<void> transferGameToNewUsername(String oldUsername, String newUsername) async {
-  final box = Hive.box<GameState>('gameBox');
-  final oldKey = 'game_$oldUsername';
-  final newKey = 'game_$newUsername';
 
-  final game = box.get(oldKey);
+  Future<void> transferGameToNewUsername(String oldUsername, String newUsername) async {
+    final box = Hive.box<GameState>('gameBox');
+    final oldKey = 'game_$oldUsername';
+    final newKey = 'game_$newUsername';
 
-  if (game != null) {
-    await box.put(newKey, game);
-    await box.delete(oldKey);
-    print("Game transferred from $oldUsername to $newUsername");
-  } else {
-    print("No existing game to transfer");
+    final game = box.get(oldKey);
+
+    if (game != null) {
+      await box.put(newKey, game);
+      await box.delete(oldKey);
+      print("Game transferred from $oldUsername to $newUsername");
+    } else {
+      print("No existing game to transfer");
+    }
   }
-}
 
   /// Changes the username of the current user in the Hive box and db
   Future<UserModel?> changeUsername(String newUsername) async {

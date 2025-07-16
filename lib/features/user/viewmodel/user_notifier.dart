@@ -30,20 +30,17 @@ class UserViewModel extends StateNotifier<UserModel?> {
   }
 
   Future<void> changeUsername(String newUsername) async {
-  final currentUser = _repository.getUser(); // Veya state'den al
-  if (currentUser == null) return;
+    final currentUser = _repository.getUser(); // Veya state'den al
+    if (currentUser == null) return;
 
-  final oldUsername = currentUser.username;
+    final oldUsername = currentUser.username;
 
-  final updatedUser = await _repository.changeUsername(newUsername);
-  if (updatedUser != null) {
-    await _repository.transferGameToNewUsername(oldUsername, newUsername);
-    state = updatedUser;
+    final updatedUser = await _repository.changeUsername(newUsername);
+    if (updatedUser != null) {
+      await _repository.transferGameToNewUsername(oldUsername, newUsername);
+      state = updatedUser;
+    }
   }
-}
-
-
-
 
   /// Deletes the user data from both hive and relational database.
   Future<void> deleteUser() async {

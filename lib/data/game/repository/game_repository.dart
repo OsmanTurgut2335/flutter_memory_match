@@ -1,5 +1,8 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:convert';
+
+
 import 'package:hive/hive.dart';
+import 'package:http/http.dart' as http;
 import 'package:mem_game/data/game/model/game_state_model.dart';
 import 'package:mem_game/data/memorycard/model/memory_card.dart';
 import 'package:mem_game/data/user/model/user_model.dart';
@@ -9,7 +12,7 @@ class GameRepository {
   static const String currentGameKey = 'currentGame';
   static const String userBoxName = 'userBox';
   static const String currentUserKey = 'currentUser';
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  
 
   /// Loads the saved GameState from Hive.
   Future<GameState?> loadGameState(String username) async {
@@ -31,27 +34,26 @@ class GameRepository {
 
   /// Deletes the saved game state.
   Future<void> deleteGameState(String username) async {
-      if (username.isEmpty) return;
+    if (username.isEmpty) return;
     final box = Hive.box<GameState>('gameBox');
     await box.delete('game_$username');
-
   }
-Future<void> transferGameToNewUsername(String oldUsername, String newUsername) async {
-  final box = Hive.box<GameState>('gameBox');
-  final oldKey = 'game_$oldUsername';
-  final newKey = 'game_$newUsername';
 
-  final game = box.get(oldKey);
+  Future<void> transferGameToNewUsername(String oldUsername, String newUsername) async {
+    final box = Hive.box<GameState>('gameBox');
+    final oldKey = 'game_$oldUsername';
+    final newKey = 'game_$newUsername';
 
-  if (game != null) {
-    await box.put(newKey, game);
-    await box.delete(oldKey);
-    print("Game transferred from $oldUsername to $newUsername");
-  } else {
-    print("No existing game to transfer");
+    final game = box.get(oldKey);
+
+    if (game != null) {
+      await box.put(newKey, game);
+      await box.delete(oldKey);
+      print("Game transferred from $oldUsername to $newUsername");
+    } else {
+      print("No existing game to transfer");
+    }
   }
-}
-
 
   /// Checks and updates the user's best time locally and on Firestore.
   Future<void> updateBestTimeIfNeeded(int currentTime) async {
@@ -63,21 +65,27 @@ Future<void> transferGameToNewUsername(String oldUsername, String newUsername) a
         final updatedUser = currentUser.copyWith(bestTime: currentTime);
         await userBox.put(currentUserKey, updatedUser);
 
-        await _updateBestTimeInFirestore(updatedUser.username, currentTime);
+        await _updateBestTimeInDatabase(updatedUser.username, currentTime);
       }
     }
   }
 
-  /// Updates the best time in Firestore.
-  Future<void> _updateBestTimeInFirestore(String username, int bestTime) async {
+  /// Updates the best time in the db
+  Future<void> _updateBestTimeInDatabase(String username, int bestTime) async {
     try {
-      final userRef = _firestore.collection('leaderboard').doc(username);
+      final response = await http.put(
+        Uri.parse('http://10.0.2.2:8080/leaderboard/besttime'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'username': username, 'bestTime': bestTime}),
+      );
 
-      await userRef.set({'bestTime': bestTime, 'username': username}, SetOptions(merge: true));
-
-      print('Firestore updated successfully for user: $username');
+      if (response.statusCode == 200) {
+        print('Best time updated in DB for user: $username');
+      } else {
+        print('Best time not updated, status: ${response.statusCode}');
+      }
     } catch (e) {
-      print('Error updating best time in Firestore for $username: $e');
+      print('Error updating best time: $e');
     }
   }
 
