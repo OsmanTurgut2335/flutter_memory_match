@@ -1,4 +1,4 @@
-package com.example.leaderboard;
+package com.example.leaderboard.model;
 
 
 //Model Class for leaderboard inputs
@@ -21,7 +21,9 @@ public class LeaderboardEntry {
     @Column(unique = true)
     private String username;
 
+    @Column(name = "best_time")
     private int bestTime;
+
 
     public LeaderboardEntry( String username, int bestTime) {
 

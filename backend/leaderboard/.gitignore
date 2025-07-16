@@ -34,23 +34,38 @@ build/
 
 
 
-backend/target/
-backend/build/
+###############################################################################
+# BACKEND (SpringBoot+Maven) -ignore rules
+###############################################################################
 
 
-backend/.mvn/wrapper/maven-wrapper.jar
+/backend/target/
+/backend/leaderboard/target/
 
 
-backend/.idea/
-backend/*.iml
+/backend/build/
+/backend/leaderboard/build/
 
 
-backend/.vscode/
+/backend/.idea/
+/backend/leaderboard/.idea/
+/backend/*.iml
+/backend/leaderboard/*.iml
+/backend/.classpath
+/backend/.project
+/backend/.settings/
+/backend/leaderboard/.classpath
+/backend/leaderboard/.project
+/backend/leaderboard/.settings/
 
 
-backend/.classpath
-backend/.project
-backend/.settings/
+/backend/.vscode/
+/backend/leaderboard/.vscode/
 
-# Log dosyaları
-backend/*.log
+
+/backend/.mvn/wrapper/maven-wrapper.jar
+/backend/leaderboard/.mvn/wrapper/maven-wrapper.jar
+
+
+/backend/*.log
+/backend/leaderboard/*.log

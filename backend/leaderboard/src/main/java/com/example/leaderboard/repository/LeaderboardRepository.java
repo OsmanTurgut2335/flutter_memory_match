@@ -1,15 +1,19 @@
-package com.example.leaderboard;
+package com.example.leaderboard.repository;
 
+import com.example.leaderboard.model.LeaderboardEntry;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface LeaderboardRepository extends JpaRepository<LeaderboardEntry, Long> {
 
-    LeaderboardEntry findByUsername(String username);
+    Optional<LeaderboardEntry> findByUsername(String username);
 
-    void deleteByUsername(String username);
+
 
     List<LeaderboardEntry> findAllByOrderByBestTimeDesc();
+
+
 
 }
