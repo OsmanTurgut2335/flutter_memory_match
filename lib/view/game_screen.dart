@@ -12,7 +12,8 @@ import 'package:mem_game/features/game/widgets/row/bottom_level_flip_row.dart';
 import 'package:mem_game/features/game/widgets/row/stats_row.dart';
 import 'package:mem_game/features/game/widgets/score_bubble.dart';
 import 'package:mem_game/features/memory_card/widgets/game_cards.dart';
-import 'package:mem_game/features/shop/viewmodel/widgets/itemslist.dart';
+import 'package:mem_game/features/shop/widgets/itemslist.dart';
+
 import 'package:mem_game/view/home_screen.dart';
 
 class GameScreen extends ConsumerStatefulWidget {

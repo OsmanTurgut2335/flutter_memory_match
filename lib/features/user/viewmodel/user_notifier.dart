@@ -1,78 +1,96 @@
-// lib/features/user/viewmodel/user_notifier.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mem_game/data/user/model/user_model.dart';
 import 'package:mem_game/data/user/repository/user_repository.dart';
 
-class UserViewModel extends StateNotifier<UserModel?> {
-  UserViewModel(this._repository) : super(null) {
-    // Load user on initialization.
+class UserViewModel extends StateNotifier<AsyncValue<UserModel>> {
+  UserViewModel(this._repository) : super(const AsyncLoading()) {
     loadUser();
   }
+
   final UserRepository _repository;
 
   /// Loads the user from the repository and updates the state.
   Future<void> loadUser() async {
-    final user = _repository.getUser();
-    state = user;
-  }
-
-  /// Creates a new user with the provided username.
-  Future<void> createUser(String username) async {
-    final newUser = UserModel(username: username);
-    await _repository.saveUser(newUser);
-    state = newUser;
-  }
-
-  /// Updates the user and saves changes in the repository.
-  Future<void> updateUser(UserModel user) async {
-    await _repository.saveUser(user);
-    state = user;
-  }
-
-  Future<void> changeUsername(String newUsername) async {
-    final currentUser = _repository.getUser(); // Veya state'den al
-    if (currentUser == null) return;
-
-    final oldUsername = currentUser.username;
-
-    final updatedUser = await _repository.changeUsername(newUsername);
-    if (updatedUser != null) {
-      await _repository.transferGameToNewUsername(oldUsername, newUsername);
-      state = updatedUser;
+    try {
+      final user = _repository.getUser();
+      if (user != null) {
+        state = AsyncValue.data(user);
+      } else {
+        state = AsyncError('No user found', StackTrace.current);
+      }
+    } catch (e, st) {
+      state = AsyncError(e, st);
     }
   }
 
-  /// Deletes the user data from both hive and relational database.
+  Future<void> createUser(String username) async {
+    state = const AsyncLoading();
+    try {
+      final newUser = UserModel(username: username);
+      await _repository.saveUser(newUser);
+      state = AsyncValue.data(newUser);
+    } catch (e, st) {
+      state = AsyncError(e, st);
+    }
+  }
+
+  Future<void> updateUser(UserModel user) async {
+    try {
+      await _repository.saveUser(user);
+      state = AsyncValue.data(user);
+    } catch (e, st) {
+      state = AsyncError(e, st);
+    }
+  }
+
+  Future<void> changeUsername(String newUsername) async {
+    final current = state.value;
+    if (current == null) return;
+
+    try {
+      final updatedUser = await _repository.changeUsername(newUsername);
+      if (updatedUser != null) {
+        await _repository.transferGameToNewUsername(current.username, newUsername);
+        state = AsyncValue.data(updatedUser);
+      }
+    } catch (e, st) {
+      state = AsyncError(e, st);
+    }
+  }
+
   Future<void> deleteUser() async {
-    await _repository.deleteUserFromDb();
-
-    await _repository.deleteUser();
-
-    state = null;
+    try {
+      await _repository.deleteUserFromDb();
+      await _repository.deleteUser();
+      state = const AsyncError('User deleted', StackTrace.empty);
+    } catch (e, st) {
+      state = AsyncError(e, st);
+    }
   }
 
-  /// Deducts [amount] coins from the user, persists the change, and updates state.
   Future<void> purchaseCoins(int amount) async {
-    final current = state;
-    if (current == null) return;
+    final current = state.value;
+    if (current == null || current.coins < amount) return;
 
-    // Ensure user has enough coins
-    if (current.coins < amount) return;
-
-    // Create updated user
-    final updated = current.copyWith(coins: current.coins - amount);
-
-    await _repository.saveUser(updated);
-
-    state = updated;
+    try {
+      final updated = current.copyWith(coins: current.coins - amount);
+      await _repository.saveUser(updated);
+      state = AsyncValue.data(updated);
+    } catch (e, st) {
+      state = AsyncError(e, st);
+    }
   }
 
-  /// Sadece ekleme (subtraction yok).
   Future<void> addCoins(int amount) async {
-    final current = state;
+    final current = state.value;
     if (current == null) return;
-    final updated = current.copyWith(coins: current.coins + amount);
-    await _repository.saveUser(updated);
-    state = updated;
+
+    try {
+      final updated = current.copyWith(coins: current.coins + amount);
+      await _repository.saveUser(updated);
+      state = AsyncValue.data(updated);
+    } catch (e, st) {
+      state = AsyncError(e, st);
+    }
   }
 }

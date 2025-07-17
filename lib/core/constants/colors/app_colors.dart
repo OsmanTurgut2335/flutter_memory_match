@@ -10,6 +10,12 @@ class AppColors {
   static const Color shadowColor = Colors.black26;
   static const Color shimmerBase = Colors.blue;
   static const Color shimmerHighlight = Colors.lightBlueAccent;
+
+  // General text colors
   static const Color textPrimary = Color(0xFF212121); // Dark grey.
   static const Color textSecondary = Color(0xFF757575); // Grey.
+
+  // NEW: For light text on colored backgrounds like gradients
+  static const Color lightTextPrimary = Colors.white;
+  static const Color lightTextSecondary = Colors.white70;
 }

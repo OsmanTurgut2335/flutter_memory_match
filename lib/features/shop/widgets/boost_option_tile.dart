@@ -24,7 +24,7 @@ class BoostOptionTile extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+
       color: selected ? Colors.indigo.shade50 : theme.cardColor,
       elevation: selected ? 3 : 1,
       margin: const EdgeInsets.symmetric(vertical: 8),

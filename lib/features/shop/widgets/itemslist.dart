@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mem_game/data/shop_item/model/shop_item.dart';
-import 'package:mem_game/features/shop/viewmodel/widgets/boost_option_tile.dart';
+import 'package:mem_game/features/shop/widgets/boost_option_tile.dart';
 
 ///UI for boost ites list in the start of the game
 
@@ -88,7 +88,10 @@ Future<Map<String, bool>?> showBoostSelectionDialog(BuildContext context, List<S
                   ),
                 ),
                 actions: [
-                  TextButton(onPressed: () => Navigator.pop(context, null), child: const Text('Cancel')),
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Cancel', style: TextStyle(color: Colors.black87)),
+                  ),
                   ElevatedButton(
                     onPressed: () {
                       Navigator.pop(context, {
@@ -97,7 +100,7 @@ Future<Map<String, bool>?> showBoostSelectionDialog(BuildContext context, List<S
                         'extraFlip': useExtraFlip,
                       });
                     },
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.indigo),
+
                     child: const Text('Start Game'),
                   ),
                 ],

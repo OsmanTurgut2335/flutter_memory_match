@@ -10,16 +10,16 @@ class ShopRepository {
   final Box<ShopItem> _box;
   final UserRepository _userRepository;
 
-  UserModel? get _currentUser => _userRepository.getUser();
+  UserModel? get currentUser => _userRepository.getUser();
 
   /// Fetch all inventory items for the current user.
   Future<List<ShopItem>> getAllShopItems() async {
-    return _box.values.where((item) => item.userId == _currentUser?.username).toList();
+    return _box.values.where((item) => item.userId == currentUser?.username).toList();
   }
 
   /// Purchase one unit of [type]. Cost should be deducted separately.
   Future<void> purchaseItem(ShopItemType type, int cost) async {
-    final user = _currentUser;
+    final user = currentUser;
     if (user == null) {
       print(' No currentUser found in Hive');
       return;
@@ -45,22 +45,19 @@ class ShopRepository {
       shopItem = _box.get(key)!;
     }
 
-    // 2) Update user's inventory HiveList
+
     if (!user.inventory.any((item) => item.key == shopItem.key)) {
       user.inventory.add(shopItem);
     }
     await user.save();
 
-    //  DEBUG
-    print('📦 [User Inventory]');
-    for (var item in user.inventory) {
-      print('→ ${item.itemType} | quantity: ${item.quantity} | key: ${item.key}');
-    }
+  
+ 
   }
 
   /// Use one unit of [type], decrementing quantity and updating UserModel.inventory.
   Future<void> useItem(ShopItemType type) async {
-    final user = _currentUser;
+    final user = currentUser;
     if (user == null) {
       print(' No currentUser found in Hive');
       return;
@@ -86,4 +83,5 @@ class ShopRepository {
       await user.save();
     }
   }
+  
 }

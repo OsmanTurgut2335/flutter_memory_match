@@ -7,9 +7,8 @@ final userRepositoryProvider = Provider<UserRepository>((ref) {
   return UserRepository();
 });
 
-final userViewModelProvider = StateNotifierProvider<UserViewModel, UserModel?>((
-  ref,
-) {
+final userViewModelProvider = StateNotifierProvider<UserViewModel, AsyncValue<UserModel>>((ref) {
   final repository = ref.watch(userRepositoryProvider);
   return UserViewModel(repository);
 });
+

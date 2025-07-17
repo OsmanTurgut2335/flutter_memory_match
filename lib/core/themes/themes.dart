@@ -9,26 +9,33 @@ class AppThemes {
   static final ThemeData lightTheme = ThemeData.light().copyWith(
     primaryColor: AppColors.primary,
     scaffoldBackgroundColor: AppColors.scaffoldBackground,
+
     appBarTheme: const AppBarTheme(
       backgroundColor: AppColors.primary, // Using our central color.
       elevation: 4,
       titleTextStyle: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
       iconTheme: IconThemeData(color: Colors.white),
     ),
+
     textTheme: GoogleFonts.robotoTextTheme(ThemeData.light().textTheme).copyWith(
       bodyLarge: const TextStyle(fontSize: 16, color: AppColors.textPrimary),
       bodyMedium: const TextStyle(fontSize: 14, color: AppColors.textSecondary),
       headlineSmall: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
     ),
+
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
+        backgroundColor: const Color(0xFFFFA726),
+        foregroundColor: Colors.black87,
         padding: AppPaddings.buttonPadding,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppDimensions.buttonCornerRadius)),
         textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
       ),
     ),
+    textButtonTheme: TextButtonThemeData(
+      style: TextButton.styleFrom(textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold,color: Colors.black87,)),
+    ),
+
     dialogTheme: const DialogThemeData(
       titleTextStyle: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
       contentTextStyle: TextStyle(fontSize: 16, color: Colors.black87),
@@ -40,8 +47,9 @@ class AppThemes {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       elevation: 4,
     ),
+
     cardTheme: CardThemeData(
-      elevation: 4,
+      elevation: 6,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppDimensions.buttonCornerRadius)),
       margin: AppPaddings.all8,
     ),
