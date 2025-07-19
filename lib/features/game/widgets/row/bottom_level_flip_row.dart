@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:mem_game/data/game/model/game_state_model.dart';
 import 'package:mem_game/features/game/viewmodel/game_notifier.dart';
@@ -19,7 +20,10 @@ class BottomLevelFlipRow extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text('Level: ${gameState?.level ?? 1}', style: theme.textTheme.titleMedium),
+          Text(
+            'game.level'.tr(namedArgs: {'number': (gameState?.level ?? 1).toString()}),
+            style: theme.textTheme.titleMedium,
+          ),
           ElevatedButton.icon(
             onPressed: canFlip ? gameNotifier.flipCardsOnButtonPress : null,
             style: ElevatedButton.styleFrom(
@@ -27,7 +31,8 @@ class BottomLevelFlipRow extends StatelessWidget {
               foregroundColor: theme.colorScheme.onPrimary,
             ),
             icon: const Icon(Icons.flip_camera_android_outlined),
-            label: const Text('Flip Cards'),
+
+            label: Text('game.flip_cards'.tr()),
           ),
         ],
       ),

@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 ///UI for boost item cards in the beginning of the game
@@ -31,7 +32,8 @@ class BoostOptionTile extends StatelessWidget {
       child: ListTile(
         onTap: enabled ? onTap : null,
         leading: Checkbox(value: selected, onChanged: enabled ? (_) => onTap() : null, activeColor: Colors.indigo),
-        title: Text('$title (You have: $quantity)', style: theme.textTheme.bodyLarge),
+        title: Text('$title (${tr('boost.quantity', namedArgs: {'value': '$quantity'})})', style: theme.textTheme.bodyLarge),
+
         subtitle: Text(description, style: theme.textTheme.bodySmall),
       ),
     );

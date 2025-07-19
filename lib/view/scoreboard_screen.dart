@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mem_game/core/constants/textstyles/app_text_styles.dart';
@@ -17,35 +18,57 @@ class LeaderboardScreen extends ConsumerWidget {
 
     return Scaffold(
       body: CommonScreenWrapper(
-        title: 'Leaderboard',
+        title: 'leaderboard.title'.tr(),
+
         child: RefreshIndicator(
           onRefresh: () async {
             await notifier.refresh();
           },
           child: asyncScores.when(
-            loading: () => Center(child: Text('Please Wait...', style: AppTextStyles.whiteBold18)),
-            error:
-                (err, stack) => ListView(
-                  physics: const AlwaysScrollableScrollPhysics(),
+            loading:
+                () => Stack(
                   children: [
-                    const SizedBox(height: 200),
                     Center(
-                      child: Text(
-                        'The database could not be accessed.\nPlease try again by scrolling or come back another time.',
-                        textAlign: TextAlign.center,
-                        style: AppTextStyles.whiteBold18,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [Text('leaderboard.loading'.tr(), style: AppTextStyles.whiteBold18)],
                       ),
                     ),
-                    const LottieBackground(),
+                    const Positioned(bottom: 6, left: 0, right: 0, child: LottieBackground()),
                   ],
                 ),
+
+            error:
+                (err, stack) => Stack(
+                  children: [
+                    Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text('leaderboard.error'.tr(), textAlign: TextAlign.center, style: AppTextStyles.whiteBold18),
+                        ],
+                      ),
+                    ),
+                    Positioned(
+                      bottom: 24,
+                      left: 0,
+                      right: 0,
+                      child: IconButton(
+                        onPressed: notifier.refresh,
+                        icon: const Icon(Icons.refresh_outlined, size: 36),
+                        tooltip: 'leaderboard.retry_tooltip'.tr(), // Tooltip da çevrildi
+                      ),
+                    ),
+                  ],
+                ),
+
             data: (scores) {
               if (scores.isEmpty) {
                 return ListView(
                   physics: const AlwaysScrollableScrollPhysics(),
                   children: [
                     const SizedBox(height: 200),
-                    Center(child: Text('No scores available.', style: AppTextStyles.whiteBold18)),
+                    Center(child: Text('leaderboard.no_scores'.tr(), style: AppTextStyles.whiteBold18)),
                   ],
                 );
               }

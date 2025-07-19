@@ -9,6 +9,12 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+
+   #localization 
+  flutter_localizations:
+    sdk: flutter
+  easy_localization: ^3.0.7+1  
+  
   #database
   hive: ^2.0.0
   hive_flutter: ^1.1.0
@@ -26,6 +32,7 @@ dependencies:
   json_serializable: ^6.9.0
   lottie: ^3.3.1
   flutter_layout_grid: ^2.0.8
+
   #firebase
   firebase_core: ^3.12.1
   cloud_firestore: ^5.6.6
@@ -53,3 +60,4 @@ flutter:
     - assets/card_images/level2/
     - assets/card_images/level3/
     - assets/lottie/
+    - assets/translations/

@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mem_game/core/providers/ad_provider.dart';
@@ -59,7 +60,8 @@ class _GameScreenState extends ConsumerState<GameScreen> with TickerProviderStat
               barrierDismissible: false,
               builder:
                   (BuildContext context) => LevelResultDialog(
-                    title: result == GameResult.win ? 'Level Complete!' : 'Game Over',
+                    title: result == GameResult.win ? 'game.level_complete'.tr() : 'game.game_over'.tr(),
+
                     gameState: gameNotifier.gameState,
                     gameNotifier: gameNotifier,
                     isWin: result == GameResult.win,
@@ -96,7 +98,6 @@ class _GameScreenState extends ConsumerState<GameScreen> with TickerProviderStat
         bonusHealth: usedHealth ? 1 : 0,
         doubleCoins: usedDouble,
         extraFlipCount: usedFlip ? 1 : 0,
-        
       );
 
       await ref.read(rewardedAdNotifierProvider.notifier).loadAd();

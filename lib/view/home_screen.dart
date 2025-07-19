@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -35,7 +36,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
       //  Bellekte oyun varsa ama Hive'da yoksa temizle
       final user = ref.read(userRepositoryProvider).getUser();
       final gameRepo = GameRepository();
-      final hasHiveGame = user != null ? await gameRepo.hasOngoingGame(user.username) : false;
+      final bool hasHiveGame;
+      if (user != null) {
+        hasHiveGame = await gameRepo.hasOngoingGame(user.username);
+      } else {
+        hasHiveGame = false;
+      }
 
       if (!hasHiveGame) {
         // Eğer Hive'da oyun yoksa ama bellekte varsa state'i sıfırla
@@ -84,7 +90,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
           backgroundColor: Colors.transparent,
           elevation: 0,
 
-          title: const Text('Memory Game Home'),
+          title: Text('memoryHome'.tr()),
           actions: [UserActionsButton(notifier: ref.read(userViewModelProvider.notifier), gameNotifier: gameNotifier)],
         ),
         body: Stack(
@@ -99,10 +105,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
             Center(
               child:
                   user == null
-                      ? const Text(
-                        'No user found. Please set up your username.',
-                        style: TextStyle(fontSize: 18, color: Colors.white),
-                      )
+                      ? Text('noUser'.tr(), style: const TextStyle(fontSize: 18, color: Colors.white))
                       : FutureBuilder<bool>(
                         future: _hasOngoingGame(),
                         builder: (context, snapshot) {
@@ -115,7 +118,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
                             hasOngoingGame: hasOngoingGame,
                             onNewGame: () async {
                               await ref.read(gameNotifierProvider.notifier).exitGame();
-                              //      await ref.read(gameNotifierProvider.notifier).restartGame();
+
                               await Navigator.of(context).pushReplacement(
                                 MaterialPageRoute<void>(builder: (_) => const GameScreen(resumeGame: false)),
                               );

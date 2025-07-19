@@ -1,0 +1,52 @@
+{
+    
+    "memoryHome": "Memory Game Home",
+    "noUser": "No user found. Please set up your username",
+    "home.new_game": "New Game",
+    "home.continue_game": "Continue Game",
+    "home.scoreboard": "Scoreboard",
+    "home.shop": "Shop",
+
+    "leaderboard.title": "Leaderboard",
+    "leaderboard.loading": "Please wait...",
+    "leaderboard.error": "The database could not be accessed.\nPlease try again with the button below or come back another time.",
+    "leaderboard.retry_tooltip": "Retry",
+    "leaderboard.no_scores": "No scores available.",
+    "leaderboard.username": "Username",
+    "leaderboard.score": "Score",
+
+     
+  "shop.title": "Shop",
+  "shop.coins": "Coins: {value}",
+  "shop.health_potion": "Health Potion",
+  "shop.extra_flip": "Extra Flip",
+  "shop.double_coins": "Double Coins",
+  "shop.quantity": "You have: {count}",
+  "shop.error": "Error: {error}",
+
+
+    "game.level_complete": "Level Complete!",
+  "game.game_over": "Game Over",
+  "game.paused": "Game Paused",
+  "game.resume": "Resume Game",
+  "game.level": "Level: {number}",
+  "game.flip_cards": "Flip Cards",
+
+
+   "username.title": "Enter Username",
+  "username.label": "Username",
+  "username.validation": "Please enter a username",
+  "username.save": "Save",
+
+
+  "boost.title": "Choose Your Boosts",
+  "boost.health.title": "Health Potion",
+  "boost.health.desc": "+1 starting health",
+  "boost.double.title": "Double Coins",
+  "boost.double.desc": "2x coin reward",
+  "boost.flip.title": "Extra Flip",
+  "boost.flip.desc": "Flip one extra card at start",
+  "boost.cancel": "Cancel",
+  "boost.start": "Start",
+  "boost.quantity":"You have: {value}"
+}

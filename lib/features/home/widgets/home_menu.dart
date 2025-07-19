@@ -1,4 +1,6 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+
 
 class HomeMenu extends StatelessWidget {
   const HomeMenu({
@@ -19,53 +21,40 @@ class HomeMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      mainAxisSize: MainAxisSize.min, // Use minimal space for the menu
+      mainAxisSize: MainAxisSize.min,
       children: [
         ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFFFFA726), // Accent color
-            foregroundColor: Colors.black87,
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          ),
+          style: _buttonStyle,
           onPressed: onNewGame,
-          child: const Text('New Game'),
+          child: Text('home.new_game'.tr()),
         ),
         const SizedBox(height: 16),
         if (hasOngoingGame)
           ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFFFA726),
-              foregroundColor: Colors.black87,
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            ),
+            style: _buttonStyle,
             onPressed: onContinueGame,
-            child: const Text('Continue Game'),
+            child: Text('home.continue_game'.tr()),
           ),
         const SizedBox(height: 16),
         ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFFFFA726),
-            foregroundColor: Colors.black87,
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          ),
+          style: _buttonStyle,
           onPressed: onScoreboard,
-          child: const Text('Scoreboard'),
+          child: Text('home.scoreboard'.tr()),
         ),
         const SizedBox(height: 16),
         ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFFFFA726), // Accent color
-            foregroundColor: Colors.black87,
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          ),
+          style: _buttonStyle,
           onPressed: onShop,
-          child: const Text('Shop'),
+          child: Text('home.shop'.tr()),
         ),
       ],
     );
   }
+
+  ButtonStyle get _buttonStyle => ElevatedButton.styleFrom(
+        backgroundColor: const Color(0xFFFFA726),
+        foregroundColor: Colors.black87,
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      );
 }

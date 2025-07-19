@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:mem_game/data/shop_item/model/shop_item.dart';
 import 'package:mem_game/features/shop/widgets/boost_option_tile.dart';
@@ -55,30 +56,32 @@ Future<Map<String, bool>?> showBoostSelectionDialog(BuildContext context, List<S
                 titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 12),
                 contentPadding: const EdgeInsets.fromLTRB(24, 12, 24, 8),
                 actionsPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-                title: const Text('Choose Your Boosts', style: TextStyle(fontWeight: FontWeight.bold)),
+                title: Text('boost.title'.tr(), style: const TextStyle(fontWeight: FontWeight.bold)),
                 content: SingleChildScrollView(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       BoostOptionTile(
-                        title: 'Health Potion',
-                        description: '+1 starting health',
+                        title: 'boost.health.title'.tr(),
+                        description: 'boost.health.desc'.tr(),
                         quantity: healthQty,
                         selected: useHealthPotion,
                         onTap: () => setState(() => useHealthPotion = !useHealthPotion),
                         enabled: healthQty > 0,
                       ),
+
                       BoostOptionTile(
-                        title: 'Double Coins',
-                        description: '2x coin reward',
+                        title: 'boost.double.title'.tr(),
+                        description: 'boost.double.desc'.tr(),
                         quantity: doubleQty,
                         selected: useDoubleCoins,
                         onTap: () => setState(() => useDoubleCoins = !useDoubleCoins),
                         enabled: doubleQty > 0,
                       ),
+
                       BoostOptionTile(
-                        title: 'Extra Flip',
-                        description: 'Flip one extra card at start',
+                        title: 'boost.flip.title'.tr(),
+                        description: 'boost.flip.desc'.tr(),
                         quantity: flipQty,
                         selected: useExtraFlip,
                         onTap: () => setState(() => useExtraFlip = !useExtraFlip),
@@ -90,7 +93,7 @@ Future<Map<String, bool>?> showBoostSelectionDialog(BuildContext context, List<S
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.pop(context),
-                    child: const Text('Cancel', style: TextStyle(color: Colors.black87)),
+                    child: Text('boost.cancel'.tr(), style: const TextStyle(color: Colors.black87)),
                   ),
                   ElevatedButton(
                     onPressed: () {
@@ -101,7 +104,7 @@ Future<Map<String, bool>?> showBoostSelectionDialog(BuildContext context, List<S
                       });
                     },
 
-                    child: const Text('Start Game'),
+                    child: Text('boost.start'.tr()),
                   ),
                 ],
               ),
