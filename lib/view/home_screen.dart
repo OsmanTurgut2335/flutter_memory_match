@@ -33,7 +33,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final gameNotifier = ref.read(gameNotifierProvider.notifier)..onScoreIncrease = (scoreText) {};
 
-      //  Bellekte oyun varsa ama Hive'da yoksa temizle
+ 
       final user = ref.read(userRepositoryProvider).getUser();
       final gameRepo = GameRepository();
       final bool hasHiveGame;
@@ -44,7 +44,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
       }
 
       if (!hasHiveGame) {
-        // Eğer Hive'da oyun yoksa ama bellekte varsa state'i sıfırla
+      
         if (ref.read(gameNotifierProvider) != null) {
           await gameNotifier.exitGame();
         }
@@ -91,7 +91,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
           elevation: 0,
 
           title: Text('memoryHome'.tr()),
-          actions: [UserActionsButton(notifier: ref.read(userViewModelProvider.notifier), gameNotifier: gameNotifier)],
+          actions: const [UserActionsButton()],
         ),
         body: Stack(
           children: [

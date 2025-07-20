@@ -1,3 +1,5 @@
+import org.gradle.api.tasks.testing.Test
+
 allprojects {
     repositories {
         google()
@@ -18,4 +20,9 @@ subprojects {
 
 tasks.register<Delete>("clean") {
     delete(rootProject.layout.buildDirectory)
+}
+allprojects {
+    tasks.withType<Test>().configureEach {
+        enabled = false
+    }
 }

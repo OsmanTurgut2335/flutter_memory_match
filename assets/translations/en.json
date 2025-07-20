@@ -48,5 +48,24 @@
   "boost.flip.desc": "Flip one extra card at start",
   "boost.cancel": "Cancel",
   "boost.start": "Start",
-  "boost.quantity":"You have: {value}"
+  "boost.quantity":"You have: {value}",
+
+  
+"options.delete": "Delete User",
+  "options.delete_title": "Delete User",
+  "options.delete_message": "Are you sure you want to delete your user and all progress?",
+  "options.delete_button": "Delete",
+  "options.cancel_button": "Cancel",
+
+  "options.update": "Update Username",
+  "options.update_title": "Update Username",
+  "options.update_hint": "New Username",
+  "options.update_save": "Save",
+
+  "options.reset": "Reset App",
+  "options.reset_title": "Reset App",
+  "options.reset_message": "This will clear all local and cloud data. Continue?",
+  "options.reset_button": "Reset"
+
+
 }

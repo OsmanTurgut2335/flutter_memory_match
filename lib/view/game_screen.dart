@@ -178,9 +178,9 @@ class _GameScreenState extends ConsumerState<GameScreen> with TickerProviderStat
                   children: [
                     StatsRow(gameState: gameState, scoreBubbleKey: _scoreBubbleKey),
                     const SizedBox(height: 16),
+
                     Expanded(child: GameCards(gameState: gameState, gameNotifier: gameNotifier)),
-                    //  const SizedBox(height: 16),
-                    const Spacer(),
+
                     BottomLevelFlipRow(gameState: gameState, gameNotifier: gameNotifier),
                   ],
                 ),

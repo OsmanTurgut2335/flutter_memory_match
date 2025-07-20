@@ -42,7 +42,7 @@ class MemoryCardWidget extends ConsumerWidget {
             },
           );
         },
-        // 👇 This key is what triggers the flip when `showFront` changes.
+     
         child: showFront
             ? _buildCardFront(key: const ValueKey('front'))
             : _buildCardBack(key: const ValueKey('back')),

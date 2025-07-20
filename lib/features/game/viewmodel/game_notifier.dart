@@ -9,12 +9,11 @@ import 'package:mem_game/data/user/model/user_model.dart';
 import 'package:mem_game/data/user/repository/user_repository.dart';
 
 class GameNotifier extends StateNotifier<GameState?> {
- GameNotifier(this._repository, this._userRepository, this._shopItemRepository) : super(null) {
+  GameNotifier(this._repository, this._userRepository, this._shopItemRepository) : super(null) {
     _user = _userRepository.getUser();
   }
- 
-  UserModel? _user;
 
+  UserModel? _user;
 
   final UserRepository _userRepository;
 
@@ -60,7 +59,6 @@ class GameNotifier extends StateNotifier<GameState?> {
     }
   }
 
-
   Future<void> initializeGame(
     bool resumeGame, {
     int bonusHealth = 0,
@@ -99,8 +97,6 @@ class GameNotifier extends StateNotifier<GameState?> {
     });
   }
 
-
-
   Future<void> advanceLevel() async {
     _timer?.cancel();
 
@@ -118,7 +114,7 @@ class GameNotifier extends StateNotifier<GameState?> {
     final currentMoves = state?.moves ?? 0;
     final currentScore = state?.score ?? 0;
     final currentLevel = state?.level ?? 1;
-    final nextLevel = currentLevel < 3 ? currentLevel + 1 : currentLevel;
+    final nextLevel = currentLevel < 7 ? currentLevel + 1 : currentLevel;
 
     state = GameState(
       cards: generateCardsForLevel(nextLevel, preview: true),
@@ -132,7 +128,7 @@ class GameNotifier extends StateNotifier<GameState?> {
       showingPreview: true,
     );
 
-   if (user != null) {
+    if (user != null) {
       await _repository.saveGameState(state!, user.username);
     }
 
@@ -156,7 +152,6 @@ class GameNotifier extends StateNotifier<GameState?> {
       _startTimer();
     });
   }
-
 
   Future<void> flipCardsOnButtonPress() async {
     if (state == null || state!.flipCount <= 0 || _user == null) return;
@@ -199,7 +194,6 @@ class GameNotifier extends StateNotifier<GameState?> {
     state = state?.copyWith(isPaused: false);
   }
 
-
   void _startTimer() {
     _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
@@ -222,8 +216,7 @@ class GameNotifier extends StateNotifier<GameState?> {
     }
   }
 
-  
-    Future<void> onCardTap(int index) async {
+  Future<void> onCardTap(int index) async {
     if (_busy || state == null || _isPaused) return;
     if (state!.cards[index].isMatched || state!.cards[index].isFaceUp) return;
 
@@ -267,8 +260,6 @@ class GameNotifier extends StateNotifier<GameState?> {
     }
   }
 
-
-
   void handleWin() {
     _timer?.cancel();
     if (state!.level == 7) {
@@ -301,4 +292,5 @@ class GameNotifier extends StateNotifier<GameState?> {
     state = null;
   }
 }
+
 enum GameResult { win, lose }

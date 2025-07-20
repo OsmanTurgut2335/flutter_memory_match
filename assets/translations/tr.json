@@ -40,5 +40,20 @@
   "boost.flip.desc": "Başlangıçta bir kart fazladan çevir",
   "boost.cancel": "İptal",
   "boost.start": "Başla",
-  "boost.quantity":"Sahip Olunan: {value} "
+  "boost.quantity":"Sahip Olunan: {value} ",
+  "options.delete": "Kullanıcıyı Sil",
+  "options.delete_title": "Kullanıcıyı Sil",
+  "options.delete_message": "Kullanıcınızı ve tüm ilerlemenizi silmek istediğinizden emin misiniz?",
+  "options.delete_button": "Sil",
+  "options.cancel_button": "İptal",
+
+  "options.update": "Kullanıcı Adını Güncelle",
+  "options.update_title": "Kullanıcı Adını Güncelle",
+  "options.update_hint": "Yeni Kullanıcı Adı",
+  "options.update_save": "Kaydet",
+
+  "options.reset": "Uygulamayı Sıfırla",
+  "options.reset_title": "Uygulamayı Sıfırla",
+  "options.reset_message": "Tüm yerel ve bulut verileri temizlenecek. Devam edilsin mi?",
+  "options.reset_button": "Sıfırla"
 }

@@ -1,98 +1,170 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive/hive.dart';
+import 'package:mem_game/core/providers/game_provider.dart';
+import 'package:mem_game/core/providers/user_provider.dart';
+import 'package:mem_game/data/game/model/game_state_model.dart';
+import 'package:mem_game/data/shop_item/model/shop_item.dart';
+import 'package:mem_game/data/user/model/user_model.dart';
 import 'package:mem_game/features/game/viewmodel/game_notifier.dart';
 import 'package:mem_game/features/user/viewmodel/user_notifier.dart';
 import 'package:mem_game/view/create_username_screen.dart';
 
-///ui for Home Screen app bar's actions list
-
-class UserActionsButton extends StatelessWidget {
-  const UserActionsButton({required this.notifier, required this.gameNotifier, super.key});
-
-  final UserViewModel notifier;
-  final GameNotifier gameNotifier;
+class UserActionsButton extends ConsumerWidget {
+  const UserActionsButton({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return IconButton(icon: const Icon(Icons.more_vert), onPressed: () => _showActionsSheet(context));
-  }
+  Widget build(BuildContext context, WidgetRef ref) {
+    final userNotifier = ref.read(userViewModelProvider.notifier);
+    final gameNotifier = ref.read(gameNotifierProvider.notifier);
 
-  void _showActionsSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      builder:
-          (_) => SafeArea(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ListTile(
-                  leading: const Icon(Icons.delete_outline),
-                  title: const Text('Delete User'),
-                  onTap: () {
-                    Navigator.of(context).pop();
-                    _confirmDelete(context);
-                  },
-                ),
-                ListTile(
-                  leading: const Icon(Icons.edit),
-                  title: const Text('Update Username'),
-                  onTap: () {
-                    Navigator.of(context).pop();
-                    _showUpdateDialog(context);
-                  },
-                ),
-              ],
-            ),
-          ),
+    return IconButton(
+      icon: const Icon(Icons.more_vert),
+      onPressed: () => _showActionsSheet(context, ref, userNotifier, gameNotifier),
     );
   }
 
-  Future<void> _confirmDelete(BuildContext context) async {
+  void _showActionsSheet(BuildContext context, WidgetRef ref, UserViewModel notifier, GameNotifier gameNotifier) {
+    showModalBottomSheet(
+      context: context,
+      builder: (_) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.delete_outline),
+              title: Text('options.delete'.tr()),
+              onTap: () {
+                Navigator.of(context).pop();
+                _confirmDelete(context, notifier, gameNotifier);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.restart_alt),
+              title: Text('options.reset'.tr()),
+              onTap: () {
+                Navigator.of(context).pop();
+                _confirmReset(context, ref);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.edit),
+              title: Text('options.update'.tr()),
+              onTap: () {
+                Navigator.of(context).pop();
+                _showUpdateDialog(context, notifier);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _confirmDelete(BuildContext context, UserViewModel notifier, GameNotifier gameNotifier) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('Delete User'),
-            content: const Text('Are you sure you want to delete your user and all progress?'),
-            actions: [
-              TextButton(onPressed: () => Navigator.of(context).pop(false), child: const Text('Cancel')),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                onPressed: () => Navigator.of(context).pop(true),
-                child: const Text('Delete'),
-              ),
-            ],
+      builder: (context) => AlertDialog(
+        title: Text('options.delete_title'.tr()),
+        content: Text('options.delete_message'.tr()),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text('options.cancel_button'.tr()),
           ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text('options.delete_button'.tr()),
+          ),
+        ],
+      ),
     );
 
     if (confirmed == true) {
       await notifier.deleteUser();
-        await gameNotifier.exitGame();
-           if (context.mounted) {
-        await Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const UsernameInputScreen()));
+      await gameNotifier.exitGame();
+      if (context.mounted) {
+        await Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const UsernameInputScreen()),
+        );
       }
     }
   }
 
-  Future<void> _showUpdateDialog(BuildContext context) async {
+  Future<void> _confirmReset(BuildContext context, WidgetRef ref) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('options.reset_title'.tr()),
+        content: Text('options.reset_message'.tr()),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text('options.cancel_button'.tr()),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text('options.reset_button'.tr()),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      await _forceResetApp(context, ref);
+    }
+  }
+
+  Future<void> _showUpdateDialog(BuildContext context, UserViewModel notifier) async {
     String newUsername = '';
     await showDialog<void>(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('Update Username'),
-            content: TextField(
-              decoration: const InputDecoration(labelText: 'New Username'),
-              onChanged: (v) => newUsername = v,
-            ),
-            actions: [
-              TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancel')),
-              ElevatedButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Save')),
-            ],
+      builder: (context) => AlertDialog(
+        title: Text('options.update_title'.tr()),
+        content: TextField(
+          decoration: InputDecoration(labelText: 'options.update_hint'.tr()),
+          onChanged: (v) => newUsername = v,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text('options.cancel_button'.tr()),
           ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text('options.update_save'.tr()),
+          ),
+        ],
+      ),
     );
 
     if (newUsername.trim().isNotEmpty) {
       await notifier.changeUsername(newUsername.trim());
+    }
+  }
+
+  Future<void> _forceResetApp(BuildContext context, WidgetRef ref) async {
+    await Hive.box<UserModel>('userBox').clear();
+    await Hive.box<ShopItem>('shopItemsBox').clear();
+    await Hive.box<GameState>('gameBox').clear();
+
+    final user = ref.read(userRepositoryProvider).getUser();
+    if (user != null) {
+      await ref.read(userRepositoryProvider).deleteUserFromDb();
+    }
+
+    ref
+      ..invalidate(userViewModelProvider)
+      ..invalidate(gameNotifierProvider);
+
+    if (context.mounted) {
+      await Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute<void>(builder: (_) => const UsernameInputScreen()),
+        (_) => false,
+      );
     }
   }
 }

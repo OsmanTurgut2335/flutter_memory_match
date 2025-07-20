@@ -1,5 +1,5 @@
-
 import 'package:flutter/material.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:mem_game/data/game/model/game_state_model.dart';
 import 'package:mem_game/features/game/viewmodel/game_notifier.dart';
 import 'package:mem_game/features/memory_card/widgets/memory_card_widget.dart';
@@ -12,57 +12,39 @@ class GameCards extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    final  screenWidth = size.width;
-    final  screenHeight = size.height;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final availableWidth = constraints.maxWidth;
 
-    const  spacing = 8.0;
-    const double minCardSize = 72; 
-    const double maxCardSize = 130;
+        const spacing = 8.0;
+        final cards = gameState.cards;
+        final cardCount = cards.length;
 
-    final  cardCount = gameState.cards.length;
+        // Optimize number of columns based on screen width
+        var optimalColumns = 2;
+        for (var i = 2; i <= 6; i++) {
+          final cardSize = (availableWidth - (i - 1) * spacing) / i;
+          if (cardSize >= 72) optimalColumns = i;
+        }
 
-
-    int optimalColumns = 1;
-    double optimalCardSize = maxCardSize;
-
-    for (int columns = 1; columns <= 10; columns++) {
-      final  cardSize = (screenWidth - (columns - 1) * spacing) / columns;
-
-      if (cardSize < minCardSize) break;
-
-      final  rows = (cardCount / columns).ceil();
-      final  totalHeight = rows * cardSize + (rows - 1) * spacing + 16; // alt boşluk
-
-      if (totalHeight <= screenHeight) {
-        optimalColumns = columns;
-        optimalCardSize = cardSize;
-      }
-    }
-
-    return Padding(
-      padding: const EdgeInsets.all(8),
-      child: GridView.builder(
-        physics: const NeverScrollableScrollPhysics(),
-        itemCount: cardCount,
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        return MasonryGridView.count(
+          physics: const NeverScrollableScrollPhysics(),
           crossAxisCount: optimalColumns,
           mainAxisSpacing: spacing,
           crossAxisSpacing: spacing,
-      
-        ),
-        itemBuilder: (context, index) {
-          return SizedBox(
-            width: optimalCardSize,
-            height: optimalCardSize,
-            child: MemoryCardWidget(
-              card: gameState.cards[index],
-              onTap: () => gameNotifier.onCardTap(index),
-              level: gameState.level,
-            ),
-          );
-        },
-      ),
+          itemCount: cardCount,
+          itemBuilder: (context, index) {
+            return AspectRatio(
+              aspectRatio: 1,
+              child: MemoryCardWidget(
+                card: cards[index],
+                onTap: () => gameNotifier.onCardTap(index),
+                level: gameState.level,
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }

@@ -14,28 +14,24 @@ class BottomLevelFlipRow extends StatelessWidget {
     final theme = Theme.of(context);
     final bool canFlip = (gameState?.flipCount ?? 0) > 0;
 
-    return Container(
-      color: Colors.transparent,
-      //   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            'game.level'.tr(namedArgs: {'number': (gameState?.level ?? 1).toString()}),
-            style: theme.textTheme.titleMedium,
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          'game.level'.tr(namedArgs: {'number': (gameState?.level ?? 1).toString()}),
+          style: theme.textTheme.titleMedium,
+        ),
+        ElevatedButton.icon(
+          onPressed: canFlip ? gameNotifier.flipCardsOnButtonPress : null,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: theme.colorScheme.primary,
+            foregroundColor: theme.colorScheme.onPrimary,
           ),
-          ElevatedButton.icon(
-            onPressed: canFlip ? gameNotifier.flipCardsOnButtonPress : null,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: theme.colorScheme.primary,
-              foregroundColor: theme.colorScheme.onPrimary,
-            ),
-            icon: const Icon(Icons.flip_camera_android_outlined),
+          icon: const Icon(Icons.flip_camera_android_outlined),
 
-            label: Text('game.flip_cards'.tr()),
-          ),
-        ],
-      ),
+          label: Text('game.flip_cards'.tr()),
+        ),
+      ],
     );
   }
 }
