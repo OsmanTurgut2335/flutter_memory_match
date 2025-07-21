@@ -56,19 +56,18 @@ class GameRepository {
   }
 
   /// Checks and updates the user's best time 
-  Future<void> updateBestTimeIfNeeded(int currentTime) async {
-    final userBox = Hive.box<UserModel>(userBoxName);
-    final currentUser = userBox.get(currentUserKey);
+Future<void> updateBestTimeIfNeeded(int currentTime) async {
+  final userBox = Hive.box<UserModel>(userBoxName);
+  final currentUser = userBox.get(currentUserKey);
 
-    if (currentUser != null) {
-      if (currentUser.bestTime == 0 || currentTime < currentUser.bestTime) {
-        final updatedUser = currentUser.copyWith(bestTime: currentTime);
-        await userBox.put(currentUserKey, updatedUser);
+  if (currentUser == null || currentUser.isDummy) return; 
+  if (currentUser.bestTime == 0 || currentTime < currentUser.bestTime) {
+    final updatedUser = currentUser.copyWith(bestTime: currentTime);
+    await userBox.put(currentUserKey, updatedUser);
 
-        await _updateBestTimeInDatabase(updatedUser.username, currentTime);
-      }
-    }
+    await _updateBestTimeInDatabase(updatedUser.username, currentTime);
   }
+}
 
   /// Updates the best time in the db
   Future<void> _updateBestTimeInDatabase(String username, int bestTime) async {

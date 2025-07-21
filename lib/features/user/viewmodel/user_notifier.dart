@@ -23,10 +23,10 @@ class UserViewModel extends StateNotifier<AsyncValue<UserModel>> {
     }
   }
 
-  Future<void> createUser(String username) async {
+  Future<void> createUser(String username, {bool isDummy = false}) async {
     state = const AsyncLoading();
     try {
-      final newUser = UserModel(username: username);
+      final newUser = UserModel(username: username,isDummy: isDummy);
       await _repository.saveUser(newUser);
       state = AsyncValue.data(newUser);
     } catch (e, st) {
@@ -60,7 +60,12 @@ class UserViewModel extends StateNotifier<AsyncValue<UserModel>> {
 
   Future<void> deleteUser() async {
     try {
-      await _repository.deleteUserFromDb();
+      final user = _repository.getUser();
+
+      if (user != null && !user.isDummy) {
+        await _repository.deleteUserFromDb();
+      }
+
       await _repository.deleteUser();
       state = const AsyncError('User deleted', StackTrace.empty);
     } catch (e, st) {

@@ -45,6 +45,7 @@ class _UsernameInputScreenState extends ConsumerState<UsernameInputScreen> {
         ),
       ),
       child: Scaffold(
+        backgroundColor: Colors.transparent,
         appBar: AppBar(title: Text('username.title'.tr())),
         body: Padding(
           padding: const EdgeInsets.all(16),
@@ -95,9 +96,9 @@ class _UsernameInputScreenState extends ConsumerState<UsernameInputScreen> {
                                   _showSnackBar(context, 'username.unexpected'.tr());
                                 }
                               } on TimeoutException {
-                                _showSnackBar(context, 'username.timeout'.tr());
+                                await _showDummyUserDialog(context, username);
                               } catch (_) {
-                                _showSnackBar(context, 'username.failed'.tr());
+                                await _showDummyUserDialog(context, username);
                               } finally {
                                 if (mounted) setState(() => _isLoading = false);
                               }
@@ -118,5 +119,31 @@ class _UsernameInputScreenState extends ConsumerState<UsernameInputScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _showDummyUserDialog(BuildContext context, String username) async {
+    if (!context.mounted) return;
+
+    final shouldContinue = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) {
+        return AlertDialog(
+          title: Text('username.offlineTitle'.tr()),
+          content: Text('username.offlineDesc'.tr()),
+          actions: [
+            TextButton(onPressed: () => Navigator.of(context).pop(false), child: Text('username.cancel'.tr())),
+            ElevatedButton(onPressed: () => Navigator.of(context).pop(true), child: Text('username.continue'.tr())),
+          ],
+        );
+      },
+    );
+
+    if (shouldContinue == true) {
+      await ref.read(userViewModelProvider.notifier).createUser(username, isDummy: true);
+      if (context.mounted) {
+        await Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const HomeScreen()));
+      }
+    }
   }
 }

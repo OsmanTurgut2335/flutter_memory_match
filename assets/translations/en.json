@@ -39,8 +39,10 @@
   "username.save": "Save",
   "username.exists":"This username is already taken.",
   "username.unexpected" :"An unexpected error occurred.",
-  "username.timeout" :"Server did not respond, please try again.",
-  "username.failed":"Could not register, please try again.",
+ "username.offlineTitle" :"Connection Failed",
+ "username.offlineDesc":"Could not connect to server. Would you like to continue offline?",
+ "username.cancel" :"Cancel",
+ "username.continue": "Continue",
   "username.tooLong": "Please write a username shorter than 20 letters",
 
 

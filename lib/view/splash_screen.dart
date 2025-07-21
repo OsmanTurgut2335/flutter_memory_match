@@ -30,11 +30,11 @@ class _SplashScreenState extends State<SplashScreen> {
       await MobileAds.instance.initialize();
 
       final userBox = Hive.box<UserModel>('userBox');
-      final hasUser = userBox.containsKey('currentUserKey');
+      final hasUser = userBox.containsKey('currentUser');
 
       final nextScreen = hasUser ? const HomeScreen() : const UsernameInputScreen();
 
-      // init tamam → ana ekrana geç
+  
       if (mounted) {
         await Navigator.of(context).pushReplacement(MaterialPageRoute<void>(builder: (_) => nextScreen));
       }

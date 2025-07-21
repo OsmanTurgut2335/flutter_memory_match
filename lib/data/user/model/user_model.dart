@@ -14,6 +14,7 @@ class UserModel extends HiveObject {
     this.currentTime = 0,
     this.moves = 0,
     this.coins=0,
+     this.isDummy = false, 
   });
 
   // The player's username
@@ -49,7 +50,10 @@ class UserModel extends HiveObject {
   @HiveField(7)
   HiveList<ShopItem> inventory = HiveList<ShopItem>(Hive.box<ShopItem>('shopItemsBox'));
 
-  get user => null;
+  @HiveField(8, defaultValue: false)
+  final bool isDummy;
+
+  Null get user => null;
   
 
   UserModel copyWith({

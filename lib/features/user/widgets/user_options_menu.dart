@@ -33,6 +33,7 @@ class UserActionsButton extends ConsumerWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                /// Delete current user option
                 ListTile(
                   leading: const Icon(Icons.delete_outline),
                   title: Text('options.delete'.tr()),
@@ -41,6 +42,8 @@ class UserActionsButton extends ConsumerWidget {
                     _confirmDelete(context, notifier, gameNotifier);
                   },
                 ),
+
+                ///Force reset for emergencies
                 ListTile(
                   leading: const Icon(Icons.restart_alt),
                   title: Text('options.reset'.tr()),
@@ -49,6 +52,8 @@ class UserActionsButton extends ConsumerWidget {
                     _confirmReset(context, ref);
                   },
                 ),
+
+                ///Change Username Option
                 ListTile(
                   leading: const Icon(Icons.edit),
                   title: Text('options.update'.tr()),
@@ -114,7 +119,7 @@ class UserActionsButton extends ConsumerWidget {
   }
 
   Future<void> _showUpdateDialog(BuildContext context, UserViewModel notifier) async {
-    String newUsername = '';
+    var newUsername = '';
     await showDialog<void>(
       context: context,
       builder:
@@ -138,7 +143,7 @@ class UserActionsButton extends ConsumerWidget {
 
   Future<void> _forceResetApp(BuildContext context, WidgetRef ref) async {
     final user = ref.read(userRepositoryProvider).getUser();
-    if (user != null) {
+    if (user != null && !user.isDummy) {
       await ref.read(userRepositoryProvider).deleteUserFromDb();
     }
 

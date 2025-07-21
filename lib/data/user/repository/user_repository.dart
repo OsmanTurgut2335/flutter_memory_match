@@ -35,22 +35,31 @@ class UserRepository {
   }
 
   ///Deletes the user from relational database
-  Future<void> deleteUserFromDb() async {
-    final box = Hive.box<UserModel>(userBoxName);
+Future<void> deleteUserFromDb() async {
+  final box = Hive.box<UserModel>(userBoxName);
+  final user = box.get(userKey);
 
-    final user = box.get(userKey);
-
-    if (user == null) {
-      print('Kullanıcı bulunamadı.');
-      return;
-    }
-
-    final response = await http.delete(Uri.parse('http://10.0.2.2:8080/leaderboard/${user.username}'));
-
-    if (response.statusCode == 200) {
-      print('Kullanıcı başarıyla silindi.');
-    }
+  if (user == null) {
+    print('Kullanıcı bulunamadı.');
+    return;
   }
+
+  if (user.isDummy) {
+    print('Dummy kullanıcı, sunucudan silme atlanıyor.');
+    return;
+  }
+
+  final response = await http.delete(
+    Uri.parse('http://10.0.2.2:8080/leaderboard/${user.username}'),
+  );
+
+  if (response.statusCode == 200) {
+    print('Kullanıcı başarıyla silindi.');
+  } else {
+    print('Sunucu kullanıcıyı silemedi: ${response.statusCode}');
+  }
+}
+
 
   Future<void> transferGameToNewUsername(String oldUsername, String newUsername) async {
     final box = Hive.box<GameState>('gameBox');
@@ -69,31 +78,40 @@ class UserRepository {
   }
 
   /// Changes the username of the current user in the Hive box and db
-  Future<UserModel?> changeUsername(String newUsername) async {
-    final box = Hive.box<UserModel>(userBoxName);
-    final user = box.get(userKey);
+Future<UserModel?> changeUsername(String newUsername) async {
+  final box = Hive.box<UserModel>(userBoxName);
+  final user = box.get(userKey);
 
-    if (user == null) {
-      print('Kullanıcı bulunamadı.');
-      return null;
-    }
-
-    final response = await http.put(
-      Uri.parse('http://10.0.2.2:8080/leaderboard/username'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'oldUsername': user.username, 'newUsername': newUsername}),
-    );
-
-    if (response.statusCode == 200) {
-      print('Kullanıcı ismi başarıyla değiştirildi');
-
-      // Hive içindeki kullanıcıyı güncelle
-      final updatedUser = UserModel(username: newUsername);
-      await box.put(userKey, updatedUser);
-      return updatedUser;
-    } else {
-      print('İsim değiştirme başarısız: ${response.statusCode}');
-      return null;
-    }
+  if (user == null) {
+    print('Kullanıcı bulunamadı.');
+    return null;
   }
+
+  if (user.isDummy) {
+    // Local update
+    final updatedUser = user.copyWith(username: newUsername);
+    await box.put(userKey, updatedUser);
+    print('Dummy kullanıcı ismi local olarak değiştirildi');
+    return updatedUser;
+  }
+
+  //Backend update for real user
+  final response = await http.put(
+    Uri.parse('http://10.0.2.2:8080/leaderboard/username'),
+    headers: {'Content-Type': 'application/json'},
+    body: jsonEncode({'oldUsername': user.username, 'newUsername': newUsername}),
+  );
+
+  if (response.statusCode == 200) {
+    print('Kullanıcı ismi başarıyla değiştirildi');
+
+    final updatedUser = user.copyWith(username: newUsername);
+    await box.put(userKey, updatedUser);
+    return updatedUser;
+  } else {
+    print('İsim değiştirme başarısız: ${response.statusCode}');
+    return null;
+  }
+}
+
 }

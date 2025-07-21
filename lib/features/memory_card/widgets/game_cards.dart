@@ -27,22 +27,24 @@ class GameCards extends StatelessWidget {
           if (cardSize >= 72) optimalColumns = i;
         }
 
-        return MasonryGridView.count(
-          physics: const NeverScrollableScrollPhysics(),
-          crossAxisCount: optimalColumns,
-          mainAxisSpacing: spacing,
-          crossAxisSpacing: spacing,
-          itemCount: cardCount,
-          itemBuilder: (context, index) {
-            return AspectRatio(
-              aspectRatio: 1,
-              child: MemoryCardWidget(
-                card: cards[index],
-                onTap: () => gameNotifier.onCardTap(index),
-                level: gameState.level,
-              ),
-            );
-          },
+        return SizedBox.expand(
+          child: MasonryGridView.count(
+            physics: const NeverScrollableScrollPhysics(),
+            crossAxisCount: optimalColumns,
+            mainAxisSpacing: spacing,
+            crossAxisSpacing: spacing,
+            itemCount: cardCount,
+            itemBuilder: (context, index) {
+              return AspectRatio(
+                aspectRatio: 1,
+                child: MemoryCardWidget(
+                  card: cards[index],
+                  onTap: () => gameNotifier.onCardTap(index),
+                  level: gameState.level,
+                ),
+              );
+            },
+          ),
         );
       },
     );

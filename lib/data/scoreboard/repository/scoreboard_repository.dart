@@ -16,7 +16,7 @@ class ScoreboardRepository {
   Future<void> saveScore(Score score) async {
     final response = await _dio.post(
       '/entry',
-      data: score.toJson(), // json_serializable ile üretilmiş
+      data: score.toJson(), 
     );
     if (response.statusCode != 200 && response.statusCode != 201) {
       throw Exception('Failed to save score');
