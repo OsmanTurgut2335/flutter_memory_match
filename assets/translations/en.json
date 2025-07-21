@@ -37,6 +37,12 @@
   "username.label": "Username",
   "username.validation": "Please enter a username",
   "username.save": "Save",
+  "username.exists":"This username is already taken.",
+  "username.unexpected" :"An unexpected error occurred.",
+  "username.timeout" :"Server did not respond, please try again.",
+  "username.failed":"Could not register, please try again.",
+  "username.tooLong": "Please write a username shorter than 20 letters",
+
 
 
   "boost.title": "Choose Your Boosts",

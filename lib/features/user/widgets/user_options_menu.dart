@@ -28,67 +28,64 @@ class UserActionsButton extends ConsumerWidget {
   void _showActionsSheet(BuildContext context, WidgetRef ref, UserViewModel notifier, GameNotifier gameNotifier) {
     showModalBottomSheet(
       context: context,
-      builder: (_) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.delete_outline),
-              title: Text('options.delete'.tr()),
-              onTap: () {
-                Navigator.of(context).pop();
-                _confirmDelete(context, notifier, gameNotifier);
-              },
+      builder:
+          (_) => SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.delete_outline),
+                  title: Text('options.delete'.tr()),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    _confirmDelete(context, notifier, gameNotifier);
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.restart_alt),
+                  title: Text('options.reset'.tr()),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    _confirmReset(context, ref);
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.edit),
+                  title: Text('options.update'.tr()),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    _showUpdateDialog(context, notifier);
+                  },
+                ),
+              ],
             ),
-            ListTile(
-              leading: const Icon(Icons.restart_alt),
-              title: Text('options.reset'.tr()),
-              onTap: () {
-                Navigator.of(context).pop();
-                _confirmReset(context, ref);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.edit),
-              title: Text('options.update'.tr()),
-              onTap: () {
-                Navigator.of(context).pop();
-                _showUpdateDialog(context, notifier);
-              },
-            ),
-          ],
-        ),
-      ),
+          ),
     );
   }
 
   Future<void> _confirmDelete(BuildContext context, UserViewModel notifier, GameNotifier gameNotifier) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text('options.delete_title'.tr()),
-        content: Text('options.delete_message'.tr()),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text('options.cancel_button'.tr()),
+      builder:
+          (context) => AlertDialog(
+            title: Text('options.delete_title'.tr()),
+            content: Text('options.delete_message'.tr()),
+            actions: [
+              TextButton(onPressed: () => Navigator.of(context).pop(false), child: Text('options.cancel_button'.tr())),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                onPressed: () => Navigator.of(context).pop(true),
+                child: Text('options.delete_button'.tr()),
+              ),
+            ],
           ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text('options.delete_button'.tr()),
-          ),
-        ],
-      ),
     );
 
     if (confirmed == true) {
       await notifier.deleteUser();
       await gameNotifier.exitGame();
       if (context.mounted) {
-        await Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const UsernameInputScreen()),
-        );
+        await Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const UsernameInputScreen()));
       }
     }
   }
@@ -96,21 +93,19 @@ class UserActionsButton extends ConsumerWidget {
   Future<void> _confirmReset(BuildContext context, WidgetRef ref) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text('options.reset_title'.tr()),
-        content: Text('options.reset_message'.tr()),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text('options.cancel_button'.tr()),
+      builder:
+          (context) => AlertDialog(
+            title: Text('options.reset_title'.tr()),
+            content: Text('options.reset_message'.tr()),
+            actions: [
+              TextButton(onPressed: () => Navigator.of(context).pop(false), child: Text('options.cancel_button'.tr())),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                onPressed: () => Navigator.of(context).pop(true),
+                child: Text('options.reset_button'.tr()),
+              ),
+            ],
           ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text('options.reset_button'.tr()),
-          ),
-        ],
-      ),
     );
 
     if (confirmed == true) {
@@ -122,23 +117,18 @@ class UserActionsButton extends ConsumerWidget {
     String newUsername = '';
     await showDialog<void>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text('options.update_title'.tr()),
-        content: TextField(
-          decoration: InputDecoration(labelText: 'options.update_hint'.tr()),
-          onChanged: (v) => newUsername = v,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text('options.cancel_button'.tr()),
+      builder:
+          (context) => AlertDialog(
+            title: Text('options.update_title'.tr()),
+            content: TextField(
+              decoration: InputDecoration(labelText: 'options.update_hint'.tr()),
+              onChanged: (v) => newUsername = v,
+            ),
+            actions: [
+              TextButton(onPressed: () => Navigator.of(context).pop(), child: Text('options.cancel_button'.tr())),
+              ElevatedButton(onPressed: () => Navigator.of(context).pop(), child: Text('options.update_save'.tr())),
+            ],
           ),
-          ElevatedButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text('options.update_save'.tr()),
-          ),
-        ],
-      ),
     );
 
     if (newUsername.trim().isNotEmpty) {
@@ -147,24 +137,21 @@ class UserActionsButton extends ConsumerWidget {
   }
 
   Future<void> _forceResetApp(BuildContext context, WidgetRef ref) async {
-    await Hive.box<UserModel>('userBox').clear();
-    await Hive.box<ShopItem>('shopItemsBox').clear();
-    await Hive.box<GameState>('gameBox').clear();
-
     final user = ref.read(userRepositoryProvider).getUser();
     if (user != null) {
       await ref.read(userRepositoryProvider).deleteUserFromDb();
     }
 
-    ref
-      ..invalidate(userViewModelProvider)
-      ..invalidate(gameNotifierProvider);
+    await Hive.box<UserModel>('userBox').clear();
+    await Hive.box<ShopItem>('shopItemsBox').clear();
+    await Hive.box<GameState>('gameBox').clear();
+    await ref.read(gameNotifierProvider.notifier).exitGame();
+    ref.invalidate(userViewModelProvider);
 
     if (context.mounted) {
-      await Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute<void>(builder: (_) => const UsernameInputScreen()),
-        (_) => false,
-      );
+      await Navigator.of(
+        context,
+      ).pushAndRemoveUntil(MaterialPageRoute<void>(builder: (_) => const UsernameInputScreen()), (_) => false);
     }
   }
 }

@@ -2,7 +2,9 @@ package com.example.leaderboard.service;
 
 import com.example.leaderboard.model.LeaderboardEntry;
 import com.example.leaderboard.repository.LeaderboardRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -65,24 +67,18 @@ public class LeaderboardService {
     }
 
     public LeaderboardEntry saveEntry(LeaderboardEntry entry) {
-        Optional<LeaderboardEntry> existingOpt = leaderboardRepository.findByUsername(entry.getUsername());
+        boolean usernameExists = leaderboardRepository.findByUsername(entry.getUsername()).isPresent();
 
-        if (existingOpt.isPresent()) {
-            LeaderboardEntry existing = existingOpt.get();
-
-            // Daha iyi (daha düşük) skor geldiyse güncelle
-            if (entry.getBestTime() < existing.getBestTime()) {
-                existing.setBestTime(entry.getBestTime());
-                return leaderboardRepository.save(existing);
-            }
-
-            // Daha kötü skorla geleni yok say, mevcut veriyi döndür
-            return existing;
+        if (usernameExists) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Username already exists. Use update endpoint to change score."
+            );
         }
 
-        // Yeni kullanıcı ise direkt kaydet
         return leaderboardRepository.save(entry);
     }
+
 
 
 }

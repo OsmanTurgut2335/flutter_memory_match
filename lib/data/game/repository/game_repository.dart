@@ -55,7 +55,7 @@ class GameRepository {
     }
   }
 
-  /// Checks and updates the user's best time locally and on Firestore.
+  /// Checks and updates the user's best time 
   Future<void> updateBestTimeIfNeeded(int currentTime) async {
     final userBox = Hive.box<UserModel>(userBoxName);
     final currentUser = userBox.get(currentUserKey);
