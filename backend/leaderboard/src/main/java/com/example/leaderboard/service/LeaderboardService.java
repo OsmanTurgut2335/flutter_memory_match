@@ -63,7 +63,7 @@ public class LeaderboardService {
 
 
     public List<LeaderboardEntry> findUsersDesc() {
-        return leaderboardRepository.findAllByOrderByBestTimeDesc();
+        return leaderboardRepository.findTop10ByOrderByScoreDesc();
     }
 
     public LeaderboardEntry saveEntry(LeaderboardEntry entry) {

@@ -21,13 +21,22 @@ public class LeaderboardEntry {
     @Column(unique = true)
     private String username;
 
+    @Column(name = "maxLevel")
+    private int maxLevel=0;
+
     @Column(name = "best_time")
-    private int bestTime;
+    private int bestTime= -1;
+
+    @Column(name = "score")
+    private  int score = 0;
 
 
-    public LeaderboardEntry( String username, int bestTime) {
+
+
+    public LeaderboardEntry( String username ) {
 
         this.username = username;
-        this.bestTime = bestTime;
+
+
     }
 }
