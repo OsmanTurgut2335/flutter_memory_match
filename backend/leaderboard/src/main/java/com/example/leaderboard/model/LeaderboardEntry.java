@@ -16,29 +16,25 @@ public class LeaderboardEntry {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long  id;
+    private Long id;
 
     @Column(unique = true)
     private String username;
 
+    @Column(nullable = false)
+    private String password;
+
     @Column(name = "maxLevel")
-    private int maxLevel=0;
+    private int maxLevel = 0;
 
     @Column(name = "best_time")
-    private int bestTime= -1;
+    private int bestTime = -1;
 
     @Column(name = "score")
-    private  int score = 0;
+    private int score = 0;
 
-
-
-
-
-
-    public LeaderboardEntry( String username ) {
-
+    public LeaderboardEntry(String username, String password) {
         this.username = username;
-
-
+        this.password = password;
     }
 }
