@@ -17,4 +17,5 @@ public interface LeaderboardRepository extends JpaRepository<LeaderboardEntry, L
 
     Optional<List<LeaderboardEntry>> findTop5ByOrderByMaxLevelDesc();
 
+    List<LeaderboardEntry> findAllByOrderByScoreDesc();
 }

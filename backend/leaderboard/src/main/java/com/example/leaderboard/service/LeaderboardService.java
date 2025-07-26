@@ -1,8 +1,11 @@
 package com.example.leaderboard.service;
 
+
+import com.example.leaderboard.dto.LeaderboardEntryWithRank;
 import com.example.leaderboard.model.LeaderboardEntry;
 import com.example.leaderboard.repository.LeaderboardRepository;
 import org.springframework.http.HttpStatus;
+
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -77,6 +80,18 @@ public class LeaderboardService {
         }
 
         return leaderboardRepository.save(entry);
+    }
+
+    public LeaderboardEntryWithRank getUserWithRank(String username) {
+        List<LeaderboardEntry> sorted = leaderboardRepository.findAllByOrderByScoreDesc();
+        for (int i = 0; i < sorted.size(); i++) {
+            if (sorted.get(i).getUsername().equals(username)) {
+                LeaderboardEntry user = sorted.get(i);
+                return new LeaderboardEntryWithRank(user.getUsername(), user.getScore(), user.getMaxLevel(), i + 1,user.getBestTime());
+            }
+        }
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found in leaderboard");
+
     }
 
 

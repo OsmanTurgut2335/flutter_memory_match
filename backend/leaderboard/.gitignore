@@ -69,3 +69,5 @@ build/
 
 /backend/*.log
 /backend/leaderboard/*.log
+
+src/main/resources/application.properties
