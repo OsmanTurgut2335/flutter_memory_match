@@ -18,4 +18,9 @@ class AppColors {
   // NEW: For light text on colored backgrounds like gradients
   static const Color lightTextPrimary = Colors.white;
   static const Color lightTextSecondary = Colors.white70;
+
+    
+
 }
+
+

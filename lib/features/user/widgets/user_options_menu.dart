@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
 import 'package:mem_game/core/providers/game_provider.dart';
 import 'package:mem_game/core/providers/user_provider.dart';
+import 'package:mem_game/core/widgets/confirmation_dialogs.dart';
 import 'package:mem_game/data/game/model/game_state_model.dart';
 import 'package:mem_game/data/shop_item/model/shop_item.dart';
 import 'package:mem_game/data/user/model/user_model.dart';
@@ -68,78 +69,55 @@ class UserActionsButton extends ConsumerWidget {
     );
   }
 
-  Future<void> _confirmDelete(BuildContext context, UserViewModel notifier, GameNotifier gameNotifier) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            title: Text('options.delete_title'.tr()),
-            content: Text('options.delete_message'.tr()),
-            actions: [
-              TextButton(onPressed: () => Navigator.of(context).pop(false), child: Text('options.cancel_button'.tr())),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                onPressed: () => Navigator.of(context).pop(true),
-                child: Text('options.delete_button'.tr()),
-              ),
-            ],
-          ),
-    );
+Future<void> _confirmDelete(BuildContext context, UserViewModel notifier, GameNotifier gameNotifier) async {
+  final confirmed = await showConfirmationDialog(
+    context: context,
+    titleKey: 'options.delete_title',
+    contentKey: 'options.delete_message',
+    confirmKey: 'options.delete_button',
+    cancelKey: 'options.cancel_button',
+  );
 
-    if (confirmed == true) {
-      await notifier.deleteUser();
-      await gameNotifier.exitGame();
-      if (context.mounted) {
-        await Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const UsernameInputScreen()));
-      }
+  if (confirmed) {
+    await notifier.deleteUser(context);
+    await gameNotifier.exitGame();
+    if (context.mounted) {
+      await Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const UsernameInputScreen()),
+      );
     }
   }
+}
 
-  Future<void> _confirmReset(BuildContext context, WidgetRef ref) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            title: Text('options.reset_title'.tr()),
-            content: Text('options.reset_message'.tr()),
-            actions: [
-              TextButton(onPressed: () => Navigator.of(context).pop(false), child: Text('options.cancel_button'.tr())),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                onPressed: () => Navigator.of(context).pop(true),
-                child: Text('options.reset_button'.tr()),
-              ),
-            ],
-          ),
-    );
+ Future<void> _confirmReset(BuildContext context, WidgetRef ref) async {
+  final confirmed = await showConfirmationDialog(
+    context: context,
+    titleKey: 'options.reset_title',
+    contentKey: 'options.reset_message',
+    confirmKey: 'options.reset_button',
+    cancelKey: 'options.cancel_button',
+  );
 
-    if (confirmed == true) {
-      await _forceResetApp(context, ref);
-    }
+  if (confirmed) {
+    await _forceResetApp(context, ref);
   }
+}
 
-  Future<void> _showUpdateDialog(BuildContext context, UserViewModel notifier) async {
-    var newUsername = '';
-    await showDialog<void>(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            title: Text('options.update_title'.tr()),
-            content: TextField(
-              decoration: InputDecoration(labelText: 'options.update_hint'.tr()),
-              onChanged: (v) => newUsername = v,
-            ),
-            actions: [
-              TextButton(onPressed: () => Navigator.of(context).pop(), child: Text('options.cancel_button'.tr())),
-              ElevatedButton(onPressed: () => Navigator.of(context).pop(), child: Text('options.update_save'.tr())),
-            ],
-          ),
-    );
 
-    if (newUsername.trim().isNotEmpty) {
-      await notifier.changeUsername(newUsername.trim());
-    }
+Future<void> _showUpdateDialog(BuildContext context, UserViewModel notifier) async {
+  final newUsername = await showTextInputDialog(
+    context: context,
+    titleKey: 'options.update_title',
+    hintKey: 'options.update_hint',
+    confirmKey: 'options.update_save',
+    cancelKey: 'options.cancel_button',
+  );
+
+  if (newUsername != null) {
+    await notifier.changeUsername(context,newUsername);
   }
+}
+
 
   Future<void> _forceResetApp(BuildContext context, WidgetRef ref) async {
     final user = ref.read(userRepositoryProvider).getUser();

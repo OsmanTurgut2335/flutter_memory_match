@@ -64,6 +64,7 @@ class UserModel extends HiveObject {
     int? currentTime,
     int? moves,
     int? coins,
+    bool? isDummy,
   }) {
     return UserModel(
       username: username ?? this.username,
@@ -73,6 +74,7 @@ class UserModel extends HiveObject {
       currentTime: currentTime ?? this.currentTime,
       moves: moves ?? this.moves,
       coins: coins ?? this.coins,
+      isDummy: isDummy ?? this.isDummy,
     );
   }
 }

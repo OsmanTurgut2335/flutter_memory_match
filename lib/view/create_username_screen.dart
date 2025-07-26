@@ -1,11 +1,12 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:http/http.dart' as http;
+
 import 'package:mem_game/core/providers/user_provider.dart';
+import 'package:mem_game/core/widgets/confirmation_dialogs.dart';
+import 'package:mem_game/core/widgets/lottie_background.dart';
 import 'package:mem_game/view/home_screen.dart';
 
 class UsernameInputScreen extends ConsumerStatefulWidget {
@@ -39,80 +40,45 @@ class _UsernameInputScreenState extends ConsumerState<UsernameInputScreen> {
     return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          colors: [Color(0xFF4C5BD4), Color(0xFFD68C45)],
+          colors: [Color.fromARGB(255, 123, 134, 216), Color.fromARGB(255, 214, 158, 106)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
       ),
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        appBar: AppBar(title: Text('username.title'.tr())),
+        appBar: AppBar(title: Center(child: Text('username.title'.tr())), backgroundColor: Colors.transparent),
         body: Padding(
           padding: const EdgeInsets.all(16),
           child: Form(
             key: _formKey,
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                TextFormField(
-                  controller: _usernameController,
-                  decoration: InputDecoration(labelText: 'username.label'.tr()),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) return 'username.validation'.tr();
-                    if (value.length > 20) return 'username.tooLong'.tr();
-                    return null;
-                  },
+                const Spacer(),
+                Column(
+                  children: [
+                    TextFormField(
+                      controller: _usernameController,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: InputDecoration(
+                        labelText: 'username.label'.tr(),
+                        labelStyle: const TextStyle(color: Colors.white),
+                        enabledBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Colors.white70)),
+                        focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Colors.white)),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) return 'username.validation'.tr();
+                        if (value.length > 20) return 'username.tooLong'.tr();
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 24),
+                    _buildSaveButton(),
+                  ],
                 ),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed:
-                      _isLoading
-                          ? null
-                          : () async {
-                            if (_formKey.currentState!.validate()) {
-                              setState(() => _isLoading = true);
-
-                              final username = _usernameController.text.trim();
-
-                              try {
-                                final response = await http
-                                    .post(
-                                      Uri.parse('http://10.0.2.2:8080/leaderboard/entry'),
-                                      headers: {'Content-Type': 'application/json'},
-                                      body: jsonEncode({'username': username, 'bestTime': 9999}),
-                                    )
-                                    .timeout(const Duration(seconds: 5));
-
-                                if (response.statusCode == 200 || response.statusCode == 201) {
-                                  await ref.read(userViewModelProvider.notifier).createUser(username);
-                                  if (context.mounted) {
-                                    await Navigator.of(
-                                      context,
-                                    ).pushReplacement(MaterialPageRoute<void>(builder: (_) => const HomeScreen()));
-                                  }
-                                } else if (response.statusCode == 409) {
-                                  _showSnackBar(context, 'username.exists'.tr());
-                                } else {
-                                  _showSnackBar(context, 'username.unexpected'.tr());
-                                }
-                              } on TimeoutException {
-                                await _showDummyUserDialog(context, username);
-                              } catch (_) {
-                                await _showDummyUserDialog(context, username);
-                              } finally {
-                                if (mounted) setState(() => _isLoading = false);
-                              }
-                            }
-                          },
-                  child:
-                      _isLoading
-                          ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-                          )
-                          : Text('username.save'.tr()),
-                ),
+                const Spacer(),
+                const LottieBackground(),
+                const SizedBox(height: 12),
               ],
             ),
           ),
@@ -124,26 +90,62 @@ class _UsernameInputScreenState extends ConsumerState<UsernameInputScreen> {
   Future<void> _showDummyUserDialog(BuildContext context, String username) async {
     if (!context.mounted) return;
 
-    final shouldContinue = await showDialog<bool>(
+    final shouldContinue = await showConfirmationDialog(
       context: context,
+      titleKey: 'username.offlineTitle',
+      contentKey: 'username.offlineDesc',
+      confirmKey: 'username.continue',
+      cancelKey: 'username.cancel',
       barrierDismissible: false,
-      builder: (_) {
-        return AlertDialog(
-          title: Text('username.offlineTitle'.tr()),
-          content: Text('username.offlineDesc'.tr()),
-          actions: [
-            TextButton(onPressed: () => Navigator.of(context).pop(false), child: Text('username.cancel'.tr())),
-            ElevatedButton(onPressed: () => Navigator.of(context).pop(true), child: Text('username.continue'.tr())),
-          ],
-        );
-      },
     );
 
-    if (shouldContinue == true) {
+    if (shouldContinue) {
       await ref.read(userViewModelProvider.notifier).createUser(username, isDummy: true);
       if (context.mounted) {
-        await Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const HomeScreen()));
+        await Navigator.of(context).pushReplacement(MaterialPageRoute<void>(builder: (_) => const HomeScreen()));
       }
+    }
+  }
+
+  Widget _buildSaveButton() {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.orange,
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        onPressed: _isLoading ? null : _handleSave,
+        child:
+            _isLoading
+                ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                )
+                : Text('username.save'.tr()),
+      ),
+    );
+  }
+
+  Future<void> _handleSave() async {
+    if (_formKey.currentState!.validate()) {
+      setState(() => _isLoading = true);
+      final username = _usernameController.text.trim();
+
+      await ref
+          .read(userViewModelProvider.notifier)
+          .handleUserCreation(
+            context: context,
+            username: username,
+            onDummyFallback: () => _showDummyUserDialog(context, username),
+            onUserExists: () => _showSnackBar(context, 'username.exists'.tr()),
+            onUnexpected: () => _showSnackBar(context, 'username.unexpected'.tr()),
+          );
+
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 }

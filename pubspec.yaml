@@ -33,6 +33,7 @@ dependencies:
   lottie: ^3.3.1
   flutter_layout_grid: ^2.0.8
   flutter_staggered_grid_view: ^0.7.0
+  flutter_dotenv: ^5.2.1
 
   #firebase
   firebase_core: ^3.12.1
@@ -60,5 +61,10 @@ flutter:
     - assets/card_images/level1/
     - assets/card_images/level2/
     - assets/card_images/level3/
+    - assets/card_images/level4/
+    - assets/card_images/level5/
+    - assets/card_images/level6/
+    - assets/card_images/level7/
     - assets/lottie/
     - assets/translations/
+    - .env

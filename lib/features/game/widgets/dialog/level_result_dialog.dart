@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mem_game/core/providers/ad_provider.dart';
@@ -36,11 +37,11 @@ class LevelResultDialog extends ConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Level: ${gameState!.level}', style: Theme.of(context).textTheme.bodyMedium),
+          Text('${'result.level'.tr()}: ${gameState!.level}', style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 8),
-          Text('Time: ${gameState!.currentTime}s', style: Theme.of(context).textTheme.bodyMedium),
+          Text('${'stats.time'.tr()}: ${gameState!.currentTime}s', style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 8),
-          Text('Score: ${gameState!.score}', style: Theme.of(context).textTheme.bodyMedium),
+          Text('${'stats.score'.tr()}: ${gameState!.score}', style: Theme.of(context).textTheme.titleMedium),
         ],
       ),
       actionsPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
@@ -53,23 +54,21 @@ class LevelResultDialog extends ConsumerWidget {
                   ..addExtraLife()
                   ..markAdUsed();
 
-               
                 Navigator.of(context).pop();
 
-          
                 showDialog<void>(
                   context: context,
                   barrierDismissible: false,
                   builder: (context) {
                     return AlertDialog(
-                      title: const Text('Extra Life Granted!'),
-                      content: const Text('You’ve been revived. Good luck!'),
+                      title: Text('result.extraLifeTitle'.tr()),
+                      content: Text('result.extraLifeDesc'.tr()),
                       actions: [
                         TextButton(
                           onPressed: () {
-                            Navigator.of(context).pop(); 
+                            Navigator.of(context).pop();
                           },
-                          child: const Text('Continue'),
+                          child: Text('result.continue'.tr()),
                         ),
                       ],
                     );
@@ -77,7 +76,7 @@ class LevelResultDialog extends ConsumerWidget {
                 );
               });
             },
-            child: const Text('Watch Ad for Extra Life'),
+            child: Text('result.watchAd'.tr()),
           ),
         Row(
           mainAxisSize: MainAxisSize.min,
@@ -88,7 +87,7 @@ class LevelResultDialog extends ConsumerWidget {
                   Navigator.of(context, rootNavigator: true).pop();
                   gameNotifier.restartGame();
                 },
-                child: const Text('Try Again'),
+                child: Text('result.tryAgain'.tr()),
               ),
             if (isWin && !isFinal)
               TextButton(
@@ -97,7 +96,7 @@ class LevelResultDialog extends ConsumerWidget {
                   Navigator.of(context, rootNavigator: true).pop();
                   gameNotifier.advanceLevel();
                 },
-                child: const Text('Next Level'),
+                child: Text('result.nextLevel'.tr()),
               ),
 
             if (isWin && isFinal)
@@ -107,7 +106,7 @@ class LevelResultDialog extends ConsumerWidget {
                   gameNotifier.exitGame();
                   Navigator.of(context).pushReplacement(MaterialPageRoute<void>(builder: (_) => const HomeScreen()));
                 },
-                child: const Text('Finish Game'),
+                child: Text('result.finishGame'.tr()),
               ),
             TextButton(
               onPressed: () {
@@ -115,7 +114,7 @@ class LevelResultDialog extends ConsumerWidget {
                 gameNotifier.exitGame();
                 Navigator.of(context).pushReplacement(MaterialPageRoute<void>(builder: (_) => const HomeScreen()));
               },
-              child: const Text('Home'),
+              child: Text('result.home'.tr()),
             ),
           ],
         ),

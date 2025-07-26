@@ -4,11 +4,10 @@ import 'package:mem_game/data/user/repository/user_repository.dart';
 import 'package:mem_game/features/user/viewmodel/user_notifier.dart';
 
 final userRepositoryProvider = Provider<UserRepository>((ref) {
-  return UserRepository();
+  return UserRepository(ref);
 });
 
-final userViewModelProvider = StateNotifierProvider<UserViewModel, AsyncValue<UserModel>>((ref) {
-  final repository = ref.watch(userRepositoryProvider);
-  return UserViewModel(repository);
-});
-
+final userViewModelProvider =
+    StateNotifierProvider<UserViewModel, AsyncValue<UserModel>>(
+  (ref) => UserViewModel(ref.read(userRepositoryProvider), ref),
+);

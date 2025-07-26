@@ -1,15 +1,22 @@
 // lib/data/user/user_repository.dart
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
+import 'package:mem_game/core/init/env_config.dart';
+import 'package:mem_game/core/providers/env_provider.dart';
 import 'package:mem_game/data/game/model/game_state_model.dart';
 import 'package:mem_game/data/shop_item/model/shop_item.dart';
 import 'package:mem_game/data/user/model/user_model.dart';
 
 class UserRepository {
+  UserRepository(this.ref);
+  final Ref ref;
+
   static const String userBoxName = 'userBox';
-  static const String userKey = 'currentUser';
+  static const String userKey = 'user';
 
   /// Saves the provided user in the Hive box with empty shop items list.
   Future<void> saveUser(UserModel user) async {
@@ -35,30 +42,30 @@ class UserRepository {
   }
 
   ///Deletes the user from relational database
-Future<void> deleteUserFromDb() async {
+
+Future<bool> deleteUserFromDb() async {
   final box = Hive.box<UserModel>(userBoxName);
   final user = box.get(userKey);
 
-  if (user == null) {
-    print('Kullanıcı bulunamadı.');
-    return;
+  if (user == null || user.isDummy) {
+    return false;
   }
 
-  if (user.isDummy) {
-    print('Dummy kullanıcı, sunucudan silme atlanıyor.');
-    return;
-  }
+  final apiKey = ref.read(envConfigProvider).apiKey;
+  final baseUrl = ref.read(envConfigProvider).baseUrl;
 
-  final response = await http.delete(
-    Uri.parse('http://10.0.2.2:8080/leaderboard/${user.username}'),
-  );
+  try {
+    final response = await http.delete(
+      Uri.parse('$baseUrl/leaderboard/${user.username}'),
+      headers: {'x-api-key': apiKey},
+    );
 
-  if (response.statusCode == 200) {
-    print('Kullanıcı başarıyla silindi.');
-  } else {
-    print('Sunucu kullanıcıyı silemedi: ${response.statusCode}');
+    return response.statusCode == 200;
+  } catch (_) {
+    return false;
   }
 }
+
 
 
   Future<void> transferGameToNewUsername(String oldUsername, String newUsername) async {
@@ -78,40 +85,45 @@ Future<void> deleteUserFromDb() async {
   }
 
   /// Changes the username of the current user in the Hive box and db
-Future<UserModel?> changeUsername(String newUsername) async {
+Future<UserModel> changeUsername(String newUsername) async {
   final box = Hive.box<UserModel>(userBoxName);
   final user = box.get(userKey);
 
+  final apiKey = ref.read(envConfigProvider).apiKey;
+  final baseUrl = ref.read(envConfigProvider).baseUrl;
+
   if (user == null) {
-    print('Kullanıcı bulunamadı.');
-    return null;
+    throw Exception('Kullanıcı bulunamadı.');
   }
 
   if (user.isDummy) {
-    // Local update
     final updatedUser = user.copyWith(username: newUsername);
     await box.put(userKey, updatedUser);
-    print('Dummy kullanıcı ismi local olarak değiştirildi');
     return updatedUser;
   }
 
-  //Backend update for real user
   final response = await http.put(
-    Uri.parse('http://10.0.2.2:8080/leaderboard/username'),
-    headers: {'Content-Type': 'application/json'},
-    body: jsonEncode({'oldUsername': user.username, 'newUsername': newUsername}),
+    Uri.parse('$baseUrl/leaderboard/username'),
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+    },
+    body: jsonEncode({
+      'oldUsername': user.username,
+      'newUsername': newUsername,
+    }),
   );
 
   if (response.statusCode == 200) {
-    print('Kullanıcı ismi başarıyla değiştirildi');
-
     final updatedUser = user.copyWith(username: newUsername);
     await box.put(userKey, updatedUser);
     return updatedUser;
+  } else if (response.statusCode == 404) {
+    throw Exception('Kullanıcı sunucuda bulunamadı.');
   } else {
-    print('İsim değiştirme başarısız: ${response.statusCode}');
-    return null;
+    throw Exception('İsim değiştirme başarısız: ${response.statusCode}');
   }
 }
+
 
 }

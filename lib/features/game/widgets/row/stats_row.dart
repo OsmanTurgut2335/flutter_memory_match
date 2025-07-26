@@ -1,4 +1,4 @@
-
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:mem_game/data/game/model/game_state_model.dart';
 import 'package:mem_game/features/game/widgets/score_bubble.dart';
@@ -16,11 +16,10 @@ class StatsRow extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        StatBubble(label: 'Moves', value: gameState.moves.toString()),
-
-        ScoreBubble(key: scoreBubbleKey, label: 'Score', value: gameState.score.toString()),
-        StatBubble(label: 'Time', value: gameState.currentTime.toString()),
-        StatBubble(label: 'Health', value: gameState.health.toString()),
+        StatBubble(label: 'stats.moves'.tr(), value: gameState.moves.toString()),
+        ScoreBubble(key: scoreBubbleKey, label: 'stats.score'.tr(), value: gameState.score.toString()),
+        StatBubble(label: 'stats.time'.tr(), value: gameState.currentTime.toString()),
+        StatBubble(label: 'stats.health'.tr(), value: gameState.health.toString()),
       ],
     );
   }

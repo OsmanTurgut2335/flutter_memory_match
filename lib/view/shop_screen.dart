@@ -37,7 +37,7 @@ class ShopScreen extends ConsumerWidget {
                 ShopCard(
                   icon: Icons.favorite,
                   title: 'shop.health_potion'.tr(),
-                  price: 100,
+                  price: 1000,
                   quantity: shopNotifier.quantityOf(ShopItemType.healthPotion),
                   canBuy: shopNotifier.canBuy(ShopItemType.healthPotion),
                   onBuy: () async {
@@ -49,7 +49,7 @@ class ShopScreen extends ConsumerWidget {
                 ShopCard(
                   icon: Icons.rotate_left,
                   title: 'shop.extra_flip'.tr(),
-                  price: 150,
+                  price: 1500,
                   quantity: shopNotifier.quantityOf(ShopItemType.extraFlip),
                   canBuy: shopNotifier.canBuy(ShopItemType.extraFlip),
                   onBuy: () async {
@@ -61,7 +61,7 @@ class ShopScreen extends ConsumerWidget {
                 ShopCard(
                   icon: Icons.monetization_on,
                   title: 'shop.double_coins'.tr(),
-                  price: 200,
+                  price: 2000,
                   quantity: shopNotifier.quantityOf(ShopItemType.doubleCoins),
                   canBuy: shopNotifier.canBuy(ShopItemType.doubleCoins),
                   onBuy: () async {

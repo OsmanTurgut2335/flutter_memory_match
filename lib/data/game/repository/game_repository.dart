@@ -1,18 +1,20 @@
 import 'dart:convert';
 
-
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
+import 'package:mem_game/core/init/env_config.dart';
 import 'package:mem_game/data/game/model/game_state_model.dart';
 import 'package:mem_game/data/memorycard/model/memory_card.dart';
 import 'package:mem_game/data/user/model/user_model.dart';
 
 class GameRepository {
+  GameRepository(this._env);
   static const String gameBoxName = 'gameBox';
   static const String currentGameKey = 'currentGame';
   static const String userBoxName = 'userBox';
   static const String currentUserKey = 'currentUser';
-  
+
+  final EnvConfig _env;
 
   /// Loads the saved GameState from Hive.
   Future<GameState?> loadGameState(String username) async {
@@ -55,38 +57,51 @@ class GameRepository {
     }
   }
 
-  /// Checks and updates the user's best time 
-Future<void> updateBestTimeIfNeeded(int currentTime) async {
+  /// Checks and updates the user's best time and level
+Future<bool> updateBestTimeAndLevelIfNeeded(int currentTime, int currentLevel) async {
   final userBox = Hive.box<UserModel>(userBoxName);
   final currentUser = userBox.get(currentUserKey);
 
-  if (currentUser == null || currentUser.isDummy) return; 
-  if (currentUser.bestTime == 0 || currentTime < currentUser.bestTime) {
-    final updatedUser = currentUser.copyWith(bestTime: currentTime);
-    await userBox.put(currentUserKey, updatedUser);
+  if (currentUser == null || currentUser.isDummy) return true; 
 
-    await _updateBestTimeInDatabase(updatedUser.username, currentTime);
+  final isNewBest = currentUser.bestTime == 0 || currentTime < currentUser.bestTime;
+
+  final updatedUser = currentUser.copyWith(
+    bestTime: isNewBest ? currentTime : currentUser.bestTime,
+  );
+  await userBox.put(currentUserKey, updatedUser);
+
+  return _updateScoreDataInDatabase(
+    username: updatedUser.username,
+    bestTime: isNewBest ? currentTime : updatedUser.bestTime,
+    level: currentLevel,
+  );
+}
+Future<bool> _updateScoreDataInDatabase({
+  required String username,
+  required int bestTime,
+  required int level,
+}) async {
+  try {
+    final response = await http.put(
+      Uri.parse('${_env.baseUrl}/leaderboard/besttime'),
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': _env.apiKey,
+      },
+      body: jsonEncode({
+        'username': username,
+        'bestTime': bestTime,
+        'level': level,
+      }),
+    );
+
+    return response.statusCode == 200;
+  } catch (e) {
+    return false;
   }
 }
 
-  /// Updates the best time in the db
-  Future<void> _updateBestTimeInDatabase(String username, int bestTime) async {
-    try {
-      final response = await http.put(
-        Uri.parse('http://10.0.2.2:8080/leaderboard/besttime'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'username': username, 'bestTime': bestTime}),
-      );
-
-      if (response.statusCode == 200) {
-        print('Best time updated in DB for user: $username');
-      } else {
-        print('Best time not updated, status: ${response.statusCode}');
-      }
-    } catch (e) {
-      print('Error updating best time: $e');
-    }
-  }
 
   Future<void> clearBestTime() async {
     final userBox = Hive.box<UserModel>(userBoxName);

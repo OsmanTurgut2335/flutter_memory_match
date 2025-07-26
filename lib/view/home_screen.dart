@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:mem_game/core/painters/wave_painter.dart';
 import 'package:mem_game/core/providers/ad_provider.dart';
+import 'package:mem_game/core/providers/env_provider.dart';
 import 'package:mem_game/core/providers/game_provider.dart';
 import 'package:mem_game/core/providers/user_provider.dart';
 import 'package:mem_game/core/widgets/lottie_background.dart';
@@ -35,7 +36,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
 
  
       final user = ref.read(userRepositoryProvider).getUser();
-      final gameRepo = GameRepository();
+      final gameRepo = GameRepository(ref.watch(envConfigProvider));
       final bool hasHiveGame;
       if (user != null) {
         hasHiveGame = await gameRepo.hasOngoingGame(user.username);
@@ -62,7 +63,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
   }
 
   Future<bool> _hasOngoingGame() async {
-    final gameRepo = GameRepository();
+      final gameRepo = GameRepository(ref.watch(envConfigProvider));
     final user = ref.read(userRepositoryProvider).getUser();
 
     if (user == null) return false;
@@ -72,8 +73,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
 
   @override
   Widget build(BuildContext context) {
-    final user = ref.watch(userViewModelProvider);
-    final gameNotifier = ref.read(gameNotifierProvider.notifier);
+    ref..watch(userViewModelProvider)
+    ..read(gameNotifierProvider.notifier);
 
     return Container(
       decoration: const BoxDecoration(
@@ -95,7 +96,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
         ),
         body: Stack(
           children: [
-            // Wave overlay at the top
+           
             const SizedBox(
               height: 150,
               width: double.infinity,
@@ -104,9 +105,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
             // Main content
             Center(
               child:
-                  user == null
-                      ? Text('noUser'.tr(), style: const TextStyle(fontSize: 18, color: Colors.white))
-                      : FutureBuilder<bool>(
+               FutureBuilder<bool>(
                         future: _hasOngoingGame(),
                         builder: (context, snapshot) {
                           if (snapshot.connectionState == ConnectionState.waiting) {

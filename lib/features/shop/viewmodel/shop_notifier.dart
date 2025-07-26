@@ -51,29 +51,28 @@ class ShopNotifier extends StateNotifier<List<ShopItem>> {
   }
 
   int quantityOf(ShopItemType type) {
-  return state
-      .firstWhere(
-        (item) => item.itemType == type,
-        orElse: () => ShopItem(userId: _repo.currentUser?.username ?? '', itemType: type, quantity: 0),
-      )
-      .quantity;
-}
-
-bool canBuy(ShopItemType type) {
-  final user = _repo.currentUser;
-  final price = _priceFor(type);
-  return user != null && user.coins >= price;
-}
-
-int _priceFor(ShopItemType type) {
-  switch (type) {
-    case ShopItemType.healthPotion:
-      return 100;
-    case ShopItemType.extraFlip:
-      return 150;
-    case ShopItemType.doubleCoins:
-      return 200;
+    return state
+        .firstWhere(
+          (item) => item.itemType == type,
+          orElse: () => ShopItem(userId: _repo.currentUser?.username ?? '', itemType: type, quantity: 0),
+        )
+        .quantity;
   }
-}
 
+  bool canBuy(ShopItemType type) {
+    final user = _repo.currentUser;
+    final price = _priceFor(type);
+    return user != null && user.coins >= price;
+  }
+
+  int _priceFor(ShopItemType type) {
+    switch (type) {
+      case ShopItemType.healthPotion:
+        return 1000;
+      case ShopItemType.extraFlip:
+        return 1500;
+      case ShopItemType.doubleCoins:
+        return 2000;
+    }
+  }
 }

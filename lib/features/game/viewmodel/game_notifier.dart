@@ -45,6 +45,8 @@ class GameNotifier extends StateNotifier<GameState?> {
 
   void Function(GameResult result)? onGameResult;
 
+  void Function(String msg)? onGameError;
+
   GameState? get gameState => state;
 
   Future<void> clearBestTime() async {
@@ -170,12 +172,6 @@ class GameNotifier extends StateNotifier<GameState?> {
     flipCards();
   }
 
-  Future<void> updateBestTimeIfNeeded() async {
-    if (state != null) {
-      await _repository.updateBestTimeIfNeeded(state!.currentTime);
-    }
-  }
-
   List<MemoryCard> generateCardsForLevel(int level, {bool preview = false}) {
     return _repository.generateCardsForLevel(level);
   }
@@ -256,20 +252,25 @@ class GameNotifier extends StateNotifier<GameState?> {
     }
 
     if (checkWinCondition()) {
-      handleWin();
+      await handleWin();
     }
   }
 
-  void handleWin() {
+  Future<void> handleWin() async {
     _timer?.cancel();
-    if (state!.level == 7) {
-      updateBestTimeIfNeeded();
+
+    try {
+      await _repository.updateBestTimeAndLevelIfNeeded(state!.currentTime, state!.level);
+    } catch (e) {
+      onGameError?.call('Sunucu hatası: $e');
     }
+
     onGameResult?.call(GameResult.win);
   }
 
   void handleLose() {
     _timer?.cancel();
+    _repository.updateBestTimeAndLevelIfNeeded(state!.currentTime, state!.level);
     onGameResult?.call(GameResult.lose);
   }
 

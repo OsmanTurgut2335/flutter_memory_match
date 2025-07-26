@@ -11,7 +11,7 @@ class AppThemes {
     scaffoldBackgroundColor: AppColors.scaffoldBackground,
 
     appBarTheme: const AppBarTheme(
-      backgroundColor: AppColors.primary, // Using our central color.
+      backgroundColor: AppColors.primary,
       elevation: 4,
       titleTextStyle: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
       iconTheme: IconThemeData(color: Colors.white),
@@ -33,15 +33,19 @@ class AppThemes {
       ),
     ),
     textButtonTheme: TextButtonThemeData(
-      style: TextButton.styleFrom(textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold,color: Colors.black87,)),
+      style: TextButton.styleFrom(
+        textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
+      ),
+    ),
+    snackBarTheme: const SnackBarThemeData(actionTextColor: Colors.black, backgroundColor: Colors.white),
+    dialogTheme: DialogThemeData(
+      backgroundColor: Colors.white,
+      titleTextStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
+      contentTextStyle: const TextStyle(fontSize: 16, color: Colors.black87),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     ),
 
-    dialogTheme: const DialogThemeData(
-      titleTextStyle: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-      contentTextStyle: TextStyle(fontSize: 16, color: Colors.black87),
-    ),
     popupMenuTheme: PopupMenuThemeData(
-      // For light theme, for example:
       color: AppColors.primary.withOpacity(0.1),
       textStyle: const TextStyle(color: AppColors.textPrimary),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),

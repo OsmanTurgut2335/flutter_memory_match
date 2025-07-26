@@ -5,7 +5,8 @@
   "home.continue_game": "Devam Et",
   "home.scoreboard": "Skor Tablosu",
   "home.shop": "Mağaza",
-  "leaderboard.title": "Skor Tablosu",
+
+    "leaderboard.title": "Skor Tablosu",
   "leaderboard.loading": "Lütfen bekleyin...",
   "leaderboard.error": "Veritabanına erişilemedi.\nLütfen aşağıdaki butonla tekrar deneyin ya da daha sonra tekrar gelin.",
   "leaderboard.retry_tooltip": "Yeniden Dene",
@@ -13,16 +14,17 @@
   "leaderboard.username": "Kullanıcı Adı",
   "leaderboard.score": "Skor",
 
-    "shop.title": "Mağaza",
+
+  "shop.title": "Mağaza",
   "shop.coins": "Altın: {value}",
   "shop.health_potion": "Can İksiri",
   "shop.extra_flip": "Ekstra Kart Açma",
   "shop.double_coins": "Çift Altın",
   "shop.quantity": "Sahip olduğun: {count}",
-  "shop.error": "Hata: {error}",
+  "shop.error": "Hata: {error}", 
 
 
-    "game.level_complete": "Seviye Tamamlandı!",
+  "game.level_complete": "Seviye Tamamlandı!",
   "game.game_over": "Oyun Bitti",
   "game.paused": "Oyun Duraklatıldı",
   "game.resume": "Devam Et",
@@ -30,22 +32,20 @@
   "game.flip_cards": "Kartları Çevir",
 
 
-    "username.title": "Kullanıcı Adını Gir",
+  "username.title": "Kullanıcı Adını Gir",
   "username.label": "Kullanıcı Adı",
   "username.validation": "Lütfen bir kullanıcı adı girin",
   "username.save": "Kaydet",
   "username.exists": "Bu kullanıcı adı zaten alınmış.",
   "username.unexpected": "Beklenmeyen bir hata oluştu.",
   "username.timeout": "Sunucu yanıt vermedi, lütfen tekrar deneyin.",
-
- "username.offlineTitle" :"Bağlantı Kurulamadı",
- "username.offlineDesc":"Sunucuya bağlanılamadı. Offline olarak devam etmek ister misin?",
- "username.cancel" :"Vazge.",
- "username.continue": "Devam Et",
-
+  "username.offlineTitle": "Bağlantı Kurulamadı",
+  "username.offlineDesc": "Sunucuya bağlanılamadı. Offline olarak devam etmek ister misin?",
+  "username.cancel": "Vazge.",
+  "username.continue": "Devam Et",
 
 
-    "boost.title": "Güçlendiricilerini Seç",
+  "boost.title": "Güçlendiricilerini Seç",
   "boost.health.title": "Can İksiri",
   "boost.health.desc": "+1 başlangıç canı",
   "boost.double.title": "Çift Coin",
@@ -55,6 +55,8 @@
   "boost.cancel": "İptal",
   "boost.start": "Başla",
   "boost.quantity": "Sahip Olunan: {value} ",
+
+
   "options.delete": "Kullanıcıyı Sil",
   "options.delete_title": "Kullanıcıyı Sil",
   "options.delete_message": "Kullanıcınızı ve tüm ilerlemenizi silmek istediğinizden emin misiniz?",
@@ -67,5 +69,26 @@
   "options.reset": "Uygulamayı Sıfırla",
   "options.reset_title": "Uygulamayı Sıfırla",
   "options.reset_message": "Tüm yerel ve bulut verileri temizlenecek. Devam edilsin mi?",
-  "options.reset_button": "Sıfırla"
+  "options.reset_button": "Sıfırla",
+
+
+  "stats.moves": "Hamle",
+  "stats.score": "Skor",
+  "stats.time": "Süre",
+  "stats.health": "Can",
+
+
+    "result.level": "Seviye",
+
+  "result.extraLifeTitle": "Ekstra Can Verildi!",
+  "result.extraLifeDesc": "Yeniden canlandın. Bol şans!",
+  "result.continue": "Devam Et",
+  "result.watchAd": "Ekstra Can İçin Reklam İzle",
+  "result.tryAgain": "Tekrar Dene",
+  "result.nextLevel": "Sonraki Seviye",
+  "result.finishGame": "Oyunu Bitir",
+  "result.home": "Ana Sayfa"
+
+
+
 }

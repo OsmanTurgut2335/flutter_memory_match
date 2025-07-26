@@ -73,7 +73,22 @@
   "options.reset": "Reset App",
   "options.reset_title": "Reset App",
   "options.reset_message": "This will clear all local and cloud data. Continue?",
-  "options.reset_button": "Reset"
+  "options.reset_button": "Reset",
 
 
+   "stats.moves": "Moves",
+  "stats.score": "Score",
+  "stats.time": "Time",
+  "stats.health": "Health",
+
+   "result.level": "Level",
+ 
+  "result.extraLifeTitle": "Extra Life Granted!",
+  "result.extraLifeDesc": "You’ve been revived. Good luck!",
+  "result.continue": "Continue",
+  "result.watchAd": "Watch Ad for Extra Life",
+  "result.tryAgain": "Try Again",
+  "result.nextLevel": "Next Level",
+  "result.finishGame": "Finish Game",
+  "result.home": "Home"
 }

@@ -7,7 +7,7 @@ import 'package:mem_game/core/providers/shop_provider.dart';
 import 'package:mem_game/features/game/viewmodel/game_notifier.dart';
 import 'package:mem_game/features/game/widgets/boost_selection_background.dart';
 import 'package:mem_game/features/game/widgets/dialog/level_result_dialog.dart';
-import 'package:mem_game/features/game/widgets/game_screen_appbar.dart';
+import 'package:mem_game/features/game/widgets/appbar/game_screen_appbar.dart';
 import 'package:mem_game/features/game/widgets/paused_game_overlay.dart';
 import 'package:mem_game/features/game/widgets/row/bottom_level_flip_row.dart';
 import 'package:mem_game/features/game/widgets/row/stats_row.dart';
@@ -72,7 +72,13 @@ class _GameScreenState extends ConsumerState<GameScreen> with TickerProviderStat
             );
             _isDialogOpen = false;
           });
-        };
+        }
+        
+  ..onGameError = (msg) {
+  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+};
+
+;
 
       if (widget.resumeGame) {
         await gameNotifier.initializeGame(true);
