@@ -11,6 +11,7 @@ import 'package:mem_game/data/user/model/user_model.dart';
 import 'package:mem_game/features/game/viewmodel/game_notifier.dart';
 import 'package:mem_game/features/user/viewmodel/user_notifier.dart';
 import 'package:mem_game/view/create_username_screen.dart';
+import 'package:mem_game/view/login_screen.dart';
 
 class UserActionsButton extends ConsumerWidget {
   const UserActionsButton({super.key});
@@ -63,61 +64,74 @@ class UserActionsButton extends ConsumerWidget {
                     _showUpdateDialog(context, notifier);
                   },
                 ),
+
+                /// Logout option
+                ListTile(
+                  leading: const Icon(Icons.logout),
+                  title: Text('options.logout'.tr()),
+                  onTap: () async {
+                    Navigator.of(context).pop();
+                    await notifier.logout();
+                    if (context.mounted) {
+                      await Navigator.of(
+                        context,
+                      ).pushAndRemoveUntil(MaterialPageRoute<void>(builder: (_) => const LoginScreen()), (_) => false);
+                    }
+                  },
+                ),
               ],
             ),
           ),
     );
   }
 
-Future<void> _confirmDelete(BuildContext context, UserViewModel notifier, GameNotifier gameNotifier) async {
-  final confirmed = await showConfirmationDialog(
-    context: context,
-    titleKey: 'options.delete_title',
-    contentKey: 'options.delete_message',
-    confirmKey: 'options.delete_button',
-    cancelKey: 'options.cancel_button',
-  );
+  Future<void> _confirmDelete(BuildContext context, UserViewModel notifier, GameNotifier gameNotifier) async {
+    final confirmed = await showConfirmationDialog(
+      context: context,
+      titleKey: 'options.delete_title',
+      contentKey: 'options.delete_message',
+      confirmKey: 'options.delete_button',
+      cancelKey: 'options.cancel_button',
+    );
 
-  if (confirmed) {
-    await notifier.deleteUser(context);
-    await gameNotifier.exitGame();
-    if (context.mounted) {
-      await Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const UsernameInputScreen()),
-      );
+    if (confirmed) {
+      await notifier.deleteUser(context);
+      await gameNotifier.exitGame();
+      if (context.mounted) {
+        await Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const UsernameInputScreen()));
+      }
     }
   }
-}
 
- Future<void> _confirmReset(BuildContext context, WidgetRef ref) async {
-  final confirmed = await showConfirmationDialog(
-    context: context,
-    titleKey: 'options.reset_title',
-    contentKey: 'options.reset_message',
-    confirmKey: 'options.reset_button',
-    cancelKey: 'options.cancel_button',
-  );
 
-  if (confirmed) {
-    await _forceResetApp(context, ref);
+
+  Future<void> _confirmReset(BuildContext context, WidgetRef ref) async {
+    final confirmed = await showConfirmationDialog(
+      context: context,
+      titleKey: 'options.reset_title',
+      contentKey: 'options.reset_message',
+      confirmKey: 'options.reset_button',
+      cancelKey: 'options.cancel_button',
+    );
+
+    if (confirmed) {
+      await _forceResetApp(context, ref);
+    }
   }
-}
 
+  Future<void> _showUpdateDialog(BuildContext context, UserViewModel notifier) async {
+    final newUsername = await showTextInputDialog(
+      context: context,
+      titleKey: 'options.update_title',
+      hintKey: 'options.update_hint',
+      confirmKey: 'options.update_save',
+      cancelKey: 'options.cancel_button',
+    );
 
-Future<void> _showUpdateDialog(BuildContext context, UserViewModel notifier) async {
-  final newUsername = await showTextInputDialog(
-    context: context,
-    titleKey: 'options.update_title',
-    hintKey: 'options.update_hint',
-    confirmKey: 'options.update_save',
-    cancelKey: 'options.cancel_button',
-  );
-
-  if (newUsername != null) {
-    await notifier.changeUsername(context,newUsername);
+    if (newUsername != null) {
+      await notifier.changeUsername(context, newUsername);
+    }
   }
-}
-
 
   Future<void> _forceResetApp(BuildContext context, WidgetRef ref) async {
     final user = ref.read(userRepositoryProvider).getUser();

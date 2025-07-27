@@ -8,13 +8,14 @@ class UserModel extends HiveObject {
   UserModel({
     required this.username,
     this.score = 0,
-    // Default health is set to 3 lives
+
     this.health = 3,
     this.bestTime = 0,
     this.currentTime = 0,
     this.moves = 0,
-    this.coins=0,
-     this.isDummy = false, 
+    this.coins = 0,
+    this.isDummy = false,
+     this.token,
   });
 
   // The player's username
@@ -32,7 +33,7 @@ class UserModel extends HiveObject {
 
   // The best finish time in seconds (lower is better)
   @HiveField(3)
-   int bestTime;
+  int bestTime;
 
   // The current time (elapsed or remaining) in the game session.
   @HiveField(4)
@@ -42,39 +43,45 @@ class UserModel extends HiveObject {
   @HiveField(5)
   final int moves;
 
-  // The number of moves made during the game
+
   @HiveField(6, defaultValue: 0)
-   int coins;
-  
-  /// Kullanıcının envanterindeki öğeler
+  int coins;
+
+  /// Items in user's inventory
   @HiveField(7)
   HiveList<ShopItem> inventory = HiveList<ShopItem>(Hive.box<ShopItem>('shopItemsBox'));
 
+  /// If the user is offline
   @HiveField(8, defaultValue: false)
   final bool isDummy;
 
-  Null get user => null;
-  
+  @HiveField(9)
+final String? token;
 
-  UserModel copyWith({
-    String? username,
-    int? score,
-    int? health,
-    int? bestTime,
-    int? currentTime,
-    int? moves,
-    int? coins,
-    bool? isDummy,
-  }) {
-    return UserModel(
-      username: username ?? this.username,
-      score: score ?? this.score,
-      health: health ?? this.health,
-      bestTime: bestTime ?? this.bestTime,
-      currentTime: currentTime ?? this.currentTime,
-      moves: moves ?? this.moves,
-      coins: coins ?? this.coins,
-      isDummy: isDummy ?? this.isDummy,
-    );
-  }
+  Null get user => null;
+
+ UserModel copyWith({
+  String? username,
+  int? score,
+  int? health,
+  int? bestTime,
+  int? currentTime,
+  int? moves,
+  int? coins,
+  bool? isDummy,
+  String? token,
+}) {
+  return UserModel(
+    username: username ?? this.username,
+    score: score ?? this.score,
+    health: health ?? this.health,
+    bestTime: bestTime ?? this.bestTime,
+    currentTime: currentTime ?? this.currentTime,
+    moves: moves ?? this.moves,
+    coins: coins ?? this.coins,
+    isDummy: isDummy ?? this.isDummy,
+    token: token ?? this.token,
+  );
+}
+
 }

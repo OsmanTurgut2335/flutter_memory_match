@@ -13,7 +13,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
+
 
 @RestController
 @RequestMapping("/leaderboard")
@@ -47,12 +48,18 @@ public class LeaderboardController {
         }
 
         String hashedPassword = passwordEncoder.encode(request.getPassword());
-
         LeaderboardEntry entry = new LeaderboardEntry(request.getUsername(), hashedPassword);
         LeaderboardEntry saved = leaderboardService.saveEntry(entry);
 
-        return ResponseEntity.ok(saved);
+
+        String token = jwtService.generateToken(saved.getUsername());
+
+        return ResponseEntity.ok(Map.of(
+                "token", token,
+                "username", saved.getUsername()
+        ));
     }
+
 
     @GetMapping("/top")
     public List<LeaderboardEntryDto> getUserScoresDesc() {

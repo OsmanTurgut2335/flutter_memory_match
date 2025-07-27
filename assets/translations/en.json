@@ -45,6 +45,11 @@
  "username.continue": "Continue",
   "username.tooLong": "Please write a username shorter than 20 letters",
 
+"password.label" :"Password",
+"password.validation" : "Password cannot be empty",
+"password.tooShort" : "Password must be at least 6 characters",
+
+
 
 
   "boost.title": "Choose Your Boosts",
@@ -74,6 +79,9 @@
   "options.reset_title": "Reset App",
   "options.reset_message": "This will clear all local and cloud data. Continue?",
   "options.reset_button": "Reset",
+
+  "options.logout" : "Log out",
+  
 
 
    "stats.moves": "Moves",

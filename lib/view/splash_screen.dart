@@ -8,6 +8,7 @@ import 'package:mem_game/core/init/hive_initializer.dart';
 import 'package:mem_game/data/user/model/user_model.dart';
 import 'package:mem_game/view/create_username_screen.dart';
 import 'package:mem_game/view/home_screen.dart';
+import 'package:mem_game/view/login_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -24,22 +25,22 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _initApp() async {
-    try {
-      await initializeHive();
-      //await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-      await MobileAds.instance.initialize();
+    await initializeHive();
+    await MobileAds.instance.initialize();
 
-      final userBox = Hive.box<UserModel>('userBox');
-      final hasUser = userBox.containsKey('currentUser');
+    final user = Hive.box<UserModel>('userBox').get('user');
 
-      final nextScreen = hasUser ? const HomeScreen() : const UsernameInputScreen();
+    Widget nextScreen;
+    if (user == null) {
+      nextScreen = const UsernameInputScreen();
+    } else if (user.token == null || user.token!.isEmpty) {
+      nextScreen = const LoginScreen();
+    } else {
+      nextScreen = const HomeScreen();
+    }
 
-  
-      if (mounted) {
-        await Navigator.of(context).pushReplacement(MaterialPageRoute<void>(builder: (_) => nextScreen));
-      }
-    } catch (e, st) {
-      log('Init error: $e', stackTrace: st);
+    if (mounted) {
+      await Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => nextScreen));
     }
   }
 

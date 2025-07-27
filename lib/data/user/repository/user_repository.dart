@@ -9,6 +9,7 @@ import 'package:mem_game/core/init/env_config.dart';
 import 'package:mem_game/core/providers/env_provider.dart';
 import 'package:mem_game/data/game/model/game_state_model.dart';
 import 'package:mem_game/data/shop_item/model/shop_item.dart';
+import 'package:mem_game/data/user/model/auth_response.dart';
 import 'package:mem_game/data/user/model/user_model.dart';
 
 class UserRepository {
@@ -43,30 +44,28 @@ class UserRepository {
 
   ///Deletes the user from relational database
 
-Future<bool> deleteUserFromDb() async {
-  final box = Hive.box<UserModel>(userBoxName);
-  final user = box.get(userKey);
+  Future<bool> deleteUserFromDb() async {
+    final box = Hive.box<UserModel>(userBoxName);
+    final user = box.get(userKey);
 
-  if (user == null || user.isDummy) {
-    return false;
+    if (user == null || user.isDummy) {
+      return false;
+    }
+
+    final apiKey = ref.read(envConfigProvider).apiKey;
+    final baseUrl = ref.read(envConfigProvider).baseUrl;
+
+    try {
+      final response = await http.delete(
+        Uri.parse('$baseUrl/leaderboard/${user.username}'),
+        headers: {'x-api-key': apiKey},
+      );
+
+      return response.statusCode == 200;
+    } catch (_) {
+      return false;
+    }
   }
-
-  final apiKey = ref.read(envConfigProvider).apiKey;
-  final baseUrl = ref.read(envConfigProvider).baseUrl;
-
-  try {
-    final response = await http.delete(
-      Uri.parse('$baseUrl/leaderboard/${user.username}'),
-      headers: {'x-api-key': apiKey},
-    );
-
-    return response.statusCode == 200;
-  } catch (_) {
-    return false;
-  }
-}
-
-
 
   Future<void> transferGameToNewUsername(String oldUsername, String newUsername) async {
     final box = Hive.box<GameState>('gameBox');
@@ -85,45 +84,61 @@ Future<bool> deleteUserFromDb() async {
   }
 
   /// Changes the username of the current user in the Hive box and db
-Future<UserModel> changeUsername(String newUsername) async {
-  final box = Hive.box<UserModel>(userBoxName);
-  final user = box.get(userKey);
+  Future<UserModel> changeUsername(String newUsername) async {
+    final box = Hive.box<UserModel>(userBoxName);
+    final user = box.get(userKey);
 
-  final apiKey = ref.read(envConfigProvider).apiKey;
-  final baseUrl = ref.read(envConfigProvider).baseUrl;
+    final apiKey = ref.read(envConfigProvider).apiKey;
+    final baseUrl = ref.read(envConfigProvider).baseUrl;
 
-  if (user == null) {
-    throw Exception('Kullanıcı bulunamadı.');
+    if (user == null) {
+      throw Exception('Kullanıcı bulunamadı.');
+    }
+
+    if (user.isDummy) {
+      final updatedUser = user.copyWith(username: newUsername);
+      await box.put(userKey, updatedUser);
+      return updatedUser;
+    }
+
+    final response = await http.put(
+      Uri.parse('$baseUrl/leaderboard/username'),
+      headers: {'Content-Type': 'application/json', 'x-api-key': apiKey},
+      body: jsonEncode({'oldUsername': user.username, 'newUsername': newUsername}),
+    );
+
+    if (response.statusCode == 200) {
+      final updatedUser = user.copyWith(username: newUsername);
+      await box.put(userKey, updatedUser);
+      return updatedUser;
+    } else if (response.statusCode == 404) {
+      throw Exception('Kullanıcı sunucuda bulunamadı.');
+    } else {
+      throw Exception('İsim değiştirme başarısız: ${response.statusCode}');
+    }
   }
 
-  if (user.isDummy) {
-    final updatedUser = user.copyWith(username: newUsername);
-    await box.put(userKey, updatedUser);
-    return updatedUser;
+  Future<AuthResponse> login(String username, String password) async {
+    final baseUrl = ref.read(envConfigProvider).baseUrl;
+    final response = await http.post(
+      Uri.parse('$baseUrl/auth/login'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'username': username, 'password': password}),
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      final auth = AuthResponse.fromJson(data as Map<String, dynamic>);
+
+      final user = UserModel(username: auth.username, token: auth.token);
+      final box = Hive.box<UserModel>(userBoxName);
+      await box.put(userKey, user);
+
+      return auth;
+    } else {
+      print('Login error: ${response.statusCode}');
+      print('Login response body: ${response.body}');
+      throw Exception('Login failed');
+    }
   }
-
-  final response = await http.put(
-    Uri.parse('$baseUrl/leaderboard/username'),
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': apiKey,
-    },
-    body: jsonEncode({
-      'oldUsername': user.username,
-      'newUsername': newUsername,
-    }),
-  );
-
-  if (response.statusCode == 200) {
-    final updatedUser = user.copyWith(username: newUsername);
-    await box.put(userKey, updatedUser);
-    return updatedUser;
-  } else if (response.statusCode == 404) {
-    throw Exception('Kullanıcı sunucuda bulunamadı.');
-  } else {
-    throw Exception('İsim değiştirme başarısız: ${response.statusCode}');
-  }
-}
-
-
 }

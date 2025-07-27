@@ -17,7 +17,7 @@ public class JwtService {
         return Jwts.builder()
                 .setSubject(username)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 86400000)) // 1 gün
+                .setExpiration(new Date(System.currentTimeMillis() + 86400000)) // token expires in 1 day
                 .signWith(SignatureAlgorithm.HS256, secretKey)
                 .compact();
     }

@@ -10,6 +10,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 public class LeaderboardApplication {
 
 	public static void main(String[] args) {
+
 		SpringApplication.run(LeaderboardApplication.class, args);
 
 	}

@@ -25,13 +25,14 @@ class UserModelAdapter extends TypeAdapter<UserModel> {
       moves: fields[5] as int,
       coins: fields[6] == null ? 0 : fields[6] as int,
       isDummy: fields[8] == null ? false : fields[8] as bool,
+      token: fields[9] as String?,
     )..inventory = (fields[7] as HiveList).castHiveList();
   }
 
   @override
   void write(BinaryWriter writer, UserModel obj) {
     writer
-      ..writeByte(9)
+      ..writeByte(10)
       ..writeByte(0)
       ..write(obj.username)
       ..writeByte(1)
@@ -49,7 +50,9 @@ class UserModelAdapter extends TypeAdapter<UserModel> {
       ..writeByte(7)
       ..write(obj.inventory)
       ..writeByte(8)
-      ..write(obj.isDummy);
+      ..write(obj.isDummy)
+      ..writeByte(9)
+      ..write(obj.token);
   }
 
   @override
