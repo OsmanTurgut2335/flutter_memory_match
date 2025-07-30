@@ -1,17 +1,18 @@
 import 'dart:async';
 
 import 'package:dio/dio.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mem_game/core/providers/dio_provider.dart';
+import 'package:mem_game/core/providers/env_provider.dart';
 
 import 'package:mem_game/data/score/model.dart';
 
 class ScoreboardRepository {
-  final _dio = Dio(
-    BaseOptions(
-      baseUrl: 'http://10.0.2.2:8080/leaderboard',
-      connectTimeout: const Duration(seconds: 5),
-      receiveTimeout: const Duration(seconds: 5),
-    ),
-  );
+  ScoreboardRepository(this.ref);
+
+  final Ref ref;
+  Dio get _dio => ref.read(dioProvider);
 
   Future<void> saveScore(Score score) async {
     final response = await _dio.post('/entry', data: score.toJson());
@@ -21,31 +22,40 @@ class ScoreboardRepository {
   }
 
   Future<List<Score>> fetchSortedScores() async {
-    final response = await _dio.get('/top');
-    final data = response.data as List<dynamic>;
+    final baseUrl = ref.read(envConfigProvider).baseUrl;
 
-    return data.map((json) => Score.fromJson(json as Map<String, dynamic>)).toList();
-  }
+    try {
+      final response = await _dio.get('$baseUrl/leaderboard/top', options: Options(extra: {'auth': false}));
 
-  Future<void> deleteByUsername(String username) async {
-    final response = await _dio.delete('/$username');
-    if (response.statusCode != 200 && response.statusCode != 204) {
-      throw Exception('Failed to delete user');
+      final data = response.data as List<dynamic>;
+
+      return data.map((json) => Score.fromJson(json as Map<String, dynamic>)).toList();
+    } on DioException catch (e) {
+      if (e.response != null) {
+        final statusCode = e.response!.statusCode;
+        final message = e.response!.data['message'] ?? 'Unknown error occurred';
+
+        throw Exception('Hata $statusCode: $message');
+      } else {
+        throw Exception('error.timeout'.tr());
+      }
+    } catch (e) {
+      throw Exception('error.unexpected'.tr());
     }
   }
 
-  Future<Score> fetchScoreByUsername(String username) async {
-    final response = await _dio.get('/$username');
-    return Score.fromJson(response.data as Map<String, dynamic>);
-  }
+
 
   Future<Score?> fetchUserWithRank(String username) async {
+    final baseUrl = ref.read(envConfigProvider).baseUrl;
     try {
-      final response = await _dio.get('/position/$username');
+      final response = await _dio.get(
+        '$baseUrl/leaderboard/position/$username',
+        options: Options(extra: {'auth': false}),
+      );
       return Score.fromJson(response.data as Map<String, dynamic>);
     } on DioException catch (e) {
       if (e.response?.statusCode == 404) {
-   
         return null;
       } else {
         rethrow;

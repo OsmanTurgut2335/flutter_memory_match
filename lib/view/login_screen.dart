@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -5,7 +6,7 @@ import 'package:mem_game/core/providers/user_provider.dart';
 import 'package:mem_game/core/widgets/auth_input_textfields.dart';
 
 import 'package:mem_game/core/widgets/lottie_background.dart';
-import 'package:mem_game/view/create_username_screen.dart';
+import 'package:mem_game/view/create_user_screen.dart';
 import 'package:mem_game/view/home_screen.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -29,10 +30,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     super.dispose();
   }
 
-  void _showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message), backgroundColor: Colors.red));
-  }
-
   Future<void> _handleLogin() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -46,7 +43,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         await Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomeScreen()));
       }
     } catch (e) {
-      _showError('Login failed: ${e.toString()}');
+      final errorMessage = e.toString().split(': ').last;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(errorMessage)));
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -77,20 +75,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   passwordController: _passwordController,
                   obscurePassword: _obscureText,
                   onObscureToggle: (value) => setState(() => _obscureText = value),
-                  usernameValidator: (value) => value == null || value.isEmpty ? 'Enter your username' : null,
-                  passwordValidator:
-                      (value) => value == null || value.length < 6 ? 'Enter at least 6 characters' : null,
+                  usernameValidator: (value) => value == null || value.isEmpty ? 'username.validation'.tr() : null,
+                  passwordValidator: (value) => value == null || value.length < 6 ? 'passwordToShort'.tr() : null,
                 ),
                 const SizedBox(height: 24),
                 _buildLoginButton(),
                 const SizedBox(height: 24),
                 Text.rich(
                   TextSpan(
-                    text: 'Hesabınız yok mu? ',
+                    text: 'login.noAccount'.tr(),
                     style: const TextStyle(color: Colors.white70),
                     children: [
                       TextSpan(
-                        text: 'Kayıt olun',
+                        text: 'login.signUp'.tr(),
                         style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
@@ -101,7 +98,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               ..onTap = () {
                                 Navigator.of(
                                   context,
-                                ).pushReplacement(MaterialPageRoute(builder: (_) => const UsernameInputScreen()));
+                                ).pushReplacement(MaterialPageRoute<void>(builder: (_) => const UsernameInputScreen()));
                               },
                       ),
                     ],

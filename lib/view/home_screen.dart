@@ -4,11 +4,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:mem_game/core/painters/wave_painter.dart';
 import 'package:mem_game/core/providers/ad_provider.dart';
-import 'package:mem_game/core/providers/env_provider.dart';
+
 import 'package:mem_game/core/providers/game_provider.dart';
 import 'package:mem_game/core/providers/user_provider.dart';
+import 'package:mem_game/core/providers/scoreboard_provider.dart';
+import 'package:mem_game/core/providers/shop_provider.dart';
 import 'package:mem_game/core/widgets/lottie_background.dart';
-import 'package:mem_game/data/game/repository/game_repository.dart';
+
 import 'package:mem_game/features/home/widgets/home_menu.dart';
 import 'package:mem_game/features/user/widgets/user_options_menu.dart';
 import 'package:mem_game/view/game_screen.dart';
@@ -32,11 +34,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
 
     _lottieController = AnimationController(vsync: this);
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await ref.read(userViewModelProvider.notifier).loadUser();
+      await ref.read(scoreboardViewModelProvider.notifier).refresh();
+      await ref.read(shopViewModelProvider.notifier).loadAll();
+
       final gameNotifier = ref.read(gameNotifierProvider.notifier)..onScoreIncrease = (scoreText) {};
 
- 
       final user = ref.read(userRepositoryProvider).getUser();
-      final gameRepo = GameRepository(ref.watch(envConfigProvider));
+      final gameRepo = ref.read(gameRepositoryProvider);
+
       final bool hasHiveGame;
       if (user != null) {
         hasHiveGame = await gameRepo.hasOngoingGame(user.username);
@@ -45,7 +51,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
       }
 
       if (!hasHiveGame) {
-      
         if (ref.read(gameNotifierProvider) != null) {
           await gameNotifier.exitGame();
         }
@@ -63,7 +68,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
   }
 
   Future<bool> _hasOngoingGame() async {
-      final gameRepo = GameRepository(ref.watch(envConfigProvider));
+    final gameRepo = ref.read(gameRepositoryProvider);
     final user = ref.read(userRepositoryProvider).getUser();
 
     if (user == null) return false;
@@ -73,8 +78,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
 
   @override
   Widget build(BuildContext context) {
-    ref..watch(userViewModelProvider)
-    ..read(gameNotifierProvider.notifier);
+    ref
+      ..watch(userViewModelProvider)
+      ..read(gameNotifierProvider.notifier);
 
     return Container(
       decoration: const BoxDecoration(
@@ -90,54 +96,48 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
-
           title: Text('memoryHome'.tr()),
           actions: const [UserActionsButton()],
         ),
         body: Stack(
           children: [
-           
             const SizedBox(
               height: 150,
               width: double.infinity,
               child: CustomPaint(painter: WavePainter(color: Colors.white)),
             ),
-            // Main content
             Center(
-              child:
-               FutureBuilder<bool>(
-                        future: _hasOngoingGame(),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState == ConnectionState.waiting) {
-                            return const CircularProgressIndicator();
-                          }
-                          final hasOngoingGame = snapshot.data ?? false;
+              child: FutureBuilder<bool>(
+                future: _hasOngoingGame(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const CircularProgressIndicator();
+                  }
+                  final hasOngoingGame = snapshot.data ?? false;
 
-                          return HomeMenu(
-                            hasOngoingGame: hasOngoingGame,
-                            onNewGame: () async {
-                              await ref.read(gameNotifierProvider.notifier).exitGame();
+                  return HomeMenu(
+                    hasOngoingGame: hasOngoingGame,
+                    onNewGame: () async {
+                      await ref.read(gameNotifierProvider.notifier).exitGame();
 
-                              await Navigator.of(context).pushReplacement(
-                                MaterialPageRoute<void>(builder: (_) => const GameScreen(resumeGame: false)),
-                              );
-                            },
-                            onContinueGame: () {
-                              Navigator.of(context).pushReplacement(
-                                MaterialPageRoute<void>(builder: (_) => const GameScreen(resumeGame: true)),
-                              );
-                            },
-                            onScoreboard: () {
-                              Navigator.of(
-                                context,
-                              ).push(MaterialPageRoute<void>(builder: (_) => const LeaderboardScreen()));
-                            },
-                            onShop: () {
-                              Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const ShopScreen()));
-                            },
-                          );
-                        },
-                      ),
+                      await Navigator.of(
+                        context,
+                      ).pushReplacement(MaterialPageRoute<void>(builder: (_) => const GameScreen(resumeGame: false)));
+                    },
+                    onContinueGame: () {
+                      Navigator.of(
+                        context,
+                      ).pushReplacement(MaterialPageRoute<void>(builder: (_) => const GameScreen(resumeGame: true)));
+                    },
+                    onScoreboard: () {
+                      Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const LeaderboardScreen()));
+                    },
+                    onShop: () {
+                      Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const ShopScreen()));
+                    },
+                  );
+                },
+              ),
             ),
             const LottieBackground(),
           ],

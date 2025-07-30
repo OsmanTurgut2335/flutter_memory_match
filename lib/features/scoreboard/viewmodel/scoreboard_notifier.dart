@@ -44,12 +44,6 @@ class ScoreboardNotifier extends StateNotifier<AsyncValue<({List<Score> top10, S
     await fetchSortedScores();
   }
 
-  Future<void> deleteByUsername(String username) async {
-    await repository.deleteByUsername(username);
-    await fetchSortedScores();
-  }
 
-  Future<Score> fetchScoreByUsername(String username) async {
-    return repository.fetchScoreByUsername(username);
-  }
+  
 }

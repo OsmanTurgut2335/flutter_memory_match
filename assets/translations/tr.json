@@ -32,7 +32,7 @@
   "game.flip_cards": "Kartları Çevir",
 
 
-  "username.title": "Kullanıcı Adını Gir",
+  "username.title": "Kullanıcı Oluştur",
   "username.label": "Kullanıcı Adı",
   "username.validation": "Lütfen bir kullanıcı adı girin",
   "username.save": "Kaydet",
@@ -41,8 +41,16 @@
   "username.timeout": "Sunucu yanıt vermedi, lütfen tekrar deneyin.",
   "username.offlineTitle": "Bağlantı Kurulamadı",
   "username.offlineDesc": "Sunucuya bağlanılamadı. Offline olarak devam etmek ister misin?",
-  "username.cancel": "Vazge.",
+  "username.cancel": "Vazgeç.",
   "username.continue": "Devam Et",
+  "username.changeSuccess":"Kullanıcı adı başarıyla değiştirildi.",
+
+"login.noAccount" :"Hesabınız yok mu?",
+"login.signUp" :  " Üye Olun",
+
+"sign.account":" Zaten hesabınız var mı ?",
+"sign.login" :" Giriş Yapın",
+
 
 
   "boost.title": "Güçlendiricilerini Seç",
@@ -87,8 +95,11 @@
   "result.tryAgain": "Tekrar Dene",
   "result.nextLevel": "Sonraki Seviye",
   "result.finishGame": "Oyunu Bitir",
-  "result.home": "Ana Sayfa"
+  "result.home": "Ana Sayfa",
 
 
+    "error.timeout": "Sunucuya bağlanılamadı. Lütfen tekrar deneyin.",
+    "error.failed"  :"Giriş Başarısız",
+    "error.unexpected" :"Beklenmeyen bir hata oluştu"
 
 }

@@ -37,7 +37,14 @@ class AppThemes {
         textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
       ),
     ),
-    snackBarTheme: const SnackBarThemeData(actionTextColor: Colors.black, backgroundColor: Colors.white),
+    snackBarTheme: const SnackBarThemeData(
+      backgroundColor: Colors.white,
+      actionTextColor: Colors.black,
+      contentTextStyle: TextStyle(color: Colors.black),
+      behavior: SnackBarBehavior.floating,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
+    ),
+
     dialogTheme: DialogThemeData(
       backgroundColor: Colors.white,
       titleTextStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),

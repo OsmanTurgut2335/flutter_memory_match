@@ -37,11 +37,7 @@ class _UsernameInputScreenState extends ConsumerState<UsernameInputScreen> {
     if (!context.mounted) return;
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.redAccent,
-        duration: const Duration(seconds: 3),
-      ),
+      SnackBar(content: Text(message), backgroundColor: Colors.redAccent, duration: const Duration(seconds: 3)),
     );
   }
 
@@ -51,7 +47,9 @@ class _UsernameInputScreenState extends ConsumerState<UsernameInputScreen> {
       final username = _usernameController.text.trim();
       final password = _passwordController.text.trim();
 
-      await ref.read(userViewModelProvider.notifier).handleUserCreation(
+      await ref
+          .read(userViewModelProvider.notifier)
+          .handleUserCreation(
             context: context,
             username: username,
             password: password,
@@ -77,11 +75,11 @@ class _UsernameInputScreenState extends ConsumerState<UsernameInputScreen> {
     );
 
     if (shouldContinue) {
-      await ref.read(userViewModelProvider.notifier).createUser(username, isDummy: true);
+      await ref
+          .read(userViewModelProvider.notifier)
+          .createUser('guest_${DateTime.now().millisecondsSinceEpoch}', isDummy: true);
       if (context.mounted) {
-        await Navigator.of(context).pushReplacement(
-          MaterialPageRoute<void>(builder: (_) => const HomeScreen()),
-        );
+        await Navigator.of(context).pushReplacement(MaterialPageRoute<void>(builder: (_) => const HomeScreen()));
       }
     }
   }
@@ -98,10 +96,7 @@ class _UsernameInputScreenState extends ConsumerState<UsernameInputScreen> {
       ),
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        appBar: AppBar(
-          title: Center(child: Text('username.title'.tr())),
-          backgroundColor: Colors.transparent,
-        ),
+        appBar: AppBar(title: Center(child: Text('username.title'.tr())), backgroundColor: Colors.transparent),
         body: Padding(
           padding: const EdgeInsets.all(16),
           child: Form(
@@ -129,12 +124,10 @@ class _UsernameInputScreenState extends ConsumerState<UsernameInputScreen> {
                 _buildSaveButton(),
                 const SizedBox(height: 24),
                 AuthTextLink(
-                  normalText: 'Zaten hesabınız var mı? ',
-                  actionText: 'Giriş yapın',
+                  normalText: 'sign.account'.tr(),
+                  actionText: 'sign.login'.tr(),
                   onTap: () {
-                    Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(builder: (_) => const LoginScreen()),
-                    );
+                    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const LoginScreen()));
                   },
                 ),
                 const Spacer(),
@@ -149,22 +142,23 @@ class _UsernameInputScreenState extends ConsumerState<UsernameInputScreen> {
   }
 
   Widget _buildSaveButton() => SizedBox(
-        width: double.infinity,
-        child: ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.orange,
-            padding: const EdgeInsets.symmetric(vertical: 14),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          onPressed: _isLoading ? null : _handleSave,
-          child: _isLoading
+    width: double.infinity,
+    child: ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.orange,
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+      ),
+      onPressed: _isLoading ? null : _handleSave,
+      child:
+          _isLoading
               ? const SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-                )
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+              )
               : Text('username.save'.tr()),
-        ),
-      );
+    ),
+  );
 }

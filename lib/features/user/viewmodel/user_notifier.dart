@@ -1,12 +1,15 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
+import 'package:mem_game/core/providers/dio_provider.dart';
 import 'package:mem_game/core/providers/env_provider.dart';
-import 'package:mem_game/data/user/model/auth_response.dart';
+import 'package:mem_game/core/providers/user_provider.dart';
+
 import 'package:mem_game/data/user/model/user_model.dart';
 import 'package:mem_game/data/user/repository/user_repository.dart';
 import 'package:mem_game/view/home_screen.dart';
@@ -56,8 +59,8 @@ class UserViewModel extends StateNotifier<AsyncValue<UserModel>> {
   Future<void> loginUser(BuildContext context, String username, String password) async {
     try {
       state = const AsyncLoading();
-      final auth = await _repository.login(username, password);
-      state = AsyncData(UserModel(username: auth.username, token: auth.token));
+      final user = await _repository.login(username, password);
+      state = AsyncData(user);
     } catch (e) {
       state = AsyncError(e, StackTrace.current);
       rethrow;
@@ -65,14 +68,11 @@ class UserViewModel extends StateNotifier<AsyncValue<UserModel>> {
   }
 
   Future<void> changeUsername(BuildContext context, String newUsername) async {
-    final current = state.value;
-    if (current == null) return;
-
     try {
-      final updatedUser = await _repository.changeUsername(newUsername);
-
-      await _repository.transferGameToNewUsername(current.username, newUsername);
-
+      final updatedUser = await _repository.changeUsernameAndTransferGame(newUsername);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('username.ChangeSuccess')));
+      }
       state = AsyncValue.data(updatedUser);
     } catch (e) {
       if (context.mounted) {
@@ -139,30 +139,37 @@ class UserViewModel extends StateNotifier<AsyncValue<UserModel>> {
     required VoidCallback onUserExists,
     required VoidCallback onUnexpected,
   }) async {
+    final dio = _ref.read(dioProvider);
+
     try {
-      final env = _ref.read(envConfigProvider);
-      final response = await http
-          .post(
-            Uri.parse('${env.baseUrl}/auth/register'),
-            headers: {'Content-Type': 'application/json', 'x-api-key': env.apiKey},
-            body: jsonEncode({'username': username, 'password': password}),
-          )
-          .timeout(const Duration(seconds: 5));
+      final response = await dio.post(
+        '/auth/register',
+        data: {'username': username, 'password': password},
+        options: Options(
+          extra: {'auth': false},
+         
+        ),
+      );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        final data = jsonDecode(response.body);
-        final auth = AuthResponse.fromJson(data as Map<String, dynamic>);
-        final user = UserModel(username: auth.username, token: auth.token);
-
+        final user = UserModel.fromJson(response.data as Map<String, dynamic>);
         await _repository.saveUser(user);
 
-        if (context.mounted) {
-          await Navigator.of(context).pushReplacement(MaterialPageRoute<void>(builder: (_) => const HomeScreen()));
-        }
+      if (context.mounted) {
+  await _ref.read(userViewModelProvider.notifier).loadUser();
+  await Navigator.of(context).pushReplacement(
+    MaterialPageRoute<void>(builder: (_) => const HomeScreen()),
+  );
+}
+
+      } else if (response.statusCode == 409) {
+        onUserExists();
+      } else {
+        onUnexpected();
       }
     } on TimeoutException {
       onDummyFallback();
-    } catch (_) {
+    } catch (e) {
       onDummyFallback();
     }
   }
@@ -172,7 +179,9 @@ class UserViewModel extends StateNotifier<AsyncValue<UserModel>> {
     final user = box.get('user');
 
     if (user != null) {
-      await box.put('user', user.copyWith(token: ''));
+      final cleared = user.copyWith(accessToken: '', refreshToken: '');
+      await box.put('user', cleared);
+
       state = const AsyncValue.loading();
     }
   }

@@ -1,3 +1,4 @@
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -23,7 +24,11 @@ class LeaderboardScreen extends ConsumerWidget {
           onRefresh: notifier.refresh,
           child: asyncData.when(
             loading: () => const _LoadingView(),
-            error: (err, stack) => const _ErrorView(),
+   
+          
+             error: (err, stack) => _ErrorView(errorMessage: err.toString().replaceFirst('Exception: ', '')),
+           
+
             data: (data) {
               final top10 = data.top10;
               final userScore = data.userScore;
@@ -128,7 +133,8 @@ class _LoadingView extends StatelessWidget {
 }
 
 class _ErrorView extends ConsumerWidget {
-  const _ErrorView();
+  const _ErrorView({required this.errorMessage});
+  final String errorMessage;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -138,7 +144,7 @@ class _ErrorView extends ConsumerWidget {
         Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            children: [Text('leaderboard.error'.tr(), textAlign: TextAlign.center, style: AppTextStyles.whiteBold18)],
+            children: [Text(errorMessage, textAlign: TextAlign.center, style: AppTextStyles.whiteBold18)],
           ),
         ),
         Positioned(

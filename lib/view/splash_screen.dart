@@ -1,4 +1,3 @@
-import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
@@ -6,7 +5,7 @@ import 'package:hive/hive.dart';
 import 'package:lottie/lottie.dart';
 import 'package:mem_game/core/init/hive_initializer.dart';
 import 'package:mem_game/data/user/model/user_model.dart';
-import 'package:mem_game/view/create_username_screen.dart';
+import 'package:mem_game/view/create_user_screen.dart';
 import 'package:mem_game/view/home_screen.dart';
 import 'package:mem_game/view/login_screen.dart';
 
@@ -33,7 +32,9 @@ class _SplashScreenState extends State<SplashScreen> {
     Widget nextScreen;
     if (user == null) {
       nextScreen = const UsernameInputScreen();
-    } else if (user.token == null || user.token!.isEmpty) {
+    } else if (user.isDummy) {
+      nextScreen = const HomeScreen();
+    }  else if (user.accessToken == null || user.accessToken!.isEmpty) {
       nextScreen = const LoginScreen();
     } else {
       nextScreen = const HomeScreen();

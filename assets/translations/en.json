@@ -33,7 +33,7 @@
   "game.flip_cards": "Flip Cards",
 
 
-   "username.title": "Enter Username",
+   "username.title": "Create User",
   "username.label": "Username",
   "username.validation": "Please enter a username",
   "username.save": "Save",
@@ -45,11 +45,17 @@
  "username.continue": "Continue",
   "username.tooLong": "Please write a username shorter than 20 letters",
 
+  "username.changeSuccess":"Username changed successfully.",
+
 "password.label" :"Password",
 "password.validation" : "Password cannot be empty",
 "password.tooShort" : "Password must be at least 6 characters",
 
+"login.noAccount" :"Don't have an account?",
+"login.signUp" :  " Sign Up",
 
+"sign.account":" Already have an acoount ?",
+"sign.login" :" Login",
 
 
   "boost.title": "Choose Your Boosts",
@@ -98,5 +104,12 @@
   "result.tryAgain": "Try Again",
   "result.nextLevel": "Next Level",
   "result.finishGame": "Finish Game",
-  "result.home": "Home"
+  "result.home": "Home",
+
+
+  "error.timeout": "Failed to connect to the server. Please try again.",
+   "error.failed" : "Login Failed",
+     "error.unexpected" :"An unexpected error occurred"
+
+
 }

@@ -10,7 +10,7 @@ import 'package:mem_game/data/shop_item/model/shop_item.dart';
 import 'package:mem_game/data/user/model/user_model.dart';
 import 'package:mem_game/features/game/viewmodel/game_notifier.dart';
 import 'package:mem_game/features/user/viewmodel/user_notifier.dart';
-import 'package:mem_game/view/create_username_screen.dart';
+import 'package:mem_game/view/create_user_screen.dart';
 import 'package:mem_game/view/login_screen.dart';
 
 class UserActionsButton extends ConsumerWidget {
