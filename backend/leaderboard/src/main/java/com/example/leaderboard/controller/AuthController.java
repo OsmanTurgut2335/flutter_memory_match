@@ -39,10 +39,39 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
         }
 
-        String token = jwtService.generateToken(user.getUsername());
-        return ResponseEntity.ok(Map.of("token", token, "username", user.getUsername()));
+        String accessToken = jwtService.generateAccessToken(user.getUsername());
+        String refreshToken = jwtService.generateRefreshToken(user.getUsername());
+
+        return ResponseEntity.ok(Map.of(
+                "accessToken", accessToken,
+                "refreshToken", refreshToken,
+                "username", user.getUsername()
+        ));
     }
 
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refreshToken(@RequestBody Map<String, String> request) {
+        String refreshToken = request.get("refreshToken");
+        if (refreshToken == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Missing refresh token");
+        }
+
+        try {
+            if (refreshToken.startsWith("Bearer ")) {
+                refreshToken = refreshToken.substring(7);
+            }
+
+            String username = jwtService.extractUsername(refreshToken);
+            boolean valid = jwtService.validateToken(refreshToken, username);
+
+            if (!valid) throw new RuntimeException("Invalid");
+
+            String newAccessToken = jwtService.generateAccessToken(username);
+            return ResponseEntity.ok(Map.of("accessToken", newAccessToken));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid refresh token");
+        }
+    }
 
     @PostMapping("/register")
     public ResponseEntity<?> register(
@@ -61,15 +90,17 @@ public class AuthController {
         LeaderboardEntry entry = new LeaderboardEntry(request.getUsername(), hashedPassword);
         LeaderboardEntry saved = leaderboardService.saveEntry(entry);
 
-        String token = jwtService.generateToken(saved.getUsername());
+        String accessToken = jwtService.generateAccessToken(saved.getUsername());
+        String refreshToken = jwtService.generateRefreshToken(saved.getUsername());
 
         return ResponseEntity.ok(Map.of(
-                "token", token,
+                "accessToken", accessToken,
+                "refreshToken", refreshToken,
                 "username", saved.getUsername()
         ));
     }
+
     private boolean apiKeyIsValid(String providedKey) {
         return providedKey != null && providedKey.equals(apiProperties.getKey());
     }
-
 }
