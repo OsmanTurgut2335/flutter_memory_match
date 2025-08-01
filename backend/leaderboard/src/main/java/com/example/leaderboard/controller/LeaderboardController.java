@@ -48,7 +48,12 @@ public class LeaderboardController {
 
     private void checkUsernameMatch(String token, String expectedUsername) {
         String actual = jwtService.extractUsername(token.replace("Bearer ", ""));
+
+        System.out.println("[AUTH] Token subject (actual): " + actual);
+        System.out.println("[AUTH] Request oldUsername: " + expectedUsername);
+
         if (!actual.equals(expectedUsername)) {
+            System.out.println("[AUTH] Username mismatch. Rejecting request.");
             throw new ForbiddenException("You can only operate on your own user");
         }
     }
@@ -62,6 +67,7 @@ public class LeaderboardController {
         checkApiKey(apiKey);
 
         try {
+            System.out.println("[AUTH] Token subject (actual): " );
             List<LeaderboardEntryDto> result = leaderboardService.findUsersDesc()
                     .stream()
                     .map(LeaderboardEntryDto::new)
@@ -102,16 +108,18 @@ public class LeaderboardController {
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping("/besttime")
+    @PutMapping("/bestTime")
     public ResponseEntity<String> updateBestTimeIfBetter(
             @RequestBody BestTimeUpdateRequest request,
             @RequestHeader(value = "x-api-key", required = false) String apiKey,
             @RequestHeader("Authorization") String authHeader
     ) {
+
         checkApiKey(apiKey);
         checkUsernameMatch(authHeader, request.getUsername());
 
-        boolean updated = leaderboardService.updateBestTimeIfBetter(request.getUsername(), request.getBestTime());
+        boolean updated = leaderboardService.updateBestTimeIfBetter(request.getUsername(), request.getBestTime(),request.getLevel());
+
         return updated ?
                 ResponseEntity.ok("Best time updated") :
                 ResponseEntity.status(HttpStatus.NOT_MODIFIED).body("No update needed");

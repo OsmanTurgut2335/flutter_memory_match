@@ -1,7 +1,7 @@
-
-
 import 'package:dio/dio.dart';
 import 'package:hive/hive.dart';
+import 'package:mem_game/core/error/app_exceptions.dart';
+import 'package:mem_game/core/error/dio_exception_mapper.dart';
 
 import 'package:mem_game/core/init/env_config.dart';
 import 'package:mem_game/data/game/model/game_state_model.dart';
@@ -67,10 +67,16 @@ class GameRepository {
 
     if (currentUser == null || currentUser.isDummy) return true;
 
-    final isNewBest = currentUser.bestTime == 0 || currentTime < currentUser.bestTime;
+    print('currentUser.bestTime = ${currentUser.bestTime}, currentTime = $currentTime');
 
-    final updatedUser = currentUser.copyWith(bestTime: isNewBest ? currentTime : currentUser.bestTime);
+    final isNewBest = currentUser.bestTime == -1 || currentTime < currentUser.bestTime;
+
+    final updatedUser = currentUser.copyWith(
+      bestTime: isNewBest ? currentTime : currentUser.bestTime,
+      score: currentUser.score,
+    );
     await userBox.put(currentUserKey, updatedUser);
+  
 
     return _updateScoreDataInDatabase(
       username: updatedUser.username,
@@ -79,31 +85,34 @@ class GameRepository {
     );
   }
 
- Future<bool> _updateScoreDataInDatabase({
-    required String username,
-    required int bestTime,
-    required int level,
-  }) async {
-    try {
-      final response = await _dio.put(
-        '${_env.baseUrl}/leaderboard/besttime',
-        data: {
-          'username': username,
-          'bestTime': bestTime,
-          'level': level,
-        },
-        options: Options(
-          headers: {
-            'Content-Type': 'application/json',
-            'x-api-key': _env.apiKey,
-          },
-        ),
-      );
-      return response.statusCode == 200;
-    } catch (e) {
-      return false;
+
+
+Future<bool> _updateScoreDataInDatabase({
+  required String username,
+  required int bestTime,
+  required int level,
+}) async {
+  final baseUrl = _env.baseUrl;
+
+  try {
+    final response = await _dio.put(
+      '$baseUrl/leaderboard/bestTime',
+      data: {'username': username, 'bestTime': bestTime, 'level': level},
+      options: Options(validateStatus: (status) => status != null && status < 500),
+    );
+
+    if (response.statusCode != 200) {
+      throw AppExceptionMapper.fromStatusCode(response.statusCode!);
     }
+
+    return true;
+  } on DioException catch (e) {
+    throw AppExceptionMapper.fromDioException(e);
+  } catch (e) {
+    throw const UnknownException();
   }
+}
+
 
   Future<void> clearBestTime() async {
     final userBox = Hive.box<UserModel>(userBoxName);

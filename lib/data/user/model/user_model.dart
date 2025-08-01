@@ -9,7 +9,7 @@ class UserModel extends HiveObject {
     required this.username,
     this.score = 0,
     this.health = 3,
-    this.bestTime = 0,
+    this.bestTime = -1,
     this.currentTime = 0,
     this.moves = 0,
     this.coins = 0,

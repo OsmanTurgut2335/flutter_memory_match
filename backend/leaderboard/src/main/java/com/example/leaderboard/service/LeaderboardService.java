@@ -49,17 +49,29 @@ public class LeaderboardService {
         return leaderboardRepository.save(entry);
     }
 
-    public boolean updateBestTimeIfBetter(String username, int newBestTime) {
-        Optional<LeaderboardEntry> optionalEntry = leaderboardRepository.findByUsername(username);
-        if (optionalEntry.isPresent()) {
-            LeaderboardEntry entry = optionalEntry.get();
-            if (entry.getBestTime() == 0 || newBestTime < entry.getBestTime()) {
-                entry.setBestTime(newBestTime);
-                leaderboardRepository.save(entry);
-                return true;
-            }
+    public boolean updateBestTimeIfBetter(String username, int bestTime, int level) {
+        Optional<LeaderboardEntry> optional = leaderboardRepository.findByUsername(username);
+        if (optional.isEmpty()) return false;
+
+        LeaderboardEntry entry = optional.get();
+
+        boolean updated = false;
+
+        if (entry.getBestTime() == -1 || bestTime < entry.getBestTime()) {
+            entry.setBestTime(bestTime);
+            updated = true;
         }
-        return false;
+
+        if (level > entry.getMaxLevel()) {
+            entry.setMaxLevel(level);
+            updated = true;
+        }
+
+        if (updated) {
+            leaderboardRepository.save(entry);
+        }
+
+        return updated;
     }
 
 

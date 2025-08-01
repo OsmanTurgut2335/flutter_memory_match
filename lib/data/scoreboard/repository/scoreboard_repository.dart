@@ -1,8 +1,10 @@
 import 'dart:async';
 
 import 'package:dio/dio.dart';
-import 'package:easy_localization/easy_localization.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mem_game/core/error/app_exceptions.dart';
+import 'package:mem_game/core/error/dio_exception_mapper.dart';
 import 'package:mem_game/core/providers/dio_provider.dart';
 import 'package:mem_game/core/providers/env_provider.dart';
 
@@ -28,23 +30,13 @@ class ScoreboardRepository {
       final response = await _dio.get('$baseUrl/leaderboard/top', options: Options(extra: {'auth': false}));
 
       final data = response.data as List<dynamic>;
-
       return data.map((json) => Score.fromJson(json as Map<String, dynamic>)).toList();
     } on DioException catch (e) {
-      if (e.response != null) {
-        final statusCode = e.response!.statusCode;
-        final message = e.response!.data['message'] ?? 'Unknown error occurred';
-
-        throw Exception('Hata $statusCode: $message');
-      } else {
-        throw Exception('error.timeout'.tr());
-      }
+      throw AppExceptionMapper.fromDioException(e);
     } catch (e) {
-      throw Exception('error.unexpected'.tr());
+      throw const UnknownException();
     }
   }
-
-
 
   Future<Score?> fetchUserWithRank(String username) async {
     final baseUrl = ref.read(envConfigProvider).baseUrl;
@@ -53,6 +45,7 @@ class ScoreboardRepository {
         '$baseUrl/leaderboard/position/$username',
         options: Options(extra: {'auth': false}),
       );
+
       return Score.fromJson(response.data as Map<String, dynamic>);
     } on DioException catch (e) {
       if (e.response?.statusCode == 404) {

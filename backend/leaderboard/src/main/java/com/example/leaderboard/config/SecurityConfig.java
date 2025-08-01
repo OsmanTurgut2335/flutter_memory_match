@@ -27,17 +27,17 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/auth/register").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/auth/login", "/auth/register", "/auth/refresh").permitAll()
                         .requestMatchers(HttpMethod.GET, "/leaderboard/top").permitAll()
                         .requestMatchers(HttpMethod.GET, "/leaderboard/position/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/leaderboard/{username}").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/leaderboard/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
+
 
     @Bean
     public UserDetailsService userDetailsService() {

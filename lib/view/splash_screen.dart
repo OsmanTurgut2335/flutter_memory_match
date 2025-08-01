@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hive/hive.dart';
@@ -27,14 +26,14 @@ class _SplashScreenState extends State<SplashScreen> {
     await initializeHive();
     await MobileAds.instance.initialize();
 
-    final user = Hive.box<UserModel>('userBox').get('user');
+    final user = Hive.box<UserModel>('userBox').get('currentUser');
 
     Widget nextScreen;
     if (user == null) {
       nextScreen = const UsernameInputScreen();
     } else if (user.isDummy) {
       nextScreen = const HomeScreen();
-    }  else if (user.accessToken == null || user.accessToken!.isEmpty) {
+    } else if (user.accessToken == null || user.accessToken!.isEmpty) {
       nextScreen = const LoginScreen();
     } else {
       nextScreen = const HomeScreen();

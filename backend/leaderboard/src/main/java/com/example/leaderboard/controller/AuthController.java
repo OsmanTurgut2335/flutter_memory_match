@@ -61,13 +61,18 @@ public class AuthController {
                 refreshToken = refreshToken.substring(7);
             }
 
-            String username = jwtService.extractUsername(refreshToken);
-            boolean valid = jwtService.validateToken(refreshToken, username);
+            // Süresi dolmuş olsa bile username'i çıkar
+            String username = jwtService.extractUsernameAllowExpired(refreshToken);
 
-            if (!valid) throw new RuntimeException("Invalid");
+            // Burada hala validate yapıyoruz ama süresi geçmiş olabilir
+            boolean valid = jwtService.validateToken(refreshToken, username);
+            if (!valid) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Expired or invalid refresh token");
+            }
 
             String newAccessToken = jwtService.generateAccessToken(username);
             return ResponseEntity.ok(Map.of("accessToken", newAccessToken));
+
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid refresh token");
         }

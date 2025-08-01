@@ -9,4 +9,5 @@ public class BestTimeUpdateRequest {
 
     private String username;
     private int bestTime;
+    private int level;
 }

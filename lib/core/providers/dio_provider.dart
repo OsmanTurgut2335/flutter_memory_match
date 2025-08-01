@@ -13,7 +13,7 @@ final dioProvider = Provider<Dio>((ref) {
       contentType:   'application/json',
     ),
   );
-  dio.interceptors.add(TokenInterceptor(dio: dio, baseUrl: env.baseUrl, apiKey: env.apiKey));
+  dio.interceptors.add(TokenInterceptor(dio: dio, baseUrl: env.baseUrl, apiKey: env.apiKey,ref: ref));
 
   return dio;
 });

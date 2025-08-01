@@ -1,13 +1,15 @@
 import 'dart:async';
-import 'dart:convert';
+
 
 import 'package:dio/dio.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
-import 'package:http/http.dart' as http;
+
+import 'package:mem_game/core/error/app_exceptions.dart';
 import 'package:mem_game/core/providers/dio_provider.dart';
-import 'package:mem_game/core/providers/env_provider.dart';
+
 import 'package:mem_game/core/providers/user_provider.dart';
 
 import 'package:mem_game/data/user/model/user_model.dart';
@@ -33,6 +35,23 @@ class UserViewModel extends StateNotifier<AsyncValue<UserModel>> {
       }
     } catch (e, st) {
       state = AsyncError(e, st);
+    }
+  }
+  
+  Future<void> changeUsername(BuildContext context, String newUsername) async {
+    try {
+      final updatedUser = await _repository.changeUsernameAndTransferGame(newUsername);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('username.ChangeSuccess'.tr())));
+      }
+      state = AsyncValue.data(updatedUser);
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text((e is AppException) ? e.localizedMessage : e.toString())));
+      }
+      state = AsyncError(e, StackTrace.current);
     }
   }
 
@@ -67,20 +86,6 @@ class UserViewModel extends StateNotifier<AsyncValue<UserModel>> {
     }
   }
 
-  Future<void> changeUsername(BuildContext context, String newUsername) async {
-    try {
-      final updatedUser = await _repository.changeUsernameAndTransferGame(newUsername);
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('username.ChangeSuccess')));
-      }
-      state = AsyncValue.data(updatedUser);
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
-      }
-      state = AsyncError(e, StackTrace.current);
-    }
-  }
 
   Future<void> deleteUser(BuildContext context) async {
     try {
@@ -101,7 +106,7 @@ class UserViewModel extends StateNotifier<AsyncValue<UserModel>> {
     } catch (e, st) {
       state = AsyncError(e, st);
 
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Bir hata oluştu')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Bir hata oluştu: $e')));
     }
   }
 
@@ -145,23 +150,17 @@ class UserViewModel extends StateNotifier<AsyncValue<UserModel>> {
       final response = await dio.post(
         '/auth/register',
         data: {'username': username, 'password': password},
-        options: Options(
-          extra: {'auth': false},
-         
-        ),
+        options: Options(extra: {'auth': false}),
       );
-
+      
       if (response.statusCode == 200 || response.statusCode == 201) {
         final user = UserModel.fromJson(response.data as Map<String, dynamic>);
         await _repository.saveUser(user);
 
-      if (context.mounted) {
-  await _ref.read(userViewModelProvider.notifier).loadUser();
-  await Navigator.of(context).pushReplacement(
-    MaterialPageRoute<void>(builder: (_) => const HomeScreen()),
-  );
-}
-
+        if (context.mounted) {
+          await _ref.read(userViewModelProvider.notifier).loadUser();
+          await Navigator.of(context).pushReplacement(MaterialPageRoute<void>(builder: (_) => const HomeScreen()));
+        }
       } else if (response.statusCode == 409) {
         onUserExists();
       } else {

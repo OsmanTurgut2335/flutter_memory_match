@@ -107,9 +107,20 @@
   "result.home": "Home",
 
 
-  "error.timeout": "Failed to connect to the server. Please try again.",
-   "error.failed" : "Login Failed",
-     "error.unexpected" :"An unexpected error occurred"
+  "errors": {
+  "timeout": "Failed to connect to the server. Please try again.",
+  "failed": "Login failed",
+  "unexpected": "An unexpected error occurred",
+  "forbidden": "You are not allowed to perform this action",
+  "not_found": "User not found",
+  "conflict": "User already exists",
+  "server": "Server error",
+  "network": "Network error",
+  "unknown": "An unknown error occurred",
+  "unauthorized": "Unauthorized access",
+  "bad_request": "Bad request",
+  "incomplete_response" : "The server returned incomplete data"
+}
 
 
 }

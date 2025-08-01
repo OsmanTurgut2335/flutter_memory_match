@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mem_game/core/error/app_exceptions.dart';
 import 'package:mem_game/core/providers/user_provider.dart';
 import 'package:mem_game/core/widgets/auth_input_textfields.dart';
 
@@ -43,7 +44,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         await Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomeScreen()));
       }
     } catch (e) {
-      final errorMessage = e.toString().split(': ').last;
+      final errorMessage = e is AppException ? e.localizationKey.tr() : e.toString();
+
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(errorMessage)));
     } finally {
       if (mounted) setState(() => _isLoading = false);

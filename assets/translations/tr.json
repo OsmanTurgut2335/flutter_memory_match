@@ -98,8 +98,21 @@
   "result.home": "Ana Sayfa",
 
 
-    "error.timeout": "Sunucuya bağlanılamadı. Lütfen tekrar deneyin.",
-    "error.failed"  :"Giriş Başarısız",
-    "error.unexpected" :"Beklenmeyen bir hata oluştu"
+
+"errors": {
+  "timeout": "Sunucuya bağlanılamadı. Lütfen tekrar deneyin.",
+  "failed": "Giriş başarısız",
+  "unexpected": "Beklenmeyen bir hata oluştu",
+  "forbidden": "Bu işlemi yapamazsınız",
+  "not_found": "Kullanıcı bulunamadı",
+  "conflict": "Zaten kayıtlı bir kullanıcı",
+  "server": "Sunucu hatası",
+  "network": "Bağlantı hatası",
+  "unknown": "Bilinmeyen bir hata oluştu",
+  "unauthorized": "Yetkisiz erişim",
+  "bad_request": "Geçersiz istek",
+    "incomplete_response" : "Sunucu eksik veri döndürdü"
+}
+
 
 }

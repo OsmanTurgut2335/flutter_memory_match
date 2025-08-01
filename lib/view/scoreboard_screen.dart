@@ -1,8 +1,8 @@
-
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mem_game/core/constants/textstyles/app_text_styles.dart';
+import 'package:mem_game/core/error/app_exceptions.dart';
 import 'package:mem_game/core/providers/scoreboard_provider.dart';
 import 'package:mem_game/core/providers/user_provider.dart';
 import 'package:mem_game/core/widgets/common_screen_wrapper.dart';
@@ -24,10 +24,11 @@ class LeaderboardScreen extends ConsumerWidget {
           onRefresh: notifier.refresh,
           child: asyncData.when(
             loading: () => const _LoadingView(),
-   
-          
-             error: (err, stack) => _ErrorView(errorMessage: err.toString().replaceFirst('Exception: ', '')),
-           
+
+            error: (err, stack) {
+              final message = err is AppException ? err.localizationKey.tr() : 'errors.unknown'.tr();
+              return _ErrorView(errorMessage: message);
+            },
 
             data: (data) {
               final top10 = data.top10;
@@ -70,15 +71,15 @@ class ScoreboardListItem extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       decoration:
           isCurrentUser
-              ? BoxDecoration(color: Colors.yellow.withOpacity(0.2), borderRadius: BorderRadius.circular(8))
+              ? BoxDecoration(color: Colors.yellow.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(8))
               : null,
       child: Row(
         children: [
-          if (score.rank != null) Expanded(flex: 1, child: Text('${score.rank}', style: textStyle)) else Container(),
+          if (score.rank != null) Expanded(child: Text('${score.rank}', style: textStyle)) else Container(),
 
           Expanded(flex: 2, child: Text(score.username, style: textStyle)),
           Expanded(child: Text('${score.maxLevel}', style: textStyle)),
-          Expanded(flex: 1, child: Text('${score.score}', textAlign: TextAlign.right, style: textStyle)),
+          Expanded(child: Text('${score.score}', textAlign: TextAlign.right, style: textStyle)),
         ],
       ),
     );

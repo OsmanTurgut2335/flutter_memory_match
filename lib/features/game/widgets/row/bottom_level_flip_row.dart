@@ -12,7 +12,7 @@ class BottomLevelFlipRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final bool canFlip = (gameState?.flipCount ?? 0) > 0;
+    final canFlip = (gameState?.flipCount ?? 0) > 0;
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
