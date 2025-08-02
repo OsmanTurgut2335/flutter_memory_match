@@ -67,7 +67,7 @@ public class LeaderboardController {
         checkApiKey(apiKey);
 
         try {
-            System.out.println("[AUTH] Token subject (actual): " );
+
             List<LeaderboardEntryDto> result = leaderboardService.findUsersDesc()
                     .stream()
                     .map(LeaderboardEntryDto::new)
@@ -118,7 +118,7 @@ public class LeaderboardController {
         checkApiKey(apiKey);
         checkUsernameMatch(authHeader, request.getUsername());
 
-        boolean updated = leaderboardService.updateBestTimeIfBetter(request.getUsername(), request.getBestTime(),request.getLevel());
+        boolean updated = leaderboardService.updateBestTimeIfBetter(request.getUsername(), request.getBestTime(),request.getLevel(), request.getScore());
 
         return updated ?
                 ResponseEntity.ok("Best time updated") :

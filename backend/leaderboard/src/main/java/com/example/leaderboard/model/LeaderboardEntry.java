@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+
 @Entity
 @Getter
 @Setter
@@ -32,6 +33,14 @@ public class LeaderboardEntry {
 
     @Column(name = "score")
     private int score = 0;
+
+    @Column(name = "coins")
+    private int coins = 0;
+
+    @Column(name = "refresh_token", columnDefinition = "TEXT")
+    private String refreshToken;
+
+
 
     public LeaderboardEntry(String username, String password) {
         this.username = username;
