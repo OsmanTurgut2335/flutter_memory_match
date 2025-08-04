@@ -36,38 +36,67 @@ public class LeaderboardService {
             return false;
         }
     }
-    public LeaderboardEntry updateUsername(String oldUsername, String newUsername) {
-        Optional<LeaderboardEntry> existingOpt = leaderboardRepository.findByUsername(oldUsername);
+    public LeaderboardEntry updateUsername(String oldUsername, String newUsername, String newRefreshToken) {
+        if (newUsername == null || newUsername.trim().isEmpty()) {
+            throw new IllegalArgumentException("New username cannot be blank");
+        }
 
+        if (!newUsername.matches("^[a-zA-Z0-9_]{3,20}$")) {
+            throw new IllegalArgumentException("Username must be 3–20 chars, alphanumeric or underscore only");
+        }
+
+        Optional<LeaderboardEntry> existingOpt = leaderboardRepository.findByUsername(oldUsername);
         if (existingOpt.isEmpty()) {
             throw new RuntimeException("User not found");
         }
 
-        LeaderboardEntry entry = existingOpt.get();
+        if (leaderboardRepository.findByUsername(newUsername).isPresent()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Username already taken");
+        }
 
+        LeaderboardEntry entry = existingOpt.get();
         entry.setUsername(newUsername);
+        entry.setRefreshToken(newRefreshToken); // 🔥 refresh token burada yazılıyor
         return leaderboardRepository.save(entry);
     }
 
-    public boolean updateBestTimeIfBetter(String username, int bestTime, int level,int score) {
+    public void updateCoins(String username, int coins) {
+        Optional<LeaderboardEntry> opt = leaderboardRepository.findByUsername(username);
+        if (opt.isEmpty()) {
+            throw new RuntimeException("User not found");
+        }
+
+        LeaderboardEntry entry = opt.get();
+        entry.setCoins(coins);
+        leaderboardRepository.save(entry);
+    }
+
+
+    public LeaderboardEntry saveUser(LeaderboardEntry entry) {
+        return leaderboardRepository.save(entry);
+    }
+
+    public boolean updateBestTimeIfBetter(String username, int newTime, int newLevel, int newScore) {
         Optional<LeaderboardEntry> optional = leaderboardRepository.findByUsername(username);
         if (optional.isEmpty()) return false;
 
         LeaderboardEntry entry = optional.get();
         boolean updated = false;
 
-        if (entry.getBestTime() == -1 || bestTime < entry.getBestTime()) {
-            entry.setBestTime(bestTime);
+
+        if (newLevel > entry.getMaxLevel()) {
+            entry.setMaxLevel(newLevel);
+            entry.setBestTime(newTime);
+            updated = true;
+        } else if (newLevel == entry.getMaxLevel() && newTime < entry.getBestTime()) {
+
+            entry.setBestTime(newTime);
             updated = true;
         }
 
-        if (level > entry.getMaxLevel()) {
-            entry.setMaxLevel(level);
-            updated = true;
-        }
 
-        if (score > entry.getScore()) {
-            entry.setScore(score);
+        if (newScore > entry.getScore()) {
+            entry.setScore(newScore);
             updated = true;
         }
 
@@ -108,6 +137,10 @@ public class LeaderboardService {
         }
         throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found in leaderboard");
 
+    }
+    public void updateRefreshToken(LeaderboardEntry entry, String refreshToken) {
+        entry.setRefreshToken(refreshToken);
+        leaderboardRepository.save(entry);
     }
 
 

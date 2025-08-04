@@ -31,7 +31,7 @@ class _SplashScreenState extends State<SplashScreen> {
     Widget nextScreen;
     if (user == null) {
       nextScreen = const UsernameInputScreen();
-    } else if (user.isDummy) {
+    } else if (user. isDummy) {
       nextScreen = const HomeScreen();
     } else if (user.accessToken == null || user.accessToken!.isEmpty) {
       nextScreen = const LoginScreen();

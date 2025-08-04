@@ -40,7 +40,13 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String username;
 
         try {
-            username = jwtService.extractUsername(token);
+            if (request.getRequestURI().equals("/auth/refresh")) {
+                // Refresh token endpoint -> allow expired token
+                username = jwtService.extractUsernameAllowExpired(token);
+            } else {
+                // All others -> must be valid and not expired
+                username = jwtService.extractUsername(token);
+            }
         } catch (Exception e) {
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             return;

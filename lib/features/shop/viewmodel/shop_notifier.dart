@@ -68,11 +68,11 @@ class ShopNotifier extends StateNotifier<List<ShopItem>> {
   int _priceFor(ShopItemType type) {
     switch (type) {
       case ShopItemType.healthPotion:
-        return 1000;
+        return 100;
       case ShopItemType.extraFlip:
-        return 1500;
+        return 150;
       case ShopItemType.doubleCoins:
-        return 2000;
+        return 200;
     }
   }
 }

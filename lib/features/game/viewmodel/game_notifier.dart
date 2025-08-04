@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:mem_game/data/game/model/game_state_model.dart';
@@ -246,7 +247,7 @@ class GameNotifier extends StateNotifier<GameState?> {
       }
 
       if (state!.health <= 0) {
-        handleLose();
+        await handleLose();
         return;
       }
     }
@@ -260,17 +261,30 @@ class GameNotifier extends StateNotifier<GameState?> {
     _timer?.cancel();
 
     try {
-      await _repository.updateBestTimeAndLevelIfNeeded(state!.currentTime, state!.level);
+      await _repository.updateBestTimeAndLevelIfNeeded(
+        currentTime: state!.currentTime,
+        currentLevel: state!.level,
+        currentScore: state!.score,
+      );
     } catch (e) {
-      onGameError?.call('Sunucu hatası: $e');
+      onGameError?.call('$e'.tr());
     }
 
     onGameResult?.call(GameResult.win);
   }
 
-  void handleLose() {
+  Future<void> handleLose() async {
     _timer?.cancel();
-    _repository.updateBestTimeAndLevelIfNeeded(state!.currentTime, state!.level);
+    try {
+      await _repository.updateBestTimeAndLevelIfNeeded(
+        currentTime: state!.currentTime,
+        currentLevel: state!.level,
+        currentScore: state!.score,
+      );
+    } catch (e) {
+      onGameError?.call('$e'.tr());
+    }
+
     onGameResult?.call(GameResult.lose);
   }
 

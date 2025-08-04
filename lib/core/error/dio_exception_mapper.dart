@@ -25,7 +25,7 @@ class AppExceptionMapper {
     if (e.type == DioExceptionType.connectionTimeout ||
         e.type == DioExceptionType.sendTimeout ||
         e.type == DioExceptionType.receiveTimeout) {
-      return const NetworkException();
+      return const TimeoutException();
     }
 
     if (e.type == DioExceptionType.connectionError ||

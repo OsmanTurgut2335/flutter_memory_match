@@ -16,6 +16,7 @@ class UserModel extends HiveObject {
     this.isDummy = false,
     this.accessToken,
     this.refreshToken,
+    this.maxLevel = 0,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -23,6 +24,7 @@ class UserModel extends HiveObject {
       username: json['username'] as String,
       accessToken: json['accessToken'] as String,
       refreshToken: json['refreshToken'] as String,
+     coins: json['coins'] as int? ?? 0,
     );
   }
 
@@ -59,6 +61,9 @@ class UserModel extends HiveObject {
   @HiveField(10)
   final String? refreshToken;
 
+   @HiveField(11)
+  final int maxLevel;
+
   Null get user => null;
 
   UserModel copyWith({
@@ -72,6 +77,7 @@ class UserModel extends HiveObject {
     bool? isDummy,
     String? accessToken,
     String? refreshToken,
+    int? maxLevel,
   }) {
     return UserModel(
       username: username ?? this.username,
@@ -84,8 +90,9 @@ class UserModel extends HiveObject {
       isDummy: isDummy ?? this.isDummy,
       accessToken: accessToken ?? this.accessToken,
       refreshToken: refreshToken ?? this.refreshToken,
+        maxLevel: maxLevel ?? this.maxLevel,
     );
   }
 
-  Map<String, dynamic> toJson() => {'username': username, 'accessToken': accessToken, 'refreshToken': refreshToken};
+  Map<String, dynamic> toJson() => {'username': username, 'accessToken': accessToken, 'refreshToken': refreshToken,  'maxLevel': maxLevel,};
 }

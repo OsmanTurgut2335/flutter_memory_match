@@ -11,6 +11,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/auth")
@@ -42,12 +43,18 @@ public class AuthController {
         String accessToken = jwtService.generateAccessToken(user.getUsername());
         String refreshToken = jwtService.generateRefreshToken(user.getUsername());
 
+        leaderboardService.updateRefreshToken(user, refreshToken);
+
         return ResponseEntity.ok(Map.of(
                 "accessToken", accessToken,
                 "refreshToken", refreshToken,
-                "username", user.getUsername()
+                "username", user.getUsername(),
+
+                "coins",user.getCoins()
         ));
     }
+
+
 
     @PostMapping("/refresh")
     public ResponseEntity<?> refreshToken(@RequestBody Map<String, String> request) {
@@ -61,17 +68,35 @@ public class AuthController {
                 refreshToken = refreshToken.substring(7);
             }
 
-            // Süresi dolmuş olsa bile username'i çıkar
             String username = jwtService.extractUsernameAllowExpired(refreshToken);
 
-            // Burada hala validate yapıyoruz ama süresi geçmiş olabilir
+            Optional<LeaderboardEntry> userOpt = leaderboardService.findByUsername(username);
+            if (userOpt.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not found");
+            }
+
+            LeaderboardEntry user = userOpt.get();
+
+            if (!refreshToken.equals(user.getRefreshToken())) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Refresh token mismatch");
+            }
+
             boolean valid = jwtService.validateToken(refreshToken, username);
             if (!valid) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Expired or invalid refresh token");
             }
 
+
             String newAccessToken = jwtService.generateAccessToken(username);
-            return ResponseEntity.ok(Map.of("accessToken", newAccessToken));
+            String newRefreshToken = jwtService.generateRefreshToken(username);
+
+
+            leaderboardService.updateRefreshToken(user, newRefreshToken);
+
+            return ResponseEntity.ok(Map.of(
+                    "accessToken", newAccessToken,
+                    "refreshToken", newRefreshToken
+            ));
 
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid refresh token");
@@ -92,11 +117,15 @@ public class AuthController {
         }
 
         String hashedPassword = passwordEncoder.encode(request.getPassword());
+        String refreshToken = jwtService.generateRefreshToken(request.getUsername());
+
         LeaderboardEntry entry = new LeaderboardEntry(request.getUsername(), hashedPassword);
+
+        entry.setRefreshToken(refreshToken);
+
         LeaderboardEntry saved = leaderboardService.saveEntry(entry);
 
         String accessToken = jwtService.generateAccessToken(saved.getUsername());
-        String refreshToken = jwtService.generateRefreshToken(saved.getUsername());
 
         return ResponseEntity.ok(Map.of(
                 "accessToken", accessToken,
@@ -104,6 +133,7 @@ public class AuthController {
                 "username", saved.getUsername()
         ));
     }
+
 
     private boolean apiKeyIsValid(String providedKey) {
         return providedKey != null && providedKey.equals(apiProperties.getKey());

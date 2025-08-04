@@ -34,21 +34,31 @@ public class JwtService {
                 .signWith(Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8)), SignatureAlgorithm.HS256)
                 .compact();
     }
-
     public String extractUsername(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(secretKey.getBytes(StandardCharsets.UTF_8))
-                .build()
-                .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
+        System.out.println("[JWT] Extracting username from token: " + token);
+        try {
+            String username = Jwts.parserBuilder()
+                    .setAllowedClockSkewSeconds(30)
+                    .setSigningKey(secretKey.getBytes(StandardCharsets.UTF_8))
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody()
+                    .getSubject();
+            System.out.println("[JWT] Username extracted: " + username);
+            return username;
+        } catch (Exception e) {
+            System.out.println("[JWT] Failed to extract username: " + e.getMessage());
+            throw e;
+        }
     }
+
 
 
     public String extractUsernameAllowExpired(String token) {
         try {
             return extractUsername(token);
         } catch (ExpiredJwtException e) {
+            System.out.println("[JWT] Token expired, extracting from claims: " + e.getClaims().getSubject());
             return e.getClaims().getSubject();
         }
     }
@@ -62,9 +72,18 @@ public class JwtService {
                     .parseClaimsJws(token)
                     .getBody();
 
-            return claims.getSubject().equals(username) && claims.getExpiration().after(new Date());
+            boolean subjectMatch = claims.getSubject().equals(username);
+            boolean notExpired = claims.getExpiration().after(new Date());
+
+            System.out.println("[JWT] Validating token for username: " + username);
+            System.out.println("[JWT] Subject matches: " + subjectMatch);
+            System.out.println("[JWT] Not expired: " + notExpired);
+
+            return subjectMatch && notExpired;
         } catch (JwtException e) {
+            System.out.println("[JWT] Token validation failed: " + e.getMessage());
             return false;
         }
     }
+
 }

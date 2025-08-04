@@ -1,6 +1,5 @@
 import 'dart:async';
 
-
 import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -37,12 +36,12 @@ class UserViewModel extends StateNotifier<AsyncValue<UserModel>> {
       state = AsyncError(e, st);
     }
   }
-  
+
   Future<void> changeUsername(BuildContext context, String newUsername) async {
     try {
       final updatedUser = await _repository.changeUsernameAndTransferGame(newUsername);
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('username.ChangeSuccess'.tr())));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('username.changeSuccess'.tr())));
       }
       state = AsyncValue.data(updatedUser);
     } catch (e) {
@@ -85,7 +84,6 @@ class UserViewModel extends StateNotifier<AsyncValue<UserModel>> {
       rethrow;
     }
   }
-
 
   Future<void> deleteUser(BuildContext context) async {
     try {
@@ -152,7 +150,7 @@ class UserViewModel extends StateNotifier<AsyncValue<UserModel>> {
         data: {'username': username, 'password': password},
         options: Options(extra: {'auth': false}),
       );
-      
+
       if (response.statusCode == 200 || response.statusCode == 201) {
         final user = UserModel.fromJson(response.data as Map<String, dynamic>);
         await _repository.saveUser(user);
@@ -175,11 +173,11 @@ class UserViewModel extends StateNotifier<AsyncValue<UserModel>> {
 
   Future<void> logout() async {
     final box = Hive.box<UserModel>('userBox');
-    final user = box.get('user');
-
+    final user = box.get('currentUser');
+    await _repository.updateCoinsToServer();
     if (user != null) {
       final cleared = user.copyWith(accessToken: '', refreshToken: '');
-      await box.put('user', cleared);
+      await box.put('currentUser', cleared);
 
       state = const AsyncValue.loading();
     }

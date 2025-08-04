@@ -61,58 +61,69 @@ class GameRepository {
   }
 
   /// Checks and updates the user's best time and level
-  Future<bool> updateBestTimeAndLevelIfNeeded(int currentTime, int currentLevel) async {
+  Future<bool> updateBestTimeAndLevelIfNeeded({
+    required int currentTime,
+    required int currentLevel,
+    required int currentScore,
+  }) async {
     final userBox = Hive.box<UserModel>(userBoxName);
     final currentUser = userBox.get(currentUserKey);
 
     if (currentUser == null || currentUser.isDummy) return true;
 
-    print('currentUser.bestTime = ${currentUser.bestTime}, currentTime = $currentTime');
+    final isNewHighScore = currentScore > currentUser.score;
+    final hasReachedHigherLevel = currentLevel > currentUser.maxLevel;
 
-    final isNewBest = currentUser.bestTime == -1 || currentTime < currentUser.bestTime;
+    final shouldUpdateBestTime =
+        hasReachedHigherLevel || currentUser.bestTime == -1 || currentTime < currentUser.bestTime;
 
     final updatedUser = currentUser.copyWith(
-      bestTime: isNewBest ? currentTime : currentUser.bestTime,
-      score: currentUser.score,
+      bestTime: shouldUpdateBestTime ? currentTime : currentUser.bestTime,
+      score: isNewHighScore ? currentScore : currentUser.score,
+      maxLevel: hasReachedHigherLevel ? currentLevel : currentUser.maxLevel,
     );
+
     await userBox.put(currentUserKey, updatedUser);
-  
 
     return _updateScoreDataInDatabase(
       username: updatedUser.username,
-      bestTime: isNewBest ? currentTime : updatedUser.bestTime,
-      level: currentLevel,
+      bestTime: shouldUpdateBestTime ? currentTime : updatedUser.bestTime,
+      level: updatedUser.maxLevel,
+      score: updatedUser.score,
     );
   }
 
+  Future<bool> _updateScoreDataInDatabase({
+    required String username,
+    required int bestTime,
+    required int level,
+    required int score,
+  }) async {
+    final baseUrl = _env.baseUrl;
 
+    try {
+      final response = await _dio.put(
+        '$baseUrl/leaderboard/bestTime',
+        data: {'username': username, 'bestTime': bestTime, 'level': level, 'score': score},
+        options: Options(validateStatus: (status) => status != null && status < 500),
+      );
 
-Future<bool> _updateScoreDataInDatabase({
-  required String username,
-  required int bestTime,
-  required int level,
-}) async {
-  final baseUrl = _env.baseUrl;
+      if (response.statusCode == 304) {
+        print('[SCORE UPDATE] No changes were needed.');
+        return false;
+      }
 
-  try {
-    final response = await _dio.put(
-      '$baseUrl/leaderboard/bestTime',
-      data: {'username': username, 'bestTime': bestTime, 'level': level},
-      options: Options(validateStatus: (status) => status != null && status < 500),
-    );
+      if (response.statusCode == 200) {
+        return true;
+      }
 
-    if (response.statusCode != 200) {
       throw AppExceptionMapper.fromStatusCode(response.statusCode!);
+    } on DioException catch (e) {
+      throw AppExceptionMapper.fromDioException(e);
+    } catch (e) {
+      throw const UnknownException();
     }
-
-    return true;
-  } on DioException catch (e) {
-    throw AppExceptionMapper.fromDioException(e);
-  } catch (e) {
-    throw const UnknownException();
   }
-}
-
 
   Future<void> clearBestTime() async {
     final userBox = Hive.box<UserModel>(userBoxName);

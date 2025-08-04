@@ -8,6 +8,7 @@ import 'package:mem_game/core/error/dio_exception_mapper.dart';
 import 'package:mem_game/core/providers/dio_provider.dart';
 
 import 'package:mem_game/core/providers/env_provider.dart';
+import 'package:mem_game/core/providers/user_provider.dart';
 
 import 'package:mem_game/data/game/model/game_state_model.dart';
 import 'package:mem_game/data/shop_item/model/shop_item.dart';
@@ -21,6 +22,8 @@ class UserRepository {
   static const String userKey = 'currentUser';
 
   Dio get _dio => ref.read(dioProvider);
+
+  String get _baseUrl => ref.read(envConfigProvider).baseUrl;
 
   /// Saves the provided user in the Hive box with empty shop items list.
   Future<void> saveUser(UserModel user) async {
@@ -52,11 +55,10 @@ class UserRepository {
     if (user == null || user.isDummy) return false;
 
     final apiKey = ref.read(envConfigProvider).apiKey;
-    final baseUrl = ref.read(envConfigProvider).baseUrl;
 
     try {
       final response = await _dio.delete<void>(
-        '$baseUrl/leaderboard/${user.username}',
+        '$_baseUrl/leaderboard/${user.username}',
         options: Options(validateStatus: (_) => true),
       );
       return response.statusCode == 200;
@@ -71,10 +73,8 @@ class UserRepository {
 
     if (user == null) throw const NotFoundException();
 
-    final baseUrl = ref.read(envConfigProvider).baseUrl;
-
     final response = await _dio.put(
-      '$baseUrl/leaderboard/username',
+      '$_baseUrl/leaderboard/username',
       data: {'oldUsername': user.username, 'newUsername': newUsername},
       options: Options(validateStatus: (_) => true),
     );
@@ -101,26 +101,50 @@ class UserRepository {
     await box.put(userKey, updatedUser);
     await box.flush();
 
+    //  Transfer GameState
     final gameBox = Hive.box<GameState>('gameBox');
     final oldKey = 'game_${user.username}';
     final newKey = 'game_$newUsernameFromApi';
     final game = gameBox.get(oldKey);
-
     if (game != null) {
-      await gameBox.put(newKey, game);
       await gameBox.delete(oldKey);
+      await gameBox.put(newKey, game);
+    }
+
+    //  Transfer ShopItems
+    final shopBox = Hive.box<ShopItem>('shopItemsBox');
+    final oldItems = shopBox.values.where((item) => item.userId == user.username).toList();
+
+    for (final item in oldItems) {
+      item.userId = newUsernameFromApi;
+      await item.save();
     }
 
     return updatedUser;
   }
 
-  Future<UserModel> login(String username, String password) async {
-    final baseUrl = ref.read(envConfigProvider).baseUrl;
+  Future<void> updateCoinsToServer() async {
+    final user = getUser();
+    if (user == null || user.username.isEmpty) return;
 
     try {
+      await _dio.put(
+        '$_baseUrl/leaderboard/coins',
+        data: {'username': user.username, 'coins': user.coins},
+        options: Options(validateStatus: (_) => true),
+      );
+      print('[USER] Coins updated to DB: ${user.coins}');
+    } catch (e) {
+      print('[USER] Failed to update coins to server: $e');
+    }
+  }
+
+  Future<UserModel> login(String username, String password) async {
+    try {
       final response = await _dio
-          .post<Map<String, dynamic>>('$baseUrl/auth/login', data: {'username': username, 'password': password})
+          .post<Map<String, dynamic>>('$_baseUrl/auth/login', data: {'username': username, 'password': password})
           .timeout(const Duration(seconds: 5));
+      print('Login response: ${response.statusCode} -> ${response.data}');
 
       if (response.statusCode == 200) {
         final user = UserModel.fromJson(response.data as Map<String, dynamic>);
@@ -130,12 +154,10 @@ class UserRepository {
       } else {
         throw const UnauthorizedException();
       }
-    } on TimeoutException {
-      throw const TimeoutException();
     } on DioException catch (e) {
       throw AppExceptionMapper.fromDioException(e);
     } catch (_) {
-      throw const UnknownException();
+      throw const TimeoutException();
     }
   }
 }

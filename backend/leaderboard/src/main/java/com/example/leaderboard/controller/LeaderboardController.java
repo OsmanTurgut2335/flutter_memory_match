@@ -49,11 +49,11 @@ public class LeaderboardController {
     private void checkUsernameMatch(String token, String expectedUsername) {
         String actual = jwtService.extractUsername(token.replace("Bearer ", ""));
 
-        System.out.println("[AUTH] Token subject (actual): " + actual);
-        System.out.println("[AUTH] Request oldUsername: " + expectedUsername);
+        System.out.println("Expected: " + expectedUsername);
+        System.out.println("Actual (from token): " + actual);
 
         if (!actual.equals(expectedUsername)) {
-            System.out.println("[AUTH] Username mismatch. Rejecting request.");
+
             throw new ForbiddenException("You can only operate on your own user");
         }
     }
@@ -120,9 +120,27 @@ public class LeaderboardController {
 
         boolean updated = leaderboardService.updateBestTimeIfBetter(request.getUsername(), request.getBestTime(),request.getLevel(), request.getScore());
 
-        return updated ?
-                ResponseEntity.ok("Best time updated") :
-                ResponseEntity.status(HttpStatus.NOT_MODIFIED).body("No update needed");
+        return updated
+                ? ResponseEntity.ok("Data updated")
+                : ResponseEntity.status(HttpStatus.NOT_MODIFIED).body("No update needed");
+
+    }
+
+    @PutMapping("/coins")
+    public ResponseEntity<?> updateCoins(
+            @RequestBody CoinsUpdateRequest request,
+            @RequestHeader("Authorization") String authHeader,
+            @RequestHeader(value = "x-api-key", required = false) String apiKey
+    ) {
+        checkApiKey(apiKey);
+        checkUsernameMatch(authHeader, request.getUsername());
+
+        try {
+            leaderboardService.updateCoins(request.getUsername(), request.getCoins());
+            return ResponseEntity.ok("Coins updated");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+        }
     }
 
     @PutMapping("/username")
@@ -134,10 +152,16 @@ public class LeaderboardController {
         checkApiKey(apiKey);
         checkUsernameMatch(authHeader, request.getOldUsername());
 
-        LeaderboardEntry updated = leaderboardService.updateUsername(request.getOldUsername(), request.getNewUsername());
 
-        String newAccessToken = jwtService.generateAccessToken(updated.getUsername());
-        String newRefreshToken = jwtService.generateRefreshToken(updated.getUsername());
+        String newAccessToken = jwtService.generateAccessToken(request.getNewUsername());
+        String newRefreshToken = jwtService.generateRefreshToken(request.getNewUsername());
+
+
+        LeaderboardEntry updated = leaderboardService.updateUsername(
+                request.getOldUsername(),
+                request.getNewUsername(),
+                newRefreshToken
+        );
 
         return ResponseEntity.ok(new UsernameChangeResponse(
                 updated.getUsername(),
@@ -145,6 +169,7 @@ public class LeaderboardController {
                 newRefreshToken
         ));
     }
+
 
 
     @GetMapping("/position/{username}")

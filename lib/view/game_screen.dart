@@ -5,16 +5,15 @@ import 'package:mem_game/core/providers/ad_provider.dart';
 import 'package:mem_game/core/providers/game_provider.dart';
 import 'package:mem_game/core/providers/shop_provider.dart';
 import 'package:mem_game/features/game/viewmodel/game_notifier.dart';
+import 'package:mem_game/features/game/widgets/appbar/game_screen_appbar.dart';
 import 'package:mem_game/features/game/widgets/boost_selection_background.dart';
 import 'package:mem_game/features/game/widgets/dialog/level_result_dialog.dart';
-import 'package:mem_game/features/game/widgets/appbar/game_screen_appbar.dart';
 import 'package:mem_game/features/game/widgets/paused_game_overlay.dart';
 import 'package:mem_game/features/game/widgets/row/bottom_level_flip_row.dart';
 import 'package:mem_game/features/game/widgets/row/stats_row.dart';
 import 'package:mem_game/features/game/widgets/score_bubble.dart';
 import 'package:mem_game/features/memory_card/widgets/game_cards.dart';
 import 'package:mem_game/features/shop/widgets/itemslist.dart';
-
 import 'package:mem_game/view/home_screen.dart';
 
 class GameScreen extends ConsumerStatefulWidget {

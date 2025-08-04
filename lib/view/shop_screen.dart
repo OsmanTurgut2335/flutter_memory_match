@@ -19,10 +19,10 @@ class ShopScreen extends ConsumerWidget {
 
     return Scaffold(
       body: CommonScreenWrapper(
-        title: 'shop.title'.tr(), 
+        title: 'shop.title'.tr(),
         child: userAsync.when(
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (e, st) => Center(child: Text('shop.error'.tr(namedArgs: {'error': e.toString()}))), 
+          error: (e, st) => Center(child: Text('shop.error'.tr(namedArgs: {'error': e.toString()}))),
           data: (user) {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -37,7 +37,7 @@ class ShopScreen extends ConsumerWidget {
                 ShopCard(
                   icon: Icons.favorite,
                   title: 'shop.health_potion'.tr(),
-                  price: 1000,
+                  price: 100,
                   quantity: shopNotifier.quantityOf(ShopItemType.healthPotion),
                   canBuy: shopNotifier.canBuy(ShopItemType.healthPotion),
                   onBuy: () async {
@@ -49,7 +49,7 @@ class ShopScreen extends ConsumerWidget {
                 ShopCard(
                   icon: Icons.rotate_left,
                   title: 'shop.extra_flip'.tr(),
-                  price: 1500,
+                  price: 150,
                   quantity: shopNotifier.quantityOf(ShopItemType.extraFlip),
                   canBuy: shopNotifier.canBuy(ShopItemType.extraFlip),
                   onBuy: () async {
@@ -61,7 +61,7 @@ class ShopScreen extends ConsumerWidget {
                 ShopCard(
                   icon: Icons.monetization_on,
                   title: 'shop.double_coins'.tr(),
-                  price: 2000,
+                  price: 200,
                   quantity: shopNotifier.quantityOf(ShopItemType.doubleCoins),
                   canBuy: shopNotifier.canBuy(ShopItemType.doubleCoins),
                   onBuy: () async {
