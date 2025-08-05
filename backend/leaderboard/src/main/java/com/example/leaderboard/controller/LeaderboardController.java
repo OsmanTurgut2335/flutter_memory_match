@@ -1,73 +1,45 @@
 package com.example.leaderboard.controller;
 
-import com.example.leaderboard.config.ApiProperties;
 import com.example.leaderboard.dto.*;
 import com.example.leaderboard.exception.DatabaseConnectionException;
-import com.example.leaderboard.exception.ForbiddenException;
 import com.example.leaderboard.exception.NotFoundException;
-import com.example.leaderboard.exception.UnauthorizedException;
 import com.example.leaderboard.model.LeaderboardEntry;
 import com.example.leaderboard.service.JwtService;
 import com.example.leaderboard.service.LeaderboardService;
-import jakarta.validation.Valid;
+import com.example.leaderboard.util.SecurityUtil;
+
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/leaderboard")
 public class LeaderboardController {
 
     private final LeaderboardService leaderboardService;
-    private final ApiProperties apiProperties;
-    private final BCryptPasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final SecurityUtil securityUtil;
 
     public LeaderboardController(
             LeaderboardService leaderboardService,
-            ApiProperties apiProperties,
-            BCryptPasswordEncoder passwordEncoder,
-            JwtService jwtService
+            JwtService jwtService,
+            SecurityUtil securityUtil
     ) {
         this.leaderboardService = leaderboardService;
-        this.apiProperties = apiProperties;
-        this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
+        this.securityUtil = securityUtil;
     }
-
-    private void checkApiKey(String apiKey) {
-        if (apiKey == null || !apiKey.equals(apiProperties.getKey())) {
-            throw new UnauthorizedException("Invalid API Key");
-        }
-    }
-
-    private void checkUsernameMatch(String token, String expectedUsername) {
-        String actual = jwtService.extractUsername(token.replace("Bearer ", ""));
-
-        System.out.println("Expected: " + expectedUsername);
-        System.out.println("Actual (from token): " + actual);
-
-        if (!actual.equals(expectedUsername)) {
-
-            throw new ForbiddenException("You can only operate on your own user");
-        }
-    }
-
-
 
     @GetMapping("/top")
     public List<LeaderboardEntryDto> getUserScoresDesc(
             @RequestHeader("x-api-key") String apiKey
     ) {
-        checkApiKey(apiKey);
+        securityUtil.checkApiKey(apiKey);
 
         try {
-
             List<LeaderboardEntryDto> result = leaderboardService.findUsersDesc()
                     .stream()
                     .map(LeaderboardEntryDto::new)
@@ -85,7 +57,6 @@ public class LeaderboardController {
         }
     }
 
-
     @GetMapping("/{username}")
     public ResponseEntity<LeaderboardEntryDto> findByUsername(@PathVariable String username) {
         LeaderboardEntry entry = leaderboardService.findByUsername(username)
@@ -99,8 +70,8 @@ public class LeaderboardController {
             @RequestHeader(value = "x-api-key", required = false) String apiKey,
             @RequestHeader("Authorization") String authHeader
     ) {
-        checkApiKey(apiKey);
-        checkUsernameMatch(authHeader, username);
+        securityUtil.checkApiKey(apiKey);
+        securityUtil.checkUsernameMatch(authHeader, username);
 
         boolean deleted = leaderboardService.deleteByUsername(username);
         if (!deleted) throw new NotFoundException("User not found");
@@ -114,9 +85,8 @@ public class LeaderboardController {
             @RequestHeader(value = "x-api-key", required = false) String apiKey,
             @RequestHeader("Authorization") String authHeader
     ) {
-
-        checkApiKey(apiKey);
-        checkUsernameMatch(authHeader, request.getUsername());
+        securityUtil.checkApiKey(apiKey);
+        securityUtil.checkUsernameMatch(authHeader, request.getUsername());
 
         boolean updated = leaderboardService.updateBestTimeIfBetter(request.getUsername(), request.getBestTime(),request.getLevel(), request.getScore());
 
@@ -132,8 +102,8 @@ public class LeaderboardController {
             @RequestHeader("Authorization") String authHeader,
             @RequestHeader(value = "x-api-key", required = false) String apiKey
     ) {
-        checkApiKey(apiKey);
-        checkUsernameMatch(authHeader, request.getUsername());
+        securityUtil.checkApiKey(apiKey);
+        securityUtil.checkUsernameMatch(authHeader, request.getUsername());
 
         try {
             leaderboardService.updateCoins(request.getUsername(), request.getCoins());
@@ -149,13 +119,11 @@ public class LeaderboardController {
             @RequestHeader(value = "x-api-key", required = false) String apiKey,
             @RequestHeader("Authorization") String authHeader
     ) {
-        checkApiKey(apiKey);
-        checkUsernameMatch(authHeader, request.getOldUsername());
-
+        securityUtil.checkApiKey(apiKey);
+        securityUtil.checkUsernameMatch(authHeader, request.getOldUsername());
 
         String newAccessToken = jwtService.generateAccessToken(request.getNewUsername());
         String newRefreshToken = jwtService.generateRefreshToken(request.getNewUsername());
-
 
         LeaderboardEntry updated = leaderboardService.updateUsername(
                 request.getOldUsername(),
@@ -170,15 +138,12 @@ public class LeaderboardController {
         ));
     }
 
-
-
     @GetMapping("/position/{username}")
     public ResponseEntity<LeaderboardEntryWithRank> getUserWithRank(
             @PathVariable String username,
             @RequestHeader("x-api-key") String apiKey
     ) {
-        checkApiKey(apiKey);
+        securityUtil.checkApiKey(apiKey);
         return ResponseEntity.ok(leaderboardService.getUserWithRank(username));
     }
-
 }

@@ -85,5 +85,18 @@ public class JwtService {
             return false;
         }
     }
+    public boolean isTokenValid(String token) {
+        try {
+            Jwts.parserBuilder()
+                    .setSigningKey(secretKey.getBytes(StandardCharsets.UTF_8))
+                    .build()
+                    .parseClaimsJws(token);
+            return true;
+        } catch (JwtException e) {
+            System.out.println("[JWT] Invalid token: " + e.getMessage());
+            return false;
+        }
+    }
+
 
 }
