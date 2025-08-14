@@ -3,7 +3,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:mem_game/core/providers/user_provider.dart';
+import 'package:mem_game/features/user/provider/user_provider.dart';
 import 'package:mem_game/core/widgets/auth_input_textfields.dart';
 
 import 'package:mem_game/core/widgets/auth_textspan.dart';

@@ -1,15 +1,23 @@
+import 'dart:async';
+
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
-import 'package:mem_game/core/providers/game_provider.dart';
-import 'package:mem_game/core/providers/user_provider.dart';
+import 'package:mem_game/core/error/app_exceptions.dart';
+import 'package:mem_game/core/error/dio_exception_mapper.dart';
+import 'package:mem_game/core/providers/health_provider.dart';
 import 'package:mem_game/core/widgets/confirmation_dialogs.dart';
 import 'package:mem_game/data/game/model/game_state_model.dart';
 import 'package:mem_game/data/shop_item/model/shop_item.dart';
 import 'package:mem_game/data/user/model/user_model.dart';
+import 'package:mem_game/features/game/provider/game_provider.dart';
 import 'package:mem_game/features/game/viewmodel/game_notifier.dart';
+import 'package:mem_game/features/user/provider/user_provider.dart';
 import 'package:mem_game/features/user/viewmodel/user_notifier.dart';
+import 'package:mem_game/features/user/widgets/change_username_dialog.dart';
 import 'package:mem_game/view/create_user_screen.dart';
 import 'package:mem_game/view/login_screen.dart';
 
@@ -61,7 +69,7 @@ class UserActionsButton extends ConsumerWidget {
                   title: Text('options.update'.tr()),
                   onTap: () {
                     Navigator.of(context).pop();
-                    _showUpdateDialog(context, notifier);
+                    _showUpdateDialog(context, notifier, ref);
                   },
                 ),
 
@@ -103,8 +111,6 @@ class UserActionsButton extends ConsumerWidget {
     }
   }
 
-
-
   Future<void> _confirmReset(BuildContext context, WidgetRef ref) async {
     final confirmed = await showConfirmationDialog(
       context: context,
@@ -119,19 +125,33 @@ class UserActionsButton extends ConsumerWidget {
     }
   }
 
-  Future<void> _showUpdateDialog(BuildContext context, UserViewModel notifier) async {
-    final newUsername = await showTextInputDialog(
+  Future<void> _showUpdateDialog(BuildContext context, UserViewModel notifier, WidgetRef ref) async {
+    final connectivity = await Connectivity().checkConnectivity();
+    if (connectivity == ConnectivityResult.none) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('errors.noInternet'.tr())));
+      }
+      return;
+    }
+
+    await showTextInputDialogWithLoading(
       context: context,
       titleKey: 'options.update_title',
       hintKey: 'options.update_hint',
       confirmKey: 'options.update_save',
       cancelKey: 'options.cancel_button',
-    );
+      onConfirm: (input) async {
+        await ref.read(healthServiceProvider).checkDatabaseHealth();
+        await notifier.changeUsername(input);
 
-    if (newUsername != null) {
-      await notifier.changeUsername(context, newUsername);
-    }
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('username.changeSuccess'.tr())));
+        }
+      },
+    );
   }
+
+
 
   Future<void> _forceResetApp(BuildContext context, WidgetRef ref) async {
     final user = ref.read(userRepositoryProvider).getUser();

@@ -8,7 +8,7 @@ import 'package:mem_game/core/error/dio_exception_mapper.dart';
 import 'package:mem_game/core/providers/dio_provider.dart';
 
 import 'package:mem_game/core/providers/env_provider.dart';
-import 'package:mem_game/core/providers/user_provider.dart';
+import 'package:mem_game/features/user/provider/user_provider.dart';
 
 import 'package:mem_game/data/game/model/game_state_model.dart';
 import 'package:mem_game/data/shop_item/model/shop_item.dart';
@@ -67,7 +67,8 @@ class UserRepository {
     }
   }
 
-  Future<UserModel> changeUsernameAndTransferGame(String newUsername) async {
+Future<UserModel> changeUsernameAndTransferGame(String newUsername) async {
+  try {
     final box = Hive.box<UserModel>(userBoxName);
     final user = box.get(userKey);
 
@@ -76,7 +77,7 @@ class UserRepository {
     final response = await _dio.put(
       '$_baseUrl/leaderboard/username',
       data: {'oldUsername': user.username, 'newUsername': newUsername},
-      options: Options(validateStatus: (_) => true),
+    
     );
 
     if (response.statusCode != 200) {
@@ -101,7 +102,7 @@ class UserRepository {
     await box.put(userKey, updatedUser);
     await box.flush();
 
-    //  Transfer GameState
+    // Transfer GameState
     final gameBox = Hive.box<GameState>('gameBox');
     final oldKey = 'game_${user.username}';
     final newKey = 'game_$newUsernameFromApi';
@@ -111,7 +112,7 @@ class UserRepository {
       await gameBox.put(newKey, game);
     }
 
-    //  Transfer ShopItems
+    // Transfer ShopItems
     final shopBox = Hive.box<ShopItem>('shopItemsBox');
     final oldItems = shopBox.values.where((item) => item.userId == user.username).toList();
 
@@ -121,7 +122,12 @@ class UserRepository {
     }
 
     return updatedUser;
+  } on DioException catch (e) {
+  
+    throw AppExceptionMapper.fromDioException(e);
   }
+}
+
 
   Future<void> updateCoinsToServer() async {
     final user = getUser();

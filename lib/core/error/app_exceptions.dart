@@ -49,7 +49,12 @@ class IncompleteResponseException extends AppException {
 class TimeoutException extends AppException {
   const TimeoutException() : super('errors.timeout');
 }
+class DatabaseDownException extends AppException {
+  const DatabaseDownException() : super('errors.db_down', statusCode: 503);
+}
+
 
 extension AppExceptionX on AppException {
   String get localizedMessage => localizationKey.tr();
 }
+

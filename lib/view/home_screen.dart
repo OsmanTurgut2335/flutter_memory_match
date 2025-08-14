@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:mem_game/core/painters/wave_painter.dart';
-import 'package:mem_game/core/providers/ad_provider.dart';
+import 'package:mem_game/features/ad/provider/ad_provider.dart';
 
-import 'package:mem_game/core/providers/game_provider.dart';
-import 'package:mem_game/core/providers/user_provider.dart';
-import 'package:mem_game/core/providers/scoreboard_provider.dart';
-import 'package:mem_game/core/providers/shop_provider.dart';
+import 'package:mem_game/features/game/provider/game_provider.dart';
+import 'package:mem_game/features/user/provider/user_provider.dart';
+import 'package:mem_game/features/scoreboard/provider/scoreboard_provider.dart';
+import 'package:mem_game/features/shop/provider/shop_provider.dart';
 import 'package:mem_game/core/widgets/lottie_background.dart';
 
 import 'package:mem_game/features/home/widgets/home_menu.dart';

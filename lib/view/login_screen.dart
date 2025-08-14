@@ -3,10 +3,9 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mem_game/core/error/app_exceptions.dart';
-import 'package:mem_game/core/providers/user_provider.dart';
 import 'package:mem_game/core/widgets/auth_input_textfields.dart';
-
 import 'package:mem_game/core/widgets/lottie_background.dart';
+import 'package:mem_game/features/user/provider/user_provider.dart';
 import 'package:mem_game/view/create_user_screen.dart';
 import 'package:mem_game/view/home_screen.dart';
 

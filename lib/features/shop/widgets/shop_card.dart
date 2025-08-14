@@ -1,12 +1,13 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:mem_game/data/shop_item/model/shop_item.dart';
 
 class ShopCard extends StatelessWidget {
   const ShopCard({
     required this.icon,
     required this.title,
     required this.price,
-    required this.quantity,
+    required this.item,
     required this.canBuy,
     required this.onBuy,
     super.key,
@@ -15,7 +16,7 @@ class ShopCard extends StatelessWidget {
   final IconData icon;
   final String title;
   final int price;
-  final int quantity;
+  final ShopItem item;
   final bool canBuy;
   final VoidCallback onBuy;
 
@@ -39,13 +40,15 @@ class ShopCard extends StatelessWidget {
                 children: [
                   Text(title, style: theme.textTheme.titleMedium),
                   const SizedBox(height: 4),
-                  Text('shop.quantity'.tr(namedArgs: {'count': quantity.toString()})),
+                  Text('shop.quantity'.tr(namedArgs: {'count': item.quantity.toString()})),
                 ],
               ),
             ),
             ElevatedButton(
               onPressed: canBuy ? onBuy : null,
-              style: ElevatedButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
+              style: ElevatedButton.styleFrom(
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              ),
               child: Text('\$$price'),
             ),
           ],

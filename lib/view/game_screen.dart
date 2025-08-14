@@ -1,9 +1,9 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mem_game/core/providers/ad_provider.dart';
-import 'package:mem_game/core/providers/game_provider.dart';
-import 'package:mem_game/core/providers/shop_provider.dart';
+import 'package:mem_game/features/ad/provider/ad_provider.dart';
+import 'package:mem_game/features/game/provider/game_provider.dart';
+import 'package:mem_game/features/shop/provider/shop_provider.dart';
 import 'package:mem_game/features/game/viewmodel/game_notifier.dart';
 import 'package:mem_game/features/game/widgets/appbar/game_screen_appbar.dart';
 import 'package:mem_game/features/game/widgets/boost_selection_background.dart';
@@ -29,6 +29,10 @@ class _GameScreenState extends ConsumerState<GameScreen> with TickerProviderStat
 
   bool _isPaused = false;
   bool _isDialogOpen = false;
+  bool _usedHealth = false; // Add this field
+  bool _usedDouble = false; // Add this field
+  bool _usedFlip = false; // Add this field
+  bool _usedSkipLevel = false; // Add this field
 
   late AnimationController _pauseController;
   late Animation<double> _pauseOpacity;
@@ -72,12 +76,9 @@ class _GameScreenState extends ConsumerState<GameScreen> with TickerProviderStat
             _isDialogOpen = false;
           });
         }
-        
-  ..onGameError = (msg) {
-  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
-};
-
-;
+        ..onGameError = (msg) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+        };
 
       if (widget.resumeGame) {
         await gameNotifier.initializeGame(true);
@@ -93,16 +94,20 @@ class _GameScreenState extends ConsumerState<GameScreen> with TickerProviderStat
       final usedHealth = selectedBoosts?['healthPotion'] == true;
       final usedDouble = selectedBoosts?['doubleCoins'] == true;
       final usedFlip = selectedBoosts?['extraFlip'] == true;
+      final usedSkipLevel = selectedBoosts?['skipLevel'] == true;
+      _usedSkipLevel = usedSkipLevel;
 
       if (usedHealth) await shopNotifier.useHealthPotion();
       if (usedDouble) await shopNotifier.useDoubleCoins();
       if (usedFlip) await shopNotifier.useExtraFlip();
+      if (usedSkipLevel) await shopNotifier.useSkipLevel();
 
       await gameNotifier.initializeGame(
         false,
         bonusHealth: usedHealth ? 1 : 0,
         doubleCoins: usedDouble,
         extraFlipCount: usedFlip ? 1 : 0,
+        skipLevel: usedSkipLevel,
       );
 
       await ref.read(rewardedAdNotifierProvider.notifier).loadAd();
@@ -186,7 +191,7 @@ class _GameScreenState extends ConsumerState<GameScreen> with TickerProviderStat
 
                     Expanded(child: GameCards(gameState: gameState, gameNotifier: gameNotifier)),
 
-                    BottomLevelFlipRow(gameState: gameState, gameNotifier: gameNotifier),
+                    BottomLevelFlipRow(gameState: gameState, gameNotifier: gameNotifier, hasSkipLevel: _usedSkipLevel),
                   ],
                 ),
               ),

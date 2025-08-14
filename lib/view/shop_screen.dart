@@ -2,11 +2,11 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mem_game/core/constants/textstyles/app_text_styles.dart';
-import 'package:mem_game/core/providers/shop_provider.dart';
-import 'package:mem_game/core/providers/user_provider.dart';
 import 'package:mem_game/core/widgets/common_screen_wrapper.dart';
 import 'package:mem_game/data/shop_item/model/shop_item.dart';
+import 'package:mem_game/features/shop/provider/shop_provider.dart';
 import 'package:mem_game/features/shop/widgets/shop_card.dart';
+import 'package:mem_game/features/user/provider/user_provider.dart';
 
 class ShopScreen extends ConsumerWidget {
   const ShopScreen({super.key});
@@ -15,6 +15,7 @@ class ShopScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final userAsync = ref.watch(userViewModelProvider);
     final userNotifier = ref.read(userViewModelProvider.notifier);
+    final shopItems = ref.watch(shopViewModelProvider); // <-- dikkat
     final shopNotifier = ref.read(shopViewModelProvider.notifier);
 
     return Scaffold(
@@ -38,10 +39,11 @@ class ShopScreen extends ConsumerWidget {
                   icon: Icons.favorite,
                   title: 'shop.health_potion'.tr(),
                   price: 100,
-                  quantity: shopNotifier.quantityOf(ShopItemType.healthPotion),
+                  item: shopItems.firstWhere((e) => e.itemType == ShopItemType.healthPotion),
                   canBuy: shopNotifier.canBuy(ShopItemType.healthPotion),
                   onBuy: () async {
                     await userNotifier.purchaseCoins(100);
+                    await userNotifier.updateCoinsToServer();
                     await shopNotifier.purchase(ShopItemType.healthPotion, 100);
                   },
                 ),
@@ -50,10 +52,11 @@ class ShopScreen extends ConsumerWidget {
                   icon: Icons.rotate_left,
                   title: 'shop.extra_flip'.tr(),
                   price: 150,
-                  quantity: shopNotifier.quantityOf(ShopItemType.extraFlip),
+                  item: shopItems.firstWhere((e) => e.itemType == ShopItemType.extraFlip),
                   canBuy: shopNotifier.canBuy(ShopItemType.extraFlip),
                   onBuy: () async {
                     await userNotifier.purchaseCoins(150);
+                    await userNotifier.updateCoinsToServer();
                     await shopNotifier.purchase(ShopItemType.extraFlip, 150);
                   },
                 ),
@@ -62,11 +65,25 @@ class ShopScreen extends ConsumerWidget {
                   icon: Icons.monetization_on,
                   title: 'shop.double_coins'.tr(),
                   price: 200,
-                  quantity: shopNotifier.quantityOf(ShopItemType.doubleCoins),
+                  item: shopItems.firstWhere((e) => e.itemType == ShopItemType.doubleCoins),
                   canBuy: shopNotifier.canBuy(ShopItemType.doubleCoins),
                   onBuy: () async {
                     await userNotifier.purchaseCoins(200);
+                    await userNotifier.updateCoinsToServer();
                     await shopNotifier.purchase(ShopItemType.doubleCoins, 200);
+                  },
+                ),
+
+                ShopCard(
+                  icon: Icons.fast_forward,
+                  title: 'shop.skip_level'.tr(),
+                  price: 100,
+                  item: shopItems.firstWhere((e) => e.itemType == ShopItemType.skipLevel),
+                  canBuy: shopNotifier.canBuy(ShopItemType.skipLevel),
+                  onBuy: () async {
+                    await userNotifier.purchaseCoins(100);
+                    await userNotifier.updateCoinsToServer();
+                    await shopNotifier.purchase(ShopItemType.skipLevel, 100);
                   },
                 ),
 

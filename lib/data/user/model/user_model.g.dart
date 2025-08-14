@@ -28,13 +28,14 @@ class UserModelAdapter extends TypeAdapter<UserModel> {
       accessToken: fields[9] as String?,
       refreshToken: fields[10] as String?,
       maxLevel: fields[11] as int,
+      skipLevelUsed: fields[12] == null ? false : fields[12] as bool,
     )..inventory = (fields[7] as HiveList).castHiveList();
   }
 
   @override
   void write(BinaryWriter writer, UserModel obj) {
     writer
-      ..writeByte(12)
+      ..writeByte(13)
       ..writeByte(0)
       ..write(obj.username)
       ..writeByte(1)
@@ -58,7 +59,9 @@ class UserModelAdapter extends TypeAdapter<UserModel> {
       ..writeByte(10)
       ..write(obj.refreshToken)
       ..writeByte(11)
-      ..write(obj.maxLevel);
+      ..write(obj.maxLevel)
+      ..writeByte(12)
+      ..write(obj.skipLevelUsed);
   }
 
   @override

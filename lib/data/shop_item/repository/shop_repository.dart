@@ -17,7 +17,7 @@ class ShopRepository {
     return _box.values.where((item) => item.userId == currentUser?.username).toList();
   }
 
-  /// Purchase one unit of [type]. Cost should be deducted separately.
+  /// Purchase one unit of [type]. 
   Future<void> purchaseItem(ShopItemType type, int cost) async {
     final user = currentUser;
     if (user == null) {

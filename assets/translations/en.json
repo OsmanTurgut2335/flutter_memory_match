@@ -1,90 +1,135 @@
 {
   "memoryHome": "Memory Game Home",
   "noUser": "No user found. Please set up your username",
-  "home.new_game": "New Game",
-  "home.continue_game": "Continue Game",
-  "home.scoreboard": "Scoreboard",
-  "home.shop": "Shop",
-  "leaderboard.title": "Leaderboard",
-  "leaderboard.loading": "Please wait...",
-  "leaderboard.error": "The database could not be accessed.\nPlease try again with the button below or come back another time.",
-  "leaderboard.retry_tooltip": "Retry",
-  "leaderboard.no_scores": "No scores available.",
-  "leaderboard.username": "Username",
-  "leaderboard.score": "Score",
-  "shop.title": "Shop",
-  "shop.coins": "Coins: {value}",
-  "shop.health_potion": "Health Potion",
-  "shop.extra_flip": "Extra Flip",
-  "shop.double_coins": "Double Coins",
-  "shop.quantity": "You have: {count}",
-  "shop.error": "Error: {error}",
-  "game.level_complete": "Level Complete!",
-  "game.game_over": "Game Over",
-  "game.paused": "Game Paused",
-  "game.resume": "Resume Game",
-  "game.level": "Level: {number}",
-  "game.flip_cards": "Flip Cards",
-  "username.title": "Create User",
-  "username.label": "Username",
-  "username.validation": "Please enter a username",
-  "username.save": "Save",
-  "username.exists": "This username is already taken.",
-  "username.unexpected": "An unexpected error occurred.",
-  "username.offlineTitle": "Connection Failed",
-  "username.offlineDesc": "Could not connect to server. Would you like to continue offline?",
-  "username.cancel": "Cancel",
-  "username.continue": "Continue",
-  "username.tooLong": "Please write a username shorter than 20 letters",
-  "username.changeSuccess": "Username changed successfully.",
-  "password.label": "Password",
-  "password.validation": "Password cannot be empty",
-  "password.tooShort": "Password must be at least 6 characters",
-  "login.noAccount": "Don't have an account?",
-  "login.signUp": " Sign Up",
-  "sign.account": " Already have an acoount ?",
-  "sign.login": " Login",
-  "boost.title": "Choose Your Boosts",
-  "boost.health.title": "Health Potion",
-  "boost.health.desc": "+1 starting health",
-  "boost.double.title": "Double Coins",
-  "boost.double.desc": "2x coin reward",
-  "boost.flip.title": "Extra Flip",
-  "boost.flip.desc": "Flip one extra card at start",
-  "boost.cancel": "Cancel",
-  "boost.start": "Start",
-  "boost.quantity": "You have: {value}",
-  "options.delete": "Delete User",
-  "options.delete_title": "Delete User",
-  "options.delete_message": "Are you sure you want to delete your user and all progress?",
-  "options.delete_button": "Delete",
-  "options.cancel_button": "Cancel",
-  "options.update": "Update Username",
-  "options.update_title": "Update Username",
-  "options.update_hint": "New Username",
-  "options.update_save": "Save",
-  "options.reset": "Reset App",
-  "options.reset_title": "Reset App",
-  "options.reset_message": "This will clear all local and cloud data. Continue?",
-  "options.reset_button": "Reset",
-  "options.logout": "Log out",
-  "stats.moves": "Moves",
-  "stats.score": "Score",
-  "stats.time": "Time",
-  "stats.health": "Health",
 
+  "home": {
+    "new_game": "New Game",
+    "continue_game": "Continue Game",
+    "scoreboard": "Scoreboard",
+    "shop": "Shop"
+  },
 
-  "result.level": "Level",
-  "result.extraLifeTitle": "Extra Life Granted!",
-  "result.extraLifeDesc": "You’ve been revived. Good luck!",
-  "result.continue": "Continue",
-  "result.watchAd": "Watch Ad for Extra Life",
-  "result.tryAgain": "Try Again",
-  "result.nextLevel": "Next Level",
-  "result.finishGame": "Finish Game",
-  "result.home": "Home",
+  "leaderboard": {
+    "title": "Leaderboard",
+    "loading": "Please wait...",
+    "error": "The database could not be accessed.\nPlease try again with the button below or come back another time.",
+    "retry_tooltip": "Retry",
+    "no_scores": "No scores available.",
+    "username": "Username",
+    "score": "Score"
+  },
 
-  
+  "shop": {
+    "title": "Shop",
+    "coins": "Coins: {value}",
+    "health_potion": "Health Potion",
+    "extra_flip": "Extra Flip",
+    "double_coins": "Double Coins",
+    "quantity": "You have: {count}",
+    "error": "Error: {error}",
+    "skip_level": "Skip Level"
+  },
+
+  "game": {
+    "level_complete": "Level Complete!",
+    "game_over": "Game Over",
+    "paused": "Game Paused",
+    "resume": "Resume Game",
+    "level": "Level: {number}",
+    "flip_cards": "Flip Cards",
+    "skip_level": "Skip Level"
+  },
+
+  "username": {
+    "title": "Create User",
+    "label": "Username",
+    "validation": "Please enter a username",
+    "save": "Save",
+    "exists": "This username is already taken.",
+    "unexpected": "An unexpected error occurred.",
+    "offlineTitle": "Connection Failed",
+    "offlineDesc": "Could not connect to server. Would you like to continue offline?",
+    "cancel": "Cancel",
+    "continue": "Continue",
+    "tooLong": "Please write a username shorter than 20 letters",
+    "changeSuccess": "Username changed successfully."
+  },
+
+  "password": {
+    "label": "Password",
+    "validation": "Password cannot be empty",
+    "tooShort": "Password must be at least 6 characters"
+  },
+
+  "login": {
+    "noAccount": "Don't have an account?",
+    "signUp": " Sign Up"
+  },
+
+  "sign": {
+    "account": " Already have an acoount ?",
+    "login": " Login"
+  },
+
+  "boost": {
+    "title": "Choose Your Boosts",
+    "health": {
+      "title": "Health Potion",
+      "desc": "+1 starting health"
+    },
+    "double": {
+      "title": "Double Coins",
+      "desc": "2x coin reward"
+    },
+    "flip": {
+      "title": "Extra Flip",
+      "desc": "Flip one extra card at start"
+    },
+    "cancel": "Cancel",
+    "start": "Start",
+    "quantity": "You have: {value}",
+    "skip_level": "Skip Level",
+    "skip": {
+      "desc": "Skip the current level and move to the next one"
+    }
+  },
+
+  "options": {
+    "delete": "Delete User",
+    "delete_title": "Delete User",
+    "delete_message": "Are you sure you want to delete your user and all progress?",
+    "delete_button": "Delete",
+    "cancel_button": "Cancel",
+    "update": "Update Username",
+    "update_title": "Update Username",
+    "update_hint": "New Username",
+    "update_save": "Save",
+    "reset": "Reset App",
+    "reset_title": "Reset App",
+    "reset_message": "This will clear all local and cloud data. Continue?",
+    "reset_button": "Reset",
+    "logout": "Log out"
+  },
+
+  "stats": {
+    "moves": "Moves",
+    "score": "Score",
+    "time": "Time",
+    "health": "Health"
+  },
+
+  "result": {
+    "level": "Level",
+    "extraLifeTitle": "Extra Life Granted!",
+    "extraLifeDesc": "You’ve been revived. Good luck!",
+    "continue": "Continue",
+    "watchAd": "Watch Ad for Extra Life",
+    "tryAgain": "Try Again",
+    "nextLevel": "Next Level",
+    "finishGame": "Finish Game",
+    "home": "Home"
+  },
+
   "errors": {
     "timeout": "Server did not respond in time. Please try again later.",
     "failed": "Login failed",
@@ -97,6 +142,7 @@
     "unknown": "An unknown error occurred",
     "unauthorized": "Unauthorized access",
     "bad_request": "Bad request",
-    "incomplete_response": "The server returned incomplete data"
+    "incomplete_response": "The server returned incomplete data",
+    "db_down": "The database cannot be accessed.Please try again later."
   }
 }

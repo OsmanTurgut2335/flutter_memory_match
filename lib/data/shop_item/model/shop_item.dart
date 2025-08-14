@@ -32,4 +32,8 @@ enum ShopItemType {
 
    @HiveField(2)
   doubleCoins,
+
+  
+   @HiveField(3)
+  skipLevel,
 }

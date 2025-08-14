@@ -13,10 +13,19 @@ class ShopNotifier extends StateNotifier<List<ShopItem>> {
     await _loadAll();
   }
 
-  Future<void> _loadAll() async {
-    final all = await _repo.getAllShopItems();
-    state = all;
-  }
+Future<void> _loadAll() async {
+  final all = await _repo.getAllShopItems();
+
+  final username = _repo.currentUser?.username ?? '';
+  final defaultItems = ShopItemType.values.map((type) {
+    return all.firstWhere(
+      (item) => item.itemType == type,
+      orElse: () => ShopItem(userId: username, itemType: type, quantity: 0),
+    );
+  }).toList();
+
+  state = defaultItems;
+}
 
   Future<void> purchase(ShopItemType type, int cost) async {
     await _repo.purchaseItem(type, cost);
@@ -38,6 +47,11 @@ class ShopNotifier extends StateNotifier<List<ShopItem>> {
     await _loadAll();
   }
 
+  Future<void> useSkipLevel() async {
+    await _repo.useItem(ShopItemType.skipLevel);
+    await _loadAll();
+  }
+
   bool hasHealthPotion() {
     return state.any((item) => item.itemType == ShopItemType.healthPotion && item.quantity > 0);
   }
@@ -48,6 +62,10 @@ class ShopNotifier extends StateNotifier<List<ShopItem>> {
 
   bool hasDoubleCoins() {
     return state.any((item) => item.itemType == ShopItemType.doubleCoins && item.quantity > 0);
+  }
+
+  bool hasSkipLevel() {
+    return state.any((item) => item.itemType == ShopItemType.skipLevel && item.quantity > 0);
   }
 
   int quantityOf(ShopItemType type) {
@@ -73,6 +91,8 @@ class ShopNotifier extends StateNotifier<List<ShopItem>> {
         return 150;
       case ShopItemType.doubleCoins:
         return 200;
+      case ShopItemType.skipLevel:
+        return 100;
     }
   }
 }

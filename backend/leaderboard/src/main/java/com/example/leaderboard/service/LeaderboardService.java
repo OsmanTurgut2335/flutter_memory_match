@@ -56,7 +56,7 @@ public class LeaderboardService {
 
         LeaderboardEntry entry = existingOpt.get();
         entry.setUsername(newUsername);
-        entry.setRefreshToken(newRefreshToken); // 🔥 refresh token burada yazılıyor
+        entry.setRefreshToken(newRefreshToken);  
         return leaderboardRepository.save(entry);
     }
 

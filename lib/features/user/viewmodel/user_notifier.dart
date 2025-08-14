@@ -1,18 +1,14 @@
 import 'dart:async';
 
 import 'package:dio/dio.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
-
 import 'package:mem_game/core/error/app_exceptions.dart';
 import 'package:mem_game/core/providers/dio_provider.dart';
-
-import 'package:mem_game/core/providers/user_provider.dart';
-
 import 'package:mem_game/data/user/model/user_model.dart';
 import 'package:mem_game/data/user/repository/user_repository.dart';
+import 'package:mem_game/features/user/provider/user_provider.dart';
 import 'package:mem_game/view/home_screen.dart';
 
 class UserViewModel extends StateNotifier<AsyncValue<UserModel>> {
@@ -37,21 +33,8 @@ class UserViewModel extends StateNotifier<AsyncValue<UserModel>> {
     }
   }
 
-  Future<void> changeUsername(BuildContext context, String newUsername) async {
-    try {
-      final updatedUser = await _repository.changeUsernameAndTransferGame(newUsername);
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('username.changeSuccess'.tr())));
-      }
-      state = AsyncValue.data(updatedUser);
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text((e is AppException) ? e.localizedMessage : e.toString())));
-      }
-      state = AsyncError(e, StackTrace.current);
-    }
+  Future<UserModel> changeUsername(String newUsername) async {
+    return _repository.changeUsernameAndTransferGame(newUsername);
   }
 
   Future<void> createUser(String username, {bool isDummy = false}) async {
@@ -181,5 +164,9 @@ class UserViewModel extends StateNotifier<AsyncValue<UserModel>> {
 
       state = const AsyncValue.loading();
     }
+  }
+
+  Future<void> updateCoinsToServer() async {
+    await _repository.updateCoinsToServer();
   }
 }

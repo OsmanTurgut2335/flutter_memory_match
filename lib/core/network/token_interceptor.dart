@@ -1,9 +1,10 @@
 import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
-import 'package:mem_game/core/providers/user_provider.dart';
 import 'package:mem_game/data/user/model/user_model.dart';
+import 'package:mem_game/features/user/provider/user_provider.dart';
 
 class TokenInterceptor extends Interceptor {
   TokenInterceptor({
@@ -28,7 +29,7 @@ class TokenInterceptor extends Interceptor {
     final requiresAuth = !(options.extra.containsKey('auth') && options.extra['auth'] == false);
     if (!requiresAuth) return handler.next(options);
 
-    UserModel? user = ref.read(userRepositoryProvider).getUser();
+    var user = ref.read(userRepositoryProvider).getUser();
 
     if (user != null && user.accessToken?.isNotEmpty == true) {
       final isExpired = _isJwtExpired(user.accessToken!);

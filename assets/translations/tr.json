@@ -1,118 +1,141 @@
 {
   "memoryHome": "Memory Game",
   "noUser": "Kullanıcı bulunamadı.Lütfen kullanızı adınızı belirleyin",
-  "home.new_game": "Yeni Oyun",
-  "home.continue_game": "Devam Et",
-  "home.scoreboard": "Skor Tablosu",
-  "home.shop": "Mağaza",
 
-    "leaderboard.title": "Skor Tablosu",
-  "leaderboard.loading": "Lütfen bekleyin...",
-  "leaderboard.error": "Veritabanına erişilemedi.\nLütfen aşağıdaki butonla tekrar deneyin ya da daha sonra tekrar gelin.",
-  "leaderboard.retry_tooltip": "Yeniden Dene",
-  "leaderboard.no_scores": "Hiç skor yok.",
-  "leaderboard.username": "Kullanıcı Adı",
-  "leaderboard.score": "Skor",
+  "home": {
+    "new_game": "Yeni Oyun",
+    "continue_game": "Devam Et",
+    "scoreboard": "Skor Tablosu",
+    "shop": "Mağaza"
+  },
 
+  "leaderboard": {
+    "title": "Skor Tablosu",
+    "loading": "Lütfen bekleyin...",
+    "error": "Veritabanına erişilemedi.\nLütfen aşağıdaki butonla tekrar deneyin ya da daha sonra tekrar gelin.",
+    "retry_tooltip": "Yeniden Dene",
+    "no_scores": "Hiç skor yok.",
+    "username": "Kullanıcı Adı",
+    "score": "Skor"
+  },
 
-  "shop.title": "Mağaza",
-  "shop.coins": "Altın: {value}",
-  "shop.health_potion": "Can İksiri",
-  "shop.extra_flip": "Ekstra Kart Açma",
-  "shop.double_coins": "Çift Altın",
-  "shop.quantity": "Sahip olduğun: {count}",
-  "shop.error": "Hata: {error}", 
+  "shop": {
+    "title": "Mağaza",
+    "coins": "Altın: {value}",
+    "health_potion": "Can İksiri",
+    "extra_flip": "Ekstra Kart Açma",
+    "double_coins": "Çift Altın",
+    "quantity": "Sahip olduğun: {count}",
+    "error": "Hata: {error}",
+    "skip_level": "Seviyeyi Atla"
+  },
 
+  "game": {
+    "level_complete": "Seviye Tamamlandı!",
+    "game_over": "Oyun Bitti",
+    "paused": "Oyun Duraklatıldı",
+    "resume": "Devam Et",
+    "level": "Seviye: {number}",
+    "flip_cards": "Kartları Çevir",
+    "skip_level": "Seviyeyi Atla"
+  },
 
-  "game.level_complete": "Seviye Tamamlandı!",
-  "game.game_over": "Oyun Bitti",
-  "game.paused": "Oyun Duraklatıldı",
-  "game.resume": "Devam Et",
-  "game.level": "Seviye: {number}",
-  "game.flip_cards": "Kartları Çevir",
+  "username": {
+    "title": "Kullanıcı Oluştur",
+    "label": "Kullanıcı Adı",
+    "validation": "Lütfen bir kullanıcı adı girin",
+    "save": "Kaydet",
+    "exists": "Bu kullanıcı adı zaten alınmış.",
+    "unexpected": "Beklenmeyen bir hata oluştu.",
+    "timeout": "Sunucu yanıt vermedi, lütfen tekrar deneyin.",
+    "offlineTitle": "Bağlantı Kurulamadı",
+    "offlineDesc": "Sunucuya bağlanılamadı. Offline olarak devam etmek ister misin?",
+    "cancel": "Vazgeç.",
+    "continue": "Devam Et",
+    "changeSuccess": "Kullanıcı adı başarıyla değiştirildi."
+  },
 
+  "login": {
+    "noAccount": "Hesabınız yok mu?",
+    "signUp": " Üye Olun"
+  },
 
-  "username.title": "Kullanıcı Oluştur",
-  "username.label": "Kullanıcı Adı",
-  "username.validation": "Lütfen bir kullanıcı adı girin",
-  "username.save": "Kaydet",
-  "username.exists": "Bu kullanıcı adı zaten alınmış.",
-  "username.unexpected": "Beklenmeyen bir hata oluştu.",
-  "username.timeout": "Sunucu yanıt vermedi, lütfen tekrar deneyin.",
-  "username.offlineTitle": "Bağlantı Kurulamadı",
-  "username.offlineDesc": "Sunucuya bağlanılamadı. Offline olarak devam etmek ister misin?",
-  "username.cancel": "Vazgeç.",
-  "username.continue": "Devam Et",
-  "username.changeSuccess":"Kullanıcı adı başarıyla değiştirildi.",
+  "sign": {
+    "account": " Zaten hesabınız var mı ?",
+    "login": " Giriş Yapın"
+  },
 
-"login.noAccount" :"Hesabınız yok mu?",
-"login.signUp" :  " Üye Olun",
+  "boost": {
+    "title": "Güçlendiricilerini Seç",
+    "health": {
+      "title": "Can İksiri",
+      "desc": "+1 başlangıç canı"
+    },
+    "double": {
+      "title": "Çift Coin",
+      "desc": "2 kat coin ödülü"
+    },
+    "flip": {
+      "title": "Ekstra Çevirme",
+      "desc": "Başlangıçta bir kart fazladan çevir"
+    },
+    "cancel": "İptal",
+    "start": "Başla",
+    "quantity": "Sahip Olunan: {value} ",
+    "skip_level": "Seviyeyi Atla",
+    "skip": {
+      "desc": "Geçerli seviyeyi atla ve bir sonraki seviyeye geç"
+    }
+  },
 
-"sign.account":" Zaten hesabınız var mı ?",
-"sign.login" :" Giriş Yapın",
+  "options": {
+    "delete": "Kullanıcıyı Sil",
+    "delete_title": "Kullanıcıyı Sil",
+    "delete_message": "Kullanıcınızı ve tüm ilerlemenizi silmek istediğinizden emin misiniz?",
+    "delete_button": "Sil",
+    "cancel_button": "İptal",
+    "update": "Kullanıcı Adını Güncelle",
+    "update_title": "Kullanıcı Adını Güncelle",
+    "update_hint": "Yeni Kullanıcı Adı",
+    "update_save": "Kaydet",
+    "reset": "Uygulamayı Sıfırla",
+    "reset_title": "Uygulamayı Sıfırla",
+    "reset_message": "Tüm yerel ve bulut verileri temizlenecek. Devam edilsin mi?",
+    "reset_button": "Sıfırla"
+  },
 
+  "stats": {
+    "moves": "Hamle",
+    "score": "Skor",
+    "time": "Süre",
+    "health": "Can"
+  },
 
+  "result": {
+    "level": "Seviye",
+    "extraLifeTitle": "Ekstra Can Verildi!",
+    "extraLifeDesc": "Yeniden canlandın. Bol şans!",
+    "continue": "Devam Et",
+    "watchAd": "Ekstra Can İçin Reklam İzle",
+    "tryAgain": "Tekrar Dene",
+    "nextLevel": "Sonraki Seviye",
+    "finishGame": "Oyunu Bitir",
+    "home": "Ana Sayfa"
+  },
 
-  "boost.title": "Güçlendiricilerini Seç",
-  "boost.health.title": "Can İksiri",
-  "boost.health.desc": "+1 başlangıç canı",
-  "boost.double.title": "Çift Coin",
-  "boost.double.desc": "2 kat coin ödülü",
-  "boost.flip.title": "Ekstra Çevirme",
-  "boost.flip.desc": "Başlangıçta bir kart fazladan çevir",
-  "boost.cancel": "İptal",
-  "boost.start": "Başla",
-  "boost.quantity": "Sahip Olunan: {value} ",
-
-
-  "options.delete": "Kullanıcıyı Sil",
-  "options.delete_title": "Kullanıcıyı Sil",
-  "options.delete_message": "Kullanıcınızı ve tüm ilerlemenizi silmek istediğinizden emin misiniz?",
-  "options.delete_button": "Sil",
-  "options.cancel_button": "İptal",
-  "options.update": "Kullanıcı Adını Güncelle",
-  "options.update_title": "Kullanıcı Adını Güncelle",
-  "options.update_hint": "Yeni Kullanıcı Adı",
-  "options.update_save": "Kaydet",
-  "options.reset": "Uygulamayı Sıfırla",
-  "options.reset_title": "Uygulamayı Sıfırla",
-  "options.reset_message": "Tüm yerel ve bulut verileri temizlenecek. Devam edilsin mi?",
-  "options.reset_button": "Sıfırla",
-
-
-  "stats.moves": "Hamle",
-  "stats.score": "Skor",
-  "stats.time": "Süre",
-  "stats.health": "Can",
-
-
-    "result.level": "Seviye",
-
-  "result.extraLifeTitle": "Ekstra Can Verildi!",
-  "result.extraLifeDesc": "Yeniden canlandın. Bol şans!",
-  "result.continue": "Devam Et",
-  "result.watchAd": "Ekstra Can İçin Reklam İzle",
-  "result.tryAgain": "Tekrar Dene",
-  "result.nextLevel": "Sonraki Seviye",
-  "result.finishGame": "Oyunu Bitir",
-  "result.home": "Ana Sayfa",
-
-
-
-"errors": {
-  "timeout": "Sunucuya bağlanılamadı. Lütfen tekrar deneyin.",
-  "failed": "Giriş başarısız",
-  "unexpected": "Beklenmeyen bir hata oluştu",
-  "forbidden": "Bu işlemi yapamazsınız",
-  "not_found": "Kullanıcı bulunamadı",
-  "conflict": "Zaten kayıtlı bir kullanıcı",
-  "server": "Sunucu hatası",
-  "network": "Bağlantı hatası",
-  "unknown": "Bilinmeyen bir hata oluştu",
-  "unauthorized": "Yetkisiz erişim",
-  "bad_request": "Geçersiz istek",
-    "incomplete_response" : "Sunucu eksik veri döndürdü"
-}
-
-
+  "errors": {
+    "timeout": "Sunucuya bağlanılamadı. Lütfen tekrar deneyin.",
+    "failed": "Giriş başarısız",
+    "unexpected": "Beklenmeyen bir hata oluştu",
+    "forbidden": "Bu işlemi yapamazsınız",
+    "not_found": "Kullanıcı bulunamadı",
+    "conflict": "Zaten kayıtlı bir kullanıcı",
+    "server": "Sunucu hatası",
+    "network": "Bağlantı hatası",
+    "unknown": "Bilinmeyen bir hata oluştu",
+    "unauthorized": "Yetkisiz erişim",
+    "bad_request": "Geçersiz istek",
+    "incomplete_response": "Sunucu eksik veri döndürdü",
+    "db_down": "Veritabanına erişilemiyor. Lütfen daha sonra tekrar deneyin."
+  }
 }

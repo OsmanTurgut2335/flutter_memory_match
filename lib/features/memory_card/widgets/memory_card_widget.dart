@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mem_game/core/constants/colors/app_colors.dart';
-import 'package:mem_game/core/providers/game_provider.dart';
+import 'package:mem_game/features/game/provider/game_provider.dart';
 import 'package:mem_game/data/memorycard/model/memory_card.dart';
 
 import 'package:shimmer/shimmer.dart';

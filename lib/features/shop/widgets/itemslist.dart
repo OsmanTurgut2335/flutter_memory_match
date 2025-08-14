@@ -9,6 +9,7 @@ Future<Map<String, bool>?> showBoostSelectionDialog(BuildContext context, List<S
   bool useHealthPotion = false;
   bool useDoubleCoins = false;
   bool useExtraFlip = false;
+  bool useSkipLevel = false; 
 
   final healthQty =
       items
@@ -34,6 +35,14 @@ Future<Map<String, bool>?> showBoostSelectionDialog(BuildContext context, List<S
           )
           .quantity;
 
+  final skipQty =
+      items
+          .firstWhere(
+            (i) => i.itemType == ShopItemType.skipLevel,
+            orElse: () => ShopItem(userId: '', itemType: ShopItemType.skipLevel, quantity: 0),
+          )
+          .quantity;
+
   return showDialog<Map<String, bool>>(
     context: context,
     barrierDismissible: false,
@@ -50,7 +59,6 @@ Future<Map<String, bool>?> showBoostSelectionDialog(BuildContext context, List<S
                 ),
               ),
               child: AlertDialog(
-                //  backgroundColor: const Color(0xFF3CA6A6),
                 backgroundColor: Colors.transparent,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 12),
@@ -69,7 +77,6 @@ Future<Map<String, bool>?> showBoostSelectionDialog(BuildContext context, List<S
                         onTap: () => setState(() => useHealthPotion = !useHealthPotion),
                         enabled: healthQty > 0,
                       ),
-
                       BoostOptionTile(
                         title: 'boost.double.title'.tr(),
                         description: 'boost.double.desc'.tr(),
@@ -78,7 +85,6 @@ Future<Map<String, bool>?> showBoostSelectionDialog(BuildContext context, List<S
                         onTap: () => setState(() => useDoubleCoins = !useDoubleCoins),
                         enabled: doubleQty > 0,
                       ),
-
                       BoostOptionTile(
                         title: 'boost.flip.title'.tr(),
                         description: 'boost.flip.desc'.tr(),
@@ -86,6 +92,14 @@ Future<Map<String, bool>?> showBoostSelectionDialog(BuildContext context, List<S
                         selected: useExtraFlip,
                         onTap: () => setState(() => useExtraFlip = !useExtraFlip),
                         enabled: flipQty > 0,
+                      ),
+                      BoostOptionTile(
+                        title: 'boost.skip.level'.tr(), 
+                        description: 'boost.skip.desc'.tr(), 
+                        quantity: skipQty,
+                        selected: useSkipLevel,
+                        onTap: () => setState(() => useSkipLevel = !useSkipLevel),
+                        enabled: skipQty > 0,
                       ),
                     ],
                   ),
@@ -101,9 +115,9 @@ Future<Map<String, bool>?> showBoostSelectionDialog(BuildContext context, List<S
                         'healthPotion': useHealthPotion,
                         'doubleCoins': useDoubleCoins,
                         'extraFlip': useExtraFlip,
+                        'skipLevel': useSkipLevel, // NEW
                       });
                     },
-
                     child: Text('boost.start'.tr()),
                   ),
                 ],

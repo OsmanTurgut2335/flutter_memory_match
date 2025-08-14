@@ -59,6 +59,8 @@ class ShopItemTypeAdapter extends TypeAdapter<ShopItemType> {
         return ShopItemType.extraFlip;
       case 2:
         return ShopItemType.doubleCoins;
+      case 3:
+        return ShopItemType.skipLevel;
       default:
         return ShopItemType.healthPotion;
     }
@@ -75,6 +77,9 @@ class ShopItemTypeAdapter extends TypeAdapter<ShopItemType> {
         break;
       case ShopItemType.doubleCoins:
         writer.writeByte(2);
+        break;
+      case ShopItemType.skipLevel:
+        writer.writeByte(3);
         break;
     }
   }

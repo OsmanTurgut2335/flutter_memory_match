@@ -19,7 +19,7 @@ class GameNotifier extends StateNotifier<GameState?> {
   final UserRepository _userRepository;
 
   final ShopRepository _shopItemRepository;
-
+  UserModel? get user => _user;
   final GameRepository _repository;
   Timer? _timer;
   int? _firstSelectedIndex;
@@ -67,6 +67,7 @@ class GameNotifier extends StateNotifier<GameState?> {
     int bonusHealth = 0,
     bool doubleCoins = false,
     int extraFlipCount = 0,
+    bool skipLevel = false,
   }) async {
     if (_user == null) return;
 
@@ -81,7 +82,11 @@ class GameNotifier extends StateNotifier<GameState?> {
       }
     }
 
-    final level = state?.level ?? 1;
+    var level = state?.level ?? 1;
+    if (skipLevel) {
+      level = level + 1;
+    }
+
     state = GameState(
       cards: generateCardsForLevel(level, preview: true),
       level: level,
@@ -162,6 +167,13 @@ class GameNotifier extends StateNotifier<GameState?> {
     state = state!.copyWith(flipCount: state!.flipCount - 1, showingPreview: true);
     await _repository.saveGameState(state!, _user!.username);
     flipCards();
+  }
+
+  Future<void> useSkipLevelBoost() async {
+    if (_user == null || _user!.skipLevelUsed) return;
+    _user = _user!.copyWith(skipLevelUsed: true);
+    await _userRepository.saveUser(_user!);
+    await handleWin();
   }
 
   Future<void> restartGame() async {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class ScoreBubble extends StatefulWidget {
-  const ScoreBubble({Key? key, required this.label, required this.value}) : super(key: key);
+  const ScoreBubble({required this.label, required this.value, super.key});
 
   final String label;
   final String value;

@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mem_game/core/constants/textstyles/app_text_styles.dart';
 import 'package:mem_game/core/error/app_exceptions.dart';
-import 'package:mem_game/core/providers/scoreboard_provider.dart';
-import 'package:mem_game/core/providers/user_provider.dart';
 import 'package:mem_game/core/widgets/common_screen_wrapper.dart';
 import 'package:mem_game/core/widgets/lottie_background.dart';
 import 'package:mem_game/data/score/model.dart';
+import 'package:mem_game/features/scoreboard/provider/scoreboard_provider.dart';
+import 'package:mem_game/features/user/provider/user_provider.dart';
 
 class LeaderboardScreen extends ConsumerWidget {
   const LeaderboardScreen({super.key});
